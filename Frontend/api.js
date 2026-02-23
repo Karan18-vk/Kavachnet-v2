@@ -3,7 +3,7 @@
 //  Change API_BASE if your backend runs on a different host
 // ═══════════════════════════════════════════════════════
 
-const API_BASE = 'http://localhost:5000';
+const API_BASE = 'https://kavachnet-backend.onrender.com';
 
 // ── Token / session helpers ─────────────────────────────
 function saveToken(token)   { localStorage.setItem('kn_token', token); }
