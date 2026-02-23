@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: kavachnet-backend
+    env: python
+    rootDir: Backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ACCESS_TOKEN_EXPIRES
+        value: "3600"
+      - key: SUPERADMIN_USERNAME
+        value: kavachnet_root
+      - key: SUPERADMIN_PASSWORD
+        value: KN@SuperAdmin2026!
+      - key: EMAIL_ADDRESS
+        sync: false
+      - key: EMAIL_PASSWORD
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: DB_NAME
+        value: kavachnet.db
