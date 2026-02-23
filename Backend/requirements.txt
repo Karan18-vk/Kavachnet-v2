@@ -1,0 +1,28 @@
+
+# requirements.txt
+
+# Core Flask
+Flask==3.0.0
+flask-cors==4.0.0
+flask-jwt-extended==4.6.0
+
+# Security & Authentication
+bcrypt==4.1.2
+cryptography==42.0.0
+
+# Database
+# SQLite is built into Python, no package needed
+
+# Machine Learning
+scikit-learn==1.4.0
+numpy==1.26.3
+
+# HTTP Requests
+requests==2.31.0
+
+# PDF Generation
+reportlab==4.0.9
+
+# Environment Variables
+python-dotenv==1.0.0
+gunicorn==21.2.0

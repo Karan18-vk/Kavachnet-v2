@@ -1,0 +1,2923 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kavach Net Dashboard</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <!-- ============================================================
+     NAVBAR
+============================================================ -->
+    <nav
+      class="glass-navbar px-4 d-flex align-items-center justify-content-between"
+    >
+      <div class="d-flex align-items-center gap-3">
+        <!-- Sidebar Toggle Button -->
+        <button
+          class="sidebar-toggle-btn"
+          id="sidebarToggle"
+          title="Toggle Sidebar"
+        >
+          <i class="bi bi-layout-sidebar"></i>
+        </button>
+        <img
+          src="Kavach Net logo.png"
+          height="44"
+          width="44"
+          style="border-radius: 8px"
+        />
+        <span class="navbar-brand-text">Kavach Net</span>
+      </div>
+
+      <div class="d-flex align-items-center gap-2">
+        <button
+          class="navbar-icon-btn"
+          id="bellBtn"
+          title="Notifications"
+          onclick="toggleNotifDrawer()"
+        >
+          <i class="bi bi-bell"></i>
+          <span class="notif-dot" id="notifDot"></span>
+          <span class="notif-count" id="notifCount">5</span>
+        </button>
+        <button class="navbar-icon-btn" title="Search">
+          <i class="bi bi-search"></i>
+        </button>
+        <div class="nav-divider"></div>
+        <button class="logout-btn" onclick="logoutUser()">
+          <i class="bi bi-box-arrow-right me-1"></i> Logout
+        </button>
+      </div>
+    </nav>
+
+    <!-- ============================================================
+       NOTIFICATION DRAWER
+  ============================================================ -->
+    <div
+      class="notif-backdrop"
+      id="notifBackdrop"
+      onclick="closeNotifDrawer()"
+    ></div>
+
+    <aside class="notif-drawer" id="notifDrawer">
+      <!-- Header -->
+      <div class="notif-drawer-header">
+        <div>
+          <h6 class="notif-drawer-title">Notifications</h6>
+          <span class="notif-unread-label" id="unreadLabel">5 unread</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <button
+            class="notif-action-btn"
+            onclick="markAllRead()"
+            title="Mark all read"
+          >
+            <i class="bi bi-check2-all"></i>
+          </button>
+          <button
+            class="notif-action-btn"
+            onclick="closeNotifDrawer()"
+            title="Close"
+          >
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="notif-tabs">
+        <button class="notif-tab active" onclick="filterNotifs('all', this)">
+          All
+        </button>
+        <button class="notif-tab" onclick="filterNotifs('critical', this)">
+          Critical
+        </button>
+        <button class="notif-tab" onclick="filterNotifs('warning', this)">
+          Warnings
+        </button>
+        <button class="notif-tab" onclick="filterNotifs('info', this)">
+          Info
+        </button>
+      </div>
+
+      <!-- Feed -->
+      <div class="notif-feed" id="notifFeed">
+        <div class="notif-item unread" data-severity="critical" data-id="1">
+          <span class="notif-sev-dot critical"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">Brute Force Attack Detected</p>
+            <p class="notif-item-sub">
+              Source: 192.168.4.21 &nbsp;·&nbsp; Gateway-01
+            </p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>2 min ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="notif-item unread" data-severity="critical" data-id="2">
+          <span class="notif-sev-dot critical"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">SQL Injection Attempt</p>
+            <p class="notif-item-sub">
+              Source: 10.0.0.55 &nbsp;·&nbsp; API-Gateway
+            </p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>8 min ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="notif-item unread" data-severity="warning" data-id="3">
+          <span class="notif-sev-dot warning"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">Phishing URL Blocked</p>
+            <p class="notif-item-sub">http://secure-bank-login.xyz</p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>14 min ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="notif-item unread" data-severity="warning" data-id="4">
+          <span class="notif-sev-dot warning"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">
+              Multiple Failed Logins &mdash; STAFF005
+            </p>
+            <p class="notif-item-sub">5 failed attempts in 3 minutes</p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>21 min ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="notif-item unread" data-severity="info" data-id="5">
+          <span class="notif-sev-dot info"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">System Backup Completed</p>
+            <p class="notif-item-sub">All servers backed up successfully</p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>1 hr ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="notif-item" data-severity="info" data-id="6">
+          <span class="notif-sev-dot info"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">Firewall Rule #3 Updated</p>
+            <p class="notif-item-sub">Modified by STAFF003</p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>2 hr ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+
+        <div class="notif-item" data-severity="critical" data-id="7">
+          <span class="notif-sev-dot critical"></span>
+          <div class="notif-item-body">
+            <p class="notif-item-title">Ransomware Behaviour on FileServer03</p>
+            <p class="notif-item-sub">Incident #INC-441 raised</p>
+            <p class="notif-item-time">
+              <i class="bi bi-clock me-1"></i>3 hr ago
+            </p>
+          </div>
+          <button
+            class="notif-dismiss"
+            onclick="dismissNotif(this)"
+            title="Dismiss"
+          >
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      </div>
+      <!-- /notif-feed -->
+
+      <!-- Footer -->
+      <div class="notif-drawer-footer">
+        <button class="notif-clear-btn" onclick="clearAll()">
+          <i class="bi bi-trash3 me-1"></i>Clear All
+        </button>
+      </div>
+    </aside>
+
+    <!-- ============================================================
+     PAGE WRAPPER
+============================================================ -->
+    <div class="page-wrapper" id="pageWrapper">
+      <!-- ========================================================
+       SIDEBAR
+  ======================================================== -->
+      <aside class="sidebar" id="sidebar">
+        <!-- Profile Section -->
+        <div class="sidebar-profile">
+          <div class="sidebar-avatar">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <div class="sidebar-profile-info">
+            <span class="sidebar-username">Admin User</span>
+            <span class="sidebar-role">
+              <span class="role-dot"></span> SOC Analyst
+            </span>
+          </div>
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <!-- Navigation -->
+        <nav class="sidebar-nav">
+          <!-- Main Section -->
+          <span class="sidebar-section-label">MAIN</span>
+
+          <a href="#" class="sidebar-link active" data-page="dashboard">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-speedometer2"></i
+            ></span>
+            <span class="sidebar-link-text">Dashboard</span>
+            <span class="sidebar-link-badge badge-blue">Live</span>
+          </a>
+
+          <a href="#" class="sidebar-link" data-page="analytics">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-bar-chart-line"></i
+            ></span>
+            <span class="sidebar-link-text">Analytics</span>
+          </a>
+
+          <div class="sidebar-divider mt-2"></div>
+
+          <!-- Security Section -->
+          <span class="sidebar-section-label">SECURITY</span>
+
+          <a href="#" class="sidebar-link" data-page="threats">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-shield-fill-exclamation"></i
+            ></span>
+            <span class="sidebar-link-text">Threat Detection</span>
+            <span class="sidebar-link-badge badge-red">124</span>
+          </a>
+
+          <a href="#" class="sidebar-link" data-page="phishing">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-bug-fill"></i
+            ></span>
+            <span class="sidebar-link-text">Phishing Scanner</span>
+          </a>
+
+          <a href="#" class="sidebar-link" data-page="incidents">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-exclamation-triangle-fill"></i
+            ></span>
+            <span class="sidebar-link-text">Incident Response</span>
+            <span class="sidebar-link-badge badge-yellow">8</span>
+          </a>
+
+          <a href="#" class="sidebar-link" data-page="firewall">
+            <span class="sidebar-link-icon"><i class="bi bi-fire"></i></span>
+            <span class="sidebar-link-text">Firewall Rules</span>
+          </a>
+
+          <a href="#" class="sidebar-link" data-page="ai">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-cpu-fill" style="color: #60a5fa"></i
+            ></span>
+            <span class="sidebar-link-text">AI Intelligence</span>
+            <span class="sidebar-link-badge badge-blue">New</span>
+          </a>
+
+          <div class="sidebar-divider mt-2"></div>
+
+          <!-- Network Section -->
+          <span class="sidebar-section-label">NETWORK</span>
+
+          <a href="#" class="sidebar-link" data-page="monitor">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-activity"></i
+            ></span>
+            <span class="sidebar-link-text">Network Monitor</span>
+          </a>
+
+          <a href="#" class="sidebar-link" data-page="logs">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-file-earmark-text"></i
+            ></span>
+            <span class="sidebar-link-text">Audit Logs</span>
+          </a>
+
+          <!-- Admin only: Staff Management -->
+          <a href="#" class="sidebar-link admin-only" data-page="staff" id="staffMgmtLink" style="display:none;">
+            <span class="sidebar-link-icon"><i class="bi bi-people-fill"></i></span>
+            <span class="sidebar-link-text">Staff Management</span>
+            <span class="sidebar-link-badge badge-yellow" id="pendingStaffBadge" style="display:none;">!</span>
+          </a>
+        </nav>
+
+        <!-- Sidebar Bottom -->
+        <div class="sidebar-bottom">
+          <div class="sidebar-divider mb-2"></div>
+          <a href="#" class="sidebar-link" data-page="settings">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-gear-fill"></i
+            ></span>
+            <span class="sidebar-link-text">Settings</span>
+          </a>
+          <a href="#" class="sidebar-link" data-page="help">
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-question-circle"></i
+            ></span>
+            <span class="sidebar-link-text">Help & Support</span>
+          </a>
+
+          <!-- System Health Mini -->
+          <div class="sidebar-health-card">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <span style="font-size: 0.72rem; color: #94a3b8"
+                >System Health</span
+              >
+              <span style="font-size: 0.72rem; color: #22c55e; font-weight: 600"
+                >SAFE</span
+              >
+            </div>
+            <div class="health-bar">
+              <div class="health-fill" style="width: 78%"></div>
+            </div>
+            <span
+              style="
+                font-size: 0.68rem;
+                color: #64748b;
+                margin-top: 4px;
+                display: block;
+              "
+              >78% protected</span
+            >
+          </div>
+        </div>
+      </aside>
+
+      <!-- ========================================================
+       MAIN CONTENT
+  ======================================================== -->
+      <main class="main-content p-4">
+        <!-- Page Header + Period Selector -->
+        <div
+          class="d-flex align-items-center justify-content-between flex-wrap gap-3"
+          id="mainHeader"
+        >
+          <h3 class="page-title mb-0" id="pageTitle">
+            Security Operations Center
+          </h3>
+
+          <!-- Time Period Pills (dashboard only) -->
+          <div class="period-tabs" id="periodTabs">
+            <button class="period-tab active" data-period="daily">Daily</button>
+            <button class="period-tab" data-period="yesterday">
+              Yesterday
+            </button>
+            <button class="period-tab" data-period="weekly">Weekly</button>
+            <button class="period-tab" data-period="monthly">Monthly</button>
+          </div>
+        </div>
+
+        <!-- DASHBOARD PANEL -->
+        <div id="page-dashboard" class="page-panel">
+          <div class="row g-3 mt-3">
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="stat-icon danger"
+                    ><i class="bi bi-shield-x"></i
+                  ></span>
+                  <h6
+                    class="mb-0 stat-label"
+                    style="color: #94a3b8; font-size: 0.8rem"
+                  >
+                    Total Threats
+                  </h6>
+                </div>
+                <div class="d-flex align-items-end gap-2">
+                  <h3 class="text-danger mb-0" id="statThreats">124</h3>
+                  <span class="stat-delta" id="deltaThreats"></span>
+                </div>
+                <span class="stat-period-label" id="periodLabelThreats"
+                  >Today</span
+                >
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="stat-icon warning"
+                    ><i class="bi bi-exclamation-circle"></i
+                  ></span>
+                  <h6 class="mb-0" style="color: #94a3b8; font-size: 0.8rem">
+                    Active Incidents
+                  </h6>
+                </div>
+                <div class="d-flex align-items-end gap-2">
+                  <h3 class="text-warning mb-0" id="statIncidents">8</h3>
+                  <span class="stat-delta" id="deltaIncidents"></span>
+                </div>
+                <span class="stat-period-label" id="periodLabelIncidents"
+                  >Today</span
+                >
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="stat-icon success"
+                    ><i class="bi bi-heart-pulse"></i
+                  ></span>
+                  <h6 class="mb-0" style="color: #94a3b8; font-size: 0.8rem">
+                    System Health
+                  </h6>
+                </div>
+                <div class="d-flex align-items-end gap-2">
+                  <h3 class="mb-0" id="statHealth" style="color: #22c55e">
+                    SAFE
+                  </h3>
+                  <span class="stat-delta" id="deltaHealth"></span>
+                </div>
+                <span class="stat-period-label" id="periodLabelHealth"
+                  >Today</span
+                >
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <div class="d-flex align-items-center gap-2 mb-1">
+                  <span class="stat-icon danger"
+                    ><i class="bi bi-graph-up-arrow"></i
+                  ></span>
+                  <h6 class="mb-0" style="color: #94a3b8; font-size: 0.8rem">
+                    Risk Score
+                  </h6>
+                </div>
+                <div class="d-flex align-items-end gap-2">
+                  <h3 class="text-danger mb-0" id="statRisk">HIGH</h3>
+                  <span class="stat-delta" id="deltaRisk"></span>
+                </div>
+                <span class="stat-period-label" id="periodLabelRisk"
+                  >Today</span
+                >
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4 g-3">
+            <!-- LIVE THREAT ALERTS -->
+
+            <div class="col-md-6">
+              <div class="card glass-card p-0 overflow-hidden">
+                <div class="threat-card-header">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="pulse-ring"></span>
+
+                    <span
+                      style="
+                        font-size: 0.82rem;
+                        font-weight: 700;
+                        color: #f1f5f9;
+                      "
+                      >Live Threat Alerts</span
+                    >
+                  </div>
+
+                  <span class="tca-count">3 Active</span>
+                </div>
+
+                <div class="threat-feed">
+                  <div class="threat-row">
+                    <div class="threat-sev-bar sev-critical"></div>
+
+                    <div class="threat-icon-wrap critical">
+                      <i class="bi bi-person-x-fill"></i>
+                    </div>
+
+                    <div class="threat-info">
+                      <p class="threat-title">Suspicious Login Attempt</p>
+
+                      <p class="threat-meta">
+                        192.168.4.21 &nbsp;&middot;&nbsp; Gateway-01
+                      </p>
+                    </div>
+
+                    <div class="threat-right">
+                      <span class="thr-badge critical">HIGH</span>
+
+                      <span class="threat-time">2m ago</span>
+                    </div>
+                  </div>
+
+                  <div class="threat-row">
+                    <div class="threat-sev-bar sev-warning"></div>
+
+                    <div class="threat-icon-wrap warning">
+                      <i class="bi bi-envelope-x-fill"></i>
+                    </div>
+
+                    <div class="threat-info">
+                      <p class="threat-title">Phishing URL Detected</p>
+
+                      <p class="threat-meta">
+                        secure-bank-login.xyz &nbsp;&middot;&nbsp; Mail filter
+                      </p>
+                    </div>
+
+                    <div class="threat-right">
+                      <span class="thr-badge warning">MED</span>
+
+                      <span class="threat-time">14m ago</span>
+                    </div>
+                  </div>
+
+                  <div class="threat-row">
+                    <div class="threat-sev-bar sev-warning"></div>
+
+                    <div class="threat-icon-wrap warning">
+                      <i class="bi bi-shield-exclamation"></i>
+                    </div>
+
+                    <div class="threat-info">
+                      <p class="threat-title">Multiple Failed Logins</p>
+
+                      <p class="threat-meta">
+                        STAFF005 &nbsp;&middot;&nbsp; 5 attempts / 3 min
+                      </p>
+                    </div>
+
+                    <div class="threat-right">
+                      <span class="thr-badge warning">MED</span>
+
+                      <span class="threat-time">21m ago</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="threat-card-footer">
+                  <a href="#" class="tca-link" onclick="event.preventDefault()"
+                    >View all threats <i class="bi bi-arrow-right ms-1"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+
+            <!-- SYSTEM STATUS -->
+
+            <div class="col-md-6">
+              <div class="card glass-card p-0 overflow-hidden">
+                <div class="threat-card-header">
+                  <div class="d-flex align-items-center gap-2">
+                    <i
+                      class="bi bi-activity"
+                      style="color: #22c55e; font-size: 0.9rem"
+                    ></i>
+
+                    <span
+                      style="
+                        font-size: 0.82rem;
+                        font-weight: 700;
+                        color: #f1f5f9;
+                      "
+                      >System Status</span
+                    >
+                  </div>
+
+                  <span
+                    class="tca-count"
+                    style="background: rgba(34, 197, 94, 0.15); color: #4ade80"
+                    >Operational</span
+                  >
+                </div>
+
+                <div class="status-feed">
+                  <div class="sys-row">
+                    <div
+                      class="sys-icon-wrap"
+                      style="
+                        background: rgba(34, 197, 94, 0.12);
+                        color: #4ade80;
+                      "
+                    >
+                      <i class="bi bi-shield-fill-check"></i>
+                    </div>
+
+                    <div class="sys-info">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                      >
+                        <p class="sys-label">Firewall</p>
+
+                        <span class="sys-badge ok">Active</span>
+                      </div>
+
+                      <div class="sys-bar-track">
+                        <div
+                          class="sys-bar-fill"
+                          style="width: 100%; background: #22c55e"
+                        ></div>
+                      </div>
+
+                      <p class="sys-sub">
+                        100% &middot; 0 blocked rules failing
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="sys-row">
+                    <div
+                      class="sys-icon-wrap"
+                      style="
+                        background: rgba(56, 189, 248, 0.12);
+                        color: #38bdf8;
+                      "
+                    >
+                      <i class="bi bi-lock-fill"></i>
+                    </div>
+
+                    <div class="sys-info">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                      >
+                        <p class="sys-label">Encryption (AES-256)</p>
+
+                        <span class="sys-badge ok">Enabled</span>
+                      </div>
+
+                      <div class="sys-bar-track">
+                        <div
+                          class="sys-bar-fill"
+                          style="width: 100%; background: #38bdf8"
+                        ></div>
+                      </div>
+
+                      <p class="sys-sub">
+                        TLS 1.3 &middot; All endpoints secured
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="sys-row">
+                    <div
+                      class="sys-icon-wrap"
+                      style="
+                        background: rgba(251, 191, 36, 0.1);
+                        color: #fbbf24;
+                      "
+                    >
+                      <i class="bi bi-speedometer2"></i>
+                    </div>
+
+                    <div class="sys-info">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                      >
+                        <p class="sys-label">Monitoring</p>
+
+                        <span class="sys-badge warn">High Load</span>
+                      </div>
+
+                      <div class="sys-bar-track">
+                        <div
+                          class="sys-bar-fill"
+                          style="width: 84%; background: #f59e0b"
+                        ></div>
+                      </div>
+
+                      <p class="sys-sub">
+                        84% CPU &middot; 3 anomalies detected
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="sys-row">
+                    <div
+                      class="sys-icon-wrap"
+                      style="
+                        background: rgba(34, 197, 94, 0.12);
+                        color: #4ade80;
+                      "
+                    >
+                      <i class="bi bi-hdd-stack-fill"></i>
+                    </div>
+
+                    <div class="sys-info">
+                      <div
+                        class="d-flex justify-content-between align-items-center mb-1"
+                      >
+                        <p class="sys-label">IDS / IPS Engine</p>
+
+                        <span class="sys-badge ok">Active</span>
+                      </div>
+
+                      <div class="sys-bar-track">
+                        <div
+                          class="sys-bar-fill"
+                          style="width: 100%; background: #22c55e"
+                        ></div>
+                      </div>
+
+                      <p class="sys-sub">Signatures current &middot; v4.21</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="threat-card-footer">
+                  <a href="#" class="tca-link" onclick="event.preventDefault()"
+                    >View network monitor <i class="bi bi-arrow-right ms-1"></i
+                  ></a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card glass-card p-4">
+                <h5>Threat Analytics</h5>
+                <div class="graph-placeholder">
+                  <i
+                    class="bi bi-bar-chart-line me-2"
+                    style="font-size: 1.4rem; opacity: 0.4"
+                  ></i>
+                  Analytics Graph Placeholder
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-dashboard -->
+
+        <!-- ANALYTICS PANEL -->
+        <div id="page-analytics" class="page-panel" style="display: none">
+          <div class="row g-3 mt-3">
+            <div class="col-md-3">
+              <div class="card glass-card p-3 text-center">
+                <div class="stat-icon danger mx-auto mb-2">
+                  <i class="bi bi-shield-x"></i>
+                </div>
+                <h3 class="text-danger">2,451</h3>
+                <small style="color: #64748b">Threats This Month</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3 text-center">
+                <div class="stat-icon warning mx-auto mb-2">
+                  <i class="bi bi-exclamation-triangle"></i>
+                </div>
+                <h3 class="text-warning">142</h3>
+                <small style="color: #64748b">Incidents This Month</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3 text-center">
+                <div class="stat-icon success mx-auto mb-2">
+                  <i class="bi bi-check-circle"></i>
+                </div>
+                <h3 style="color: #22c55e">98.2%</h3>
+                <small style="color: #64748b">Uptime</small>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3 text-center">
+                <div
+                  class="stat-icon"
+                  style="background: rgba(139, 92, 246, 0.15); color: #a78bfa"
+                  mx-auto
+                  mb-2
+                >
+                  <i class="bi bi-clock-history"></i>
+                </div>
+                <h3 style="color: #a78bfa">4.2m</h3>
+                <small style="color: #64748b">Avg Response Time</small>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-md-6">
+              <div class="card glass-card p-3">
+                <h5 class="mb-3">Threat Trends (30 days)</h5>
+                <div class="graph-placeholder">
+                  <i
+                    class="bi bi-graph-up me-2"
+                    style="font-size: 1.4rem; opacity: 0.4"
+                  ></i>
+                  Line Chart Placeholder
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card glass-card p-3">
+                <h5 class="mb-3">Top Attack Vectors</h5>
+                <div class="graph-placeholder">
+                  <i
+                    class="bi bi-pie-chart me-2"
+                    style="font-size: 1.4rem; opacity: 0.4"
+                  ></i>
+                  Pie Chart Placeholder
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-analytics -->
+
+        <!-- THREAT DETECTION PANEL -->
+        <div id="page-threats" class="page-panel" style="display: none">
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Critical</small>
+                <h3 class="text-danger mb-0">18</h3>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">High</small>
+                <h3 class="text-warning mb-0">47</h3>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Medium</small>
+                <h3 style="color: #38bdf8" class="mb-0">59</h3>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card glass-card p-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <h5 class="mb-0">Active Threats</h5>
+                  <span class="badge bg-danger">124 Active</span>
+                </div>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover"
+                    style="font-size: 0.85rem"
+                  >
+                    <thead>
+                      <tr>
+                        <th>Threat ID</th>
+                        <th>Type</th>
+                        <th>Source IP</th>
+                        <th>Severity</th>
+                        <th>Detected</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>#TH-2891</td>
+                        <td>Brute Force</td>
+                        <td>192.168.4.21</td>
+                        <td><span class="badge bg-danger">Critical</span></td>
+                        <td>2 min ago</td>
+                        <td>
+                          <span class="badge badge-warning-soft">Active</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>#TH-2890</td>
+                        <td>SQL Injection</td>
+                        <td>10.0.0.55</td>
+                        <td><span class="badge bg-danger">Critical</span></td>
+                        <td>8 min ago</td>
+                        <td>
+                          <span class="badge badge-warning-soft">Active</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>#TH-2889</td>
+                        <td>Port Scan</td>
+                        <td>172.16.3.8</td>
+                        <td>
+                          <span class="badge bg-warning text-dark">High</span>
+                        </td>
+                        <td>15 min ago</td>
+                        <td>
+                          <span class="badge badge-warning-soft">Active</span>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td>#TH-2888</td>
+                        <td>Malware Upload</td>
+                        <td>10.0.1.12</td>
+                        <td>
+                          <span class="badge bg-warning text-dark">High</span>
+                        </td>
+                        <td>22 min ago</td>
+                        <td><span class="badge bg-success">Contained</span></td>
+                      </tr>
+                      <tr>
+                        <td>#TH-2887</td>
+                        <td>XSS Attempt</td>
+                        <td>192.168.2.90</td>
+                        <td>
+                          <span
+                            class="badge"
+                            style="
+                              background: rgba(56, 189, 248, 0.2);
+                              color: #38bdf8;
+                            "
+                            >Medium</span
+                          >
+                        </td>
+                        <td>34 min ago</td>
+                        <td><span class="badge bg-success">Resolved</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-threats -->
+
+        <!-- PHISHING SCANNER PANEL -->
+        <div id="page-phishing" class="page-panel" style="display: none">
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="card glass-card p-4 mb-4">
+                <h5 class="mb-3">
+                  <i class="bi bi-search me-2"></i>Scan a URL
+                </h5>
+                <div class="d-flex gap-2">
+                  <input
+                    class="form-control bg-transparent text-light border-secondary"
+                    placeholder="Enter URL to scan (e.g. https://example.com)"
+                    id="scanUrl"
+                    style="font-size: 0.9rem"
+                  />
+                  <button class="btn btn-danger px-4" onclick="runPhishScan()">
+                    Scan
+                  </button>
+                </div>
+                <div id="scanResult" class="mt-3" style="display: none"></div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-12">
+              <div class="card glass-card p-3">
+                <h5 class="mb-3">Recent Detections</h5>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover"
+                    style="font-size: 0.85rem"
+                  >
+                    <thead>
+                      <tr>
+                        <th>URL</th>
+                        <th>Category</th>
+                        <th>Risk</th>
+                        <th>Detected</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>http://secure-bank-login.xyz</td>
+                        <td>Credential Phish</td>
+                        <td><span class="badge bg-danger">Critical</span></td>
+                        <td>Today 14:32</td>
+                      </tr>
+                      <tr>
+                        <td>http://paypa1-verify.net</td>
+                        <td>Brand Impersonation</td>
+                        <td><span class="badge bg-danger">Critical</span></td>
+                        <td>Today 11:05</td>
+                      </tr>
+                      <tr>
+                        <td>http://mail-update-now.ru</td>
+                        <td>Email Phishing</td>
+                        <td>
+                          <span class="badge bg-warning text-dark">High</span>
+                        </td>
+                        <td>Yesterday</td>
+                      </tr>
+                      <tr>
+                        <td>http://free-prize-claim.tk</td>
+                        <td>Scam</td>
+                        <td>
+                          <span class="badge bg-warning text-dark">High</span>
+                        </td>
+                        <td>Yesterday</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-phishing -->
+
+        <!-- INCIDENT RESPONSE PANEL -->
+        <div id="page-incidents" class="page-panel" style="display: none">
+          <div class="row g-3 mt-3" id="incidentStatsRow">
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Open</small>
+                <h3 class="text-danger mb-0" id="inc-open">—</h3>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">In Progress</small>
+                <h3 class="text-warning mb-0" id="inc-progress">—</h3>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Resolved</small>
+                <h3 style="color: #22c55e" class="mb-0" id="inc-resolved">—</h3>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Total</small>
+                <h3 style="color: #a78bfa" class="mb-0" id="inc-total">—</h3>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card glass-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h5 class="mb-0">Incident Tickets</h5>
+                  <div class="d-flex gap-2">
+                    <a href="incident-report.html" target="_blank" class="btn btn-sm btn-outline-info">
+                      <i class="bi bi-file-earmark-text me-1"></i>Full Report
+                    </a>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="loadIncidents()">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                  </div>
+                </div>
+                <div id="incidentsTableWrap">
+                  <div class="text-center py-4 text-secondary">
+                    <div class="spinner-border spinner-border-sm me-2"></div>Loading incidents…
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-incidents -->
+
+        <!-- FIREWALL RULES PANEL -->
+        <div id="page-firewall" class="page-panel" style="display: none">
+          <div class="row mt-3">
+            <div class="col-12">
+              <div class="card glass-card p-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <h5 class="mb-0">Firewall Rules</h5>
+                  <button class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-plus-lg me-1"></i>Add Rule
+                  </button>
+                </div>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover"
+                    style="font-size: 0.85rem"
+                  >
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Rule Name</th>
+                        <th>Direction</th>
+                        <th>Protocol</th>
+                        <th>Port</th>
+                        <th>Action</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>1</td>
+                        <td>Block External SSH</td>
+                        <td>Inbound</td>
+                        <td>TCP</td>
+                        <td>22</td>
+                        <td><span class="badge bg-danger">DENY</span></td>
+                        <td><span class="badge bg-success">Enabled</span></td>
+                      </tr>
+                      <tr>
+                        <td>2</td>
+                        <td>Allow HTTPS Outbound</td>
+                        <td>Outbound</td>
+                        <td>TCP</td>
+                        <td>443</td>
+                        <td><span class="badge bg-success">ALLOW</span></td>
+                        <td><span class="badge bg-success">Enabled</span></td>
+                      </tr>
+                      <tr>
+                        <td>3</td>
+                        <td>Block Telnet</td>
+                        <td>Both</td>
+                        <td>TCP</td>
+                        <td>23</td>
+                        <td><span class="badge bg-danger">DENY</span></td>
+                        <td><span class="badge bg-success">Enabled</span></td>
+                      </tr>
+                      <tr>
+                        <td>4</td>
+                        <td>Allow DNS Queries</td>
+                        <td>Outbound</td>
+                        <td>UDP</td>
+                        <td>53</td>
+                        <td><span class="badge bg-success">ALLOW</span></td>
+                        <td><span class="badge bg-success">Enabled</span></td>
+                      </tr>
+                      <tr>
+                        <td>5</td>
+                        <td>Block ICMP Flood</td>
+                        <td>Inbound</td>
+                        <td>ICMP</td>
+                        <td>—</td>
+                        <td><span class="badge bg-danger">DENY</span></td>
+                        <td>
+                          <span class="badge bg-secondary">Disabled</span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-firewall -->
+
+        <!-- NETWORK MONITOR PANEL -->
+        <div id="page-monitor" class="page-panel" style="display: none">
+          <div class="row g-3 mt-3">
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Devices Online</small>
+                <h3 style="color: #22c55e" class="mb-0">247</h3>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Bandwidth Used</small>
+                <h3 style="color: #38bdf8" class="mb-0">6.2 GB</h3>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Anomalies</small>
+                <h3 class="text-warning mb-0">3</h3>
+              </div>
+            </div>
+            <div class="col-md-3">
+              <div class="card glass-card p-3">
+                <small style="color: #94a3b8">Latency (avg)</small>
+                <h3 style="color: #a78bfa" class="mb-0">18ms</h3>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-4">
+            <div class="col-12">
+              <div class="card glass-card p-3">
+                <h5 class="mb-3">Device Overview</h5>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover"
+                    style="font-size: 0.85rem"
+                  >
+                    <thead>
+                      <tr>
+                        <th>Device</th>
+                        <th>IP Address</th>
+                        <th>Type</th>
+                        <th>Bandwidth</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Gateway-01</td>
+                        <td>10.0.0.1</td>
+                        <td>Router</td>
+                        <td>1.2 GB</td>
+                        <td><span class="badge bg-success">Online</span></td>
+                      </tr>
+                      <tr>
+                        <td>Switch-Core</td>
+                        <td>10.0.0.2</td>
+                        <td>Switch</td>
+                        <td>3.4 GB</td>
+                        <td><span class="badge bg-success">Online</span></td>
+                      </tr>
+                      <tr>
+                        <td>WS-STAFF01</td>
+                        <td>10.0.1.5</td>
+                        <td>Workstation</td>
+                        <td>0.8 GB</td>
+                        <td><span class="badge bg-success">Online</span></td>
+                      </tr>
+                      <tr>
+                        <td>AP-Floor2</td>
+                        <td>10.0.2.1</td>
+                        <td>Access Point</td>
+                        <td>0.4 GB</td>
+                        <td>
+                          <span class="badge bg-warning text-dark"
+                            >High Load</span
+                          >
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-monitor -->
+
+        <!-- AUDIT LOGS PANEL -->
+        <div id="page-logs" class="page-panel" style="display: none">
+          <div class="row g-3 mt-3">
+            <div class="col-12">
+              <div class="card glass-card p-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
+                  <h5 class="mb-0">Audit Logs</h5>
+                  <div class="d-flex gap-2">
+                    <select
+                      class="form-select form-select-sm bg-transparent text-light border-secondary"
+                      style="width: auto"
+                    >
+                      <option>All Actions</option>
+                      <option>LOGIN</option>
+                      <option>LOGOUT</option>
+                      <option>MODIFY</option>
+                      <option>DELETE</option>
+                      <option>EXPORT</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-secondary">
+                      Export CSV
+                    </button>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table
+                    class="table table-dark table-hover"
+                    style="font-size: 0.85rem"
+                  >
+                    <thead>
+                      <tr>
+                        <th>Time</th>
+                        <th>User</th>
+                        <th>Action</th>
+                        <th>Resource</th>
+                        <th>IP</th>
+                        <th>Result</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>15:22:04</td>
+                        <td>admin@kavachnet.in</td>
+                        <td>LOGIN</td>
+                        <td>Admin Portal</td>
+                        <td>10.0.0.45</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                      </tr>
+                      <tr>
+                        <td>15:09:18</td>
+                        <td>STAFF003</td>
+                        <td>MODIFY</td>
+                        <td>Firewall Rule #3</td>
+                        <td>10.0.1.30</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                      </tr>
+                      <tr>
+                        <td>14:58:02</td>
+                        <td>unknown</td>
+                        <td>LOGIN</td>
+                        <td>Admin Portal</td>
+                        <td>192.168.9.7</td>
+                        <td><span class="badge bg-danger">Failed</span></td>
+                      </tr>
+                      <tr>
+                        <td>14:45:50</td>
+                        <td>admin@kavachnet.in</td>
+                        <td>DELETE</td>
+                        <td>User EMP009</td>
+                        <td>10.0.0.45</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                      </tr>
+                      <tr>
+                        <td>14:30:11</td>
+                        <td>STAFF002</td>
+                        <td>EXPORT</td>
+                        <td>Audit Logs</td>
+                        <td>10.0.1.28</td>
+                        <td><span class="badge bg-success">Success</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-logs -->
+
+        <!-- SETTINGS PANEL -->
+        <div id="page-settings" class="page-panel" style="display: none">
+          <div class="settings-page-header mt-2 mb-4">
+            <div>
+              <h4 class="settings-page-title">Account Settings</h4>
+              <p class="settings-page-sub">
+                Manage your profile, security and notification preferences
+              </p>
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <!-- LEFT COL -->
+            <div class="col-lg-8">
+              <!-- PROFILE CARD -->
+              <div class="card glass-card p-0 overflow-hidden mb-4">
+                <div class="settings-card-header">
+                  <i class="bi bi-person-fill me-2" style="color: #60a5fa"></i>
+                  Profile Information
+                </div>
+                <div class="p-4">
+                  <div class="d-flex align-items-center gap-4 mb-4">
+                    <div class="settings-avatar" id="settingsAvatar">
+                      <span id="avatarInitials">AU</span>
+                    </div>
+                    <div>
+                      <p class="settings-avatar-name" id="avatarName">
+                        Admin User
+                      </p>
+                      <p class="settings-avatar-role">
+                        SOC Analyst &nbsp;&middot;&nbsp;
+                        <span style="color: #22c55e">Active</span>
+                      </p>
+                      <button
+                        class="settings-link-btn mt-1"
+                        onclick="
+                          document.getElementById('avatarUpload').click()
+                        "
+                      >
+                        <i class="bi bi-camera me-1"></i> Change photo
+                      </button>
+                      <input
+                        type="file"
+                        id="avatarUpload"
+                        accept="image/*"
+                        style="display: none"
+                        onchange="previewAvatar(event)"
+                      />
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="settings-label">First Name</label>
+                      <input
+                        class="settings-input"
+                        id="sfFirstName"
+                        value="Admin"
+                        oninput="syncAvatar()"
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">Last Name</label>
+                      <input
+                        class="settings-input"
+                        id="sfLastName"
+                        value="User"
+                        oninput="syncAvatar()"
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">Email Address</label>
+                      <input
+                        class="settings-input"
+                        id="sfEmail"
+                        value="testing@kavachnet.com"
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">Phone</label>
+                      <input
+                        class="settings-input"
+                        id="sfPhone"
+                        placeholder="+91 00000 00000"
+                      />
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">Department</label>
+                      <select class="settings-input" id="sfDept">
+                        <option>IT Security</option>
+                        <option>Incident Response</option>
+                        <option>Network Operations</option>
+                        <option>Compliance</option>
+                      </select>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">Role</label>
+                      <input
+                        class="settings-input"
+                        value="SOC Analyst"
+                        readonly
+                        style="opacity: 0.55; cursor: not-allowed"
+                      />
+                    </div>
+                    <div class="col-12">
+                      <label class="settings-label">Bio / Notes</label>
+                      <textarea
+                        class="settings-input"
+                        rows="2"
+                        placeholder="Optional brief description of your role..."
+                      ></textarea>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-center gap-3 mt-4">
+                    <button class="settings-save-btn" onclick="saveProfile()">
+                      <i class="bi bi-check2 me-1"></i> Save Profile
+                    </button>
+                    <span
+                      class="settings-saved-msg"
+                      id="profileSavedMsg"
+                    ></span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PASSWORD CARD -->
+              <div class="card glass-card p-0 overflow-hidden mb-4">
+                <div class="settings-card-header">
+                  <i class="bi bi-lock-fill me-2" style="color: #f87171"></i>
+                  Change Password
+                </div>
+                <div class="p-4">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label class="settings-label">Current Password</label>
+                      <div class="settings-pw-wrap">
+                        <input
+                          type="password"
+                          class="settings-input"
+                          id="pwCurrent"
+                          placeholder="Enter current password"
+                        />
+                        <button
+                          class="settings-pw-eye"
+                          onclick="togglePwField('pwCurrent', this)"
+                        >
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">New Password</label>
+                      <div class="settings-pw-wrap">
+                        <input
+                          type="password"
+                          class="settings-input"
+                          id="pwNew"
+                          placeholder="Min 8 chars"
+                          oninput="checkPwStrength(this.value)"
+                        />
+                        <button
+                          class="settings-pw-eye"
+                          onclick="togglePwField('pwNew', this)"
+                        >
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                      <div class="pw-strength-track mt-2">
+                        <div
+                          class="pw-strength-fill"
+                          id="pwStrengthBar"
+                          style="width: 0%"
+                        ></div>
+                      </div>
+                      <p class="pw-strength-label" id="pwStrengthLabel">
+                        &nbsp;
+                      </p>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="settings-label">Confirm New Password</label>
+                      <div class="settings-pw-wrap">
+                        <input
+                          type="password"
+                          class="settings-input"
+                          id="pwConfirm"
+                          placeholder="Repeat new password"
+                        />
+                        <button
+                          class="settings-pw-eye"
+                          onclick="togglePwField('pwConfirm', this)"
+                        >
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="pw-rules mt-3">
+                    <span class="pw-rule" id="ruleLen"
+                      ><i class="bi bi-circle me-1"></i>8+ characters</span
+                    >
+                    <span class="pw-rule" id="ruleUpper"
+                      ><i class="bi bi-circle me-1"></i>Uppercase letter</span
+                    >
+                    <span class="pw-rule" id="ruleSym"
+                      ><i class="bi bi-circle me-1"></i>Symbol (!@#...)</span
+                    >
+                    <span class="pw-rule" id="ruleNum"
+                      ><i class="bi bi-circle me-1"></i>Number</span
+                    >
+                  </div>
+                  <div class="d-flex align-items-center gap-3 mt-4">
+                    <button
+                      class="settings-save-btn danger"
+                      onclick="changePassword()"
+                    >
+                      <i class="bi bi-shield-lock me-1"></i> Update Password
+                    </button>
+                    <span class="settings-saved-msg" id="pwSavedMsg"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- /col-lg-8 -->
+
+            <!-- RIGHT COL -->
+            <div class="col-lg-4">
+              <!-- NOTIFICATION PREFS -->
+              <div class="card glass-card p-0 overflow-hidden mb-4">
+                <div class="settings-card-header">
+                  <i class="bi bi-bell-fill me-2" style="color: #fbbf24"></i>
+                  Notifications
+                </div>
+                <div class="p-3">
+                  <p class="settings-section-label">Security Alerts</p>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Critical Threats</p>
+                      <p class="notif-pref-sub">
+                        Immediate HIGH severity alerts
+                      </p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" checked id="npCritical" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Phishing Detections</p>
+                      <p class="notif-pref-sub">
+                        When a phishing URL is blocked
+                      </p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" checked id="npPhishing" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Brute Force / Login Alerts</p>
+                      <p class="notif-pref-sub">
+                        Multiple failed login attempts
+                      </p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" checked id="npBrute" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="settings-divider"></div>
+                  <p class="settings-section-label">Activity</p>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Staff Login / Logout</p>
+                      <p class="notif-pref-sub">
+                        When staff members sign in or out
+                      </p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" checked id="npStaff" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Incident Updates</p>
+                      <p class="notif-pref-sub">
+                        Status changes on open incidents
+                      </p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" checked id="npIncidents" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="settings-divider"></div>
+                  <p class="settings-section-label">Reports</p>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Daily Summary</p>
+                      <p class="notif-pref-sub">
+                        End-of-day threat summary email
+                      </p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" id="npDaily" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <div class="notif-pref-row">
+                    <div>
+                      <p class="notif-pref-title">Weekly Report</p>
+                      <p class="notif-pref-sub">Full PDF report every Monday</p>
+                    </div>
+                    <label class="settings-toggle"
+                      ><input type="checkbox" id="npWeekly" /><span
+                        class="settings-toggle-track"
+                      ></span
+                    ></label>
+                  </div>
+                  <button
+                    class="settings-save-btn w-100 mt-3"
+                    onclick="saveNotifPrefs()"
+                  >
+                    <i class="bi bi-check2 me-1"></i> Save Preferences
+                  </button>
+                  <span
+                    class="settings-saved-msg d-block text-center mt-2"
+                    id="notifSavedMsg"
+                  ></span>
+                </div>
+              </div>
+
+              <!-- SESSION INFO -->
+              <div class="card glass-card p-0 overflow-hidden">
+                <div class="settings-card-header">
+                  <i
+                    class="bi bi-clock-history me-2"
+                    style="color: #94a3b8"
+                  ></i>
+                  Active Sessions
+                </div>
+                <div class="p-3">
+                  <div class="session-row">
+                    <i class="bi bi-display session-icon"></i>
+                    <div>
+                      <p class="session-label">This device</p>
+                      <p class="session-sub">
+                        Windows &middot; Chrome &middot;
+                        <span style="color: #22c55e">Now</span>
+                      </p>
+                    </div>
+                    <span class="session-current-badge">Current</span>
+                  </div>
+                  <div class="session-row">
+                    <i
+                      class="bi bi-phone session-icon"
+                      style="color: #94a3b8"
+                    ></i>
+                    <div>
+                      <p class="session-label">Mobile &mdash; Android</p>
+                      <p class="session-sub">2 days ago &middot; 10.0.1.12</p>
+                    </div>
+                    <button
+                      class="session-revoke-btn"
+                      onclick="revokeSession(this)"
+                    >
+                      Revoke
+                    </button>
+                  </div>
+                  <button
+                    class="settings-save-btn danger w-100 mt-3"
+                    onclick="revokeAllSessions()"
+                  >
+                    <i class="bi bi-box-arrow-right me-1"></i> Log Out All
+                    Devices
+                  </button>
+                </div>
+              </div>
+            </div>
+            <!-- /col-lg-4 -->
+          </div>
+          <!-- /row -->
+        </div>
+        <!-- /page-settings -->
+
+        <!-- HELP PANEL -->
+        <div id="page-help" class="page-panel" style="display: none">
+          <div class="row g-4 mt-2">
+            <div class="col-md-8">
+              <div class="card glass-card p-4">
+                <h5 class="mb-3">
+                  <i class="bi bi-question-circle me-2"></i>Frequently Asked
+                  Questions
+                </h5>
+                <div
+                  class="accordion"
+                  id="faqAcc"
+                  style="
+                    --bs-accordion-bg: transparent;
+                    --bs-accordion-border-color: rgba(255, 255, 255, 0.1);
+                    --bs-accordion-color: #e2e8f0;
+                  "
+                >
+                  <div
+                    class="accordion-item"
+                    style="
+                      background: transparent;
+                      border: 1px solid rgba(255, 255, 255, 0.08);
+                      border-radius: 8px;
+                      margin-bottom: 8px;
+                    "
+                  >
+                    <h2 class="accordion-header">
+                      <button
+                        class="accordion-button collapsed"
+                        style="
+                          background: transparent;
+                          color: #e2e8f0;
+                          font-size: 0.88rem;
+                        "
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#faq1"
+                      >
+                        How do I report a new security incident?
+                      </button>
+                    </h2>
+                    <div
+                      id="faq1"
+                      class="accordion-collapse collapse"
+                      data-bs-parent="#faqAcc"
+                    >
+                      <div
+                        class="accordion-body"
+                        style="font-size: 0.85rem; color: #94a3b8"
+                      >
+                        Go to Incident Response from the sidebar and click "New
+                        Incident". Fill in the details and assign a priority
+                        level.
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="accordion-item"
+                    style="
+                      background: transparent;
+                      border: 1px solid rgba(255, 255, 255, 0.08);
+                      border-radius: 8px;
+                      margin-bottom: 8px;
+                    "
+                  >
+                    <h2 class="accordion-header">
+                      <button
+                        class="accordion-button collapsed"
+                        style="
+                          background: transparent;
+                          color: #e2e8f0;
+                          font-size: 0.88rem;
+                        "
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#faq2"
+                      >
+                        How do I reset my password?
+                      </button>
+                    </h2>
+                    <div
+                      id="faq2"
+                      class="accordion-collapse collapse"
+                      data-bs-parent="#faqAcc"
+                    >
+                      <div
+                        class="accordion-body"
+                        style="font-size: 0.85rem; color: #94a3b8"
+                      >
+                        Go to Settings → Security and use the password update
+                        form. Or use "Forgot password?" on the login page.
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    class="accordion-item"
+                    style="
+                      background: transparent;
+                      border: 1px solid rgba(255, 255, 255, 0.08);
+                      border-radius: 8px;
+                      margin-bottom: 8px;
+                    "
+                  >
+                    <h2 class="accordion-header">
+                      <button
+                        class="accordion-button collapsed"
+                        style="
+                          background: transparent;
+                          color: #e2e8f0;
+                          font-size: 0.88rem;
+                        "
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#faq3"
+                      >
+                        Who can I contact for urgent threats?
+                      </button>
+                    </h2>
+                    <div
+                      id="faq3"
+                      class="accordion-collapse collapse"
+                      data-bs-parent="#faqAcc"
+                    >
+                      <div
+                        class="accordion-body"
+                        style="font-size: 0.85rem; color: #94a3b8"
+                      >
+                        Contact the SOC Lead directly on the emergency line or
+                        raise a Critical-priority incident ticket for immediate
+                        escalation.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card glass-card p-4 text-center">
+                <i
+                  class="bi bi-headset"
+                  style="
+                    font-size: 2.4rem;
+                    color: #38bdf8;
+                    margin-bottom: 12px;
+                    display: block;
+                  "
+                ></i>
+                <h6>IT Support</h6>
+                <p
+                  style="
+                    font-size: 0.82rem;
+                    color: #64748b;
+                    margin-bottom: 14px;
+                  "
+                >
+                  Available Mon–Fri, 9am–6pm IST
+                </p>
+                <p style="font-size: 0.85rem; color: #94a3b8">
+                  <i class="bi bi-envelope me-1"></i> support@kavachnet.in
+                </p>
+                <p style="font-size: 0.85rem; color: #94a3b8">
+                  <i class="bi bi-telephone me-1"></i> +91 1800-KAVACH
+                </p>
+                <button class="btn btn-sm btn-outline-info w-100 mt-2">
+                  Open Support Ticket
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-help -->
+
+        <!-- AI INTELLIGENCE PANEL -->
+        <div id="page-ai" class="page-panel" style="display: none">
+          <div class="row g-4 mt-2">
+            <!-- Left Side: Insights -->
+            <div class="col-lg-7">
+              <div class="ai-intelligence-grid">
+                <div class="neural-card">
+                  <span class="neural-badge">Anomalous Activity</span>
+                  <h5 class="mt-2 mb-1">Lateral Movement Detected</h5>
+                  <p class="feat-desc mb-3">
+                    AI identified suspicious credential usage from STAFF004
+                    originating from an unusual subnet.
+                  </p>
+                  <button class="btn btn-sm btn-outline-info">
+                    Analyze Node
+                  </button>
+                </div>
+                <div class="neural-card">
+                  <span
+                    class="neural-badge"
+                    style="color: #4ade80; background: rgba(74, 222, 128, 0.1)"
+                    >Neural Sync</span
+                  >
+                  <h5 class="mt-2 mb-1">Threat Pattern Matching</h5>
+                  <p class="feat-desc mb-3">
+                    98.4% match with known "BlackByte" ransomware propagation
+                    techniques. Defensive rules updated.
+                  </p>
+                  <button class="btn btn-sm btn-outline-success">
+                    View Mitigation
+                  </button>
+                </div>
+              </div>
+
+              <div class="card glass-card p-4 mt-4">
+                <h5 class="mb-3">Neural Network Visualization</h5>
+                <div class="neural-vis-box">
+                  <div class="text-center" style="z-index: 2">
+                    <i
+                      class="bi bi-cpu-fill"
+                      style="font-size: 2.5rem; color: #3b82f6; opacity: 0.6"
+                    ></i>
+                    <p class="mt-2" style="font-size: 0.8rem; color: #94a3b8">
+                      Scanning global threat vectors...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: AI Assistant -->
+            <div class="col-lg-5">
+              <div class="ai-assistant-wrap">
+                <div class="ai-chat-header">
+                  <div>
+                    <span class="ai-status-indicator"></span>
+                    <span style="font-weight: 700; font-size: 0.9rem"
+                      >Kavach AI Shield</span
+                    >
+                  </div>
+                  <button
+                    class="btn btn-link p-0 text-secondary"
+                    style="font-size: 1.1rem"
+                    onclick="clearAIChat()"
+                  >
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+                <div class="ai-chat-feed" id="aiChatFeed">
+                  <div class="chat-bubble bot">
+                    Greetings, Analyst. I am the Kavach AI Shield. I've analyzed
+                    4,200 events in the last 60 seconds. How can I assist your
+                    investigation?
+                  </div>
+                </div>
+                <div class="ai-chat-input-area">
+                  <div class="ai-input-group">
+                    <input
+                      type="text"
+                      class="ai-chat-input"
+                      id="aiInput"
+                      placeholder="Ask about threats, logs, or reports..."
+                      onkeypress="if (event.key === 'Enter') sendAIMessage();"
+                    />
+                    <button class="ai-send-btn" onclick="sendAIMessage()">
+                      <i class="bi bi-send-fill"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- /page-ai -->
+
+        <!-- STAFF MANAGEMENT PANEL (admin only) -->
+        <div id="page-staff" class="page-panel" style="display: none">
+          <div class="row g-3 mt-3">
+            <div class="col-md-4">
+              <div class="card glass-card p-3">
+                <small style="color:#94a3b8">Admin</small>
+                <h3 class="text-info mb-0" id="sm-admin-count">—</h3>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card glass-card p-3">
+                <small style="color:#94a3b8">Active Staff</small>
+                <h3 style="color:#22c55e" class="mb-0" id="sm-staff-count">—</h3>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="card glass-card p-3">
+                <small style="color:#94a3b8">Staff Slots Left</small>
+                <h3 style="color:#a78bfa" class="mb-0" id="sm-slots">—</h3>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pending approvals -->
+          <div class="card glass-card p-3 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="mb-0"><i class="bi bi-hourglass-split me-2" style="color:#fbbf24"></i>Pending Approval</h5>
+              <button class="btn btn-sm btn-outline-secondary" onclick="loadStaffPanel()"><i class="bi bi-arrow-clockwise"></i></button>
+            </div>
+            <div id="pendingStaffList">
+              <div class="text-center py-3 text-secondary">Loading…</div>
+            </div>
+          </div>
+
+          <!-- All members -->
+          <div class="card glass-card p-3 mt-3">
+            <h5 class="mb-3"><i class="bi bi-people me-2" style="color:#60a5fa"></i>All Members</h5>
+            <div class="table-responsive">
+              <table class="table table-dark table-hover" style="font-size:0.85rem">
+                <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th></tr></thead>
+                <tbody id="allMembersTable">
+                  <tr><td colspan="5" class="text-center text-secondary py-3">Loading…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <!-- /page-staff -->
+
+      </main>
+    </div>
+    <!-- /page-wrapper -->
+
+    <script src="api.js"></script>
+    <script>
+      // 🔐 Auth guard — only admin and staff can access
+      requireAuth(['admin', 'staff']);
+
+      // Populate sidebar with logged-in user info and show admin features
+      const _session = getSession();
+      (function loadUserInfo() {
+        if (_session) {
+          const usernameEl = document.querySelector('.sidebar-username');
+          const roleEl = document.querySelector('.sidebar-role');
+          if (usernameEl) usernameEl.textContent = _session.username;
+          if (roleEl) roleEl.textContent = _session.role === 'admin' ? 'Administrator' : 'Staff / Analyst';
+        }
+        // Show Staff Management link only for admins
+        if (_session && _session.role === 'admin') {
+          const link = document.getElementById('staffMgmtLink');
+          if (link) link.style.display = '';
+        }
+      })();
+
+      // ── Load Incidents from API ─────────────────────────────────
+      async function loadIncidents() {
+        const wrap = document.getElementById('incidentsTableWrap');
+        if (!wrap) return;
+        wrap.innerHTML = '<div class="text-center py-4 text-secondary"><div class="spinner-border spinner-border-sm me-2"></div>Loading incidents…</div>';
+
+        try {
+          const res = await apiGet('/api/incidents');
+          if (!res.ok) { wrap.innerHTML = `<div class="alert alert-danger">Failed to load incidents: ${res.data.error || 'unknown error'}</div>`; return; }
+
+          const incidents = res.data.incidents || [];
+
+          // Update stat cards
+          const open = incidents.filter(i => i.status === 'open').length;
+          const inprog = incidents.filter(i => i.status === 'in_progress').length;
+          const resolved = incidents.filter(i => i.status === 'resolved').length;
+          document.getElementById('inc-open').textContent = open;
+          document.getElementById('inc-progress').textContent = inprog;
+          document.getElementById('inc-resolved').textContent = resolved;
+          document.getElementById('inc-total').textContent = incidents.length;
+
+          if (incidents.length === 0) {
+            wrap.innerHTML = '<p class="text-center text-secondary py-4">No incidents found.</p>';
+            return;
+          }
+
+          const priorityBadge = p => {
+            const m = { critical: 'bg-danger', high: 'bg-warning text-dark', medium: 'bg-info text-dark', low: 'bg-secondary' };
+            return `<span class="badge ${m[p] || 'bg-secondary'}">${p || '—'}</span>`;
+          };
+          const statusBadge = s => {
+            const m = {
+              open: `<span class="badge badge-warning-soft">Open</span>`,
+              in_progress: `<span class="badge" style="background:rgba(56,189,248,.15);color:#38bdf8">In Progress</span>`,
+              resolved: `<span class="badge bg-success">Resolved</span>`,
+              closed: `<span class="badge bg-secondary">Closed</span>`
+            };
+            return m[s] || `<span class="badge bg-secondary">${s}</span>`;
+          };
+
+          wrap.innerHTML = `
+            <div class="table-responsive">
+              <table class="table table-dark table-hover" style="font-size:0.85rem">
+                <thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Created</th></tr></thead>
+                <tbody>
+                  ${incidents.map(i => `
+                    <tr>
+                      <td><code style="color:#a78bfa">#${(i.id || '').toString().padStart(3,'0')}</code></td>
+                      <td>${i.title || i.description || '—'}</td>
+                      <td>${i.incident_type || i.type || '—'}</td>
+                      <td>${priorityBadge(i.severity || i.priority)}</td>
+                      <td>${statusBadge(i.status)}</td>
+                      <td>${i.created_at ? new Date(i.created_at).toLocaleString() : '—'}</td>
+                    </tr>`).join('')}
+                </tbody>
+              </table>
+            </div>`;
+        } catch (err) {
+          wrap.innerHTML = `<div class="alert alert-warning">⚠️ Cannot reach backend. Make sure Flask server is running on localhost:5000.</div>`;
+        }
+      }
+
+      // ── Staff Management (admin only) ─────────────────────────────
+      async function loadStaffPanel() {
+        if (!_session || _session.role !== 'admin') return;
+        try {
+          const res = await apiGet('/api/admin/members');
+          if (!res.ok) return;
+          const { members, admin_count, staff_count, slots_remaining } = res.data;
+
+          document.getElementById('sm-admin-count').textContent = admin_count;
+          document.getElementById('sm-staff-count').textContent = staff_count;
+          document.getElementById('sm-slots').textContent = slots_remaining;
+
+          // Pending
+          const pending = members.filter(m => m.status === 'pending');
+          const badge = document.getElementById('pendingStaffBadge');
+          if (badge) { badge.textContent = pending.length; badge.style.display = pending.length ? '' : 'none'; }
+
+          const pendingList = document.getElementById('pendingStaffList');
+          if (pending.length === 0) {
+            pendingList.innerHTML = '<p class="text-center text-secondary py-3" style="font-size:0.85rem">No pending requests.</p>';
+          } else {
+            pendingList.innerHTML = pending.map(m => `
+              <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.15);border-radius:10px;padding:12px 16px;margin-bottom:10px;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <div style="font-weight:600;font-size:0.88rem;color:#f1f5f9">${m.username}</div>
+                  <div style="font-size:0.76rem;color:#64748b">${m.email} · Applied ${new Date(m.created_at).toLocaleDateString('en-IN')}</div>
+                </div>
+                <div style="display:flex;gap:8px;">
+                  <button onclick="memberAction('${m.id}','approve')" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ade80;border-radius:7px;padding:5px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
+                    <i class="bi bi-check-lg me-1"></i>Approve
+                  </button>
+                  <button onclick="memberAction('${m.id}','reject')" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:7px;padding:5px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
+                    <i class="bi bi-x-lg me-1"></i>Reject
+                  </button>
+                </div>
+              </div>`).join('');
+          }
+
+          // All members table
+          const statusBadge = s => {
+            const m = { approved:'<span class="badge bg-success">Active</span>', pending:'<span class="badge" style="background:rgba(251,191,36,.15);color:#fbbf24">Pending</span>', rejected:'<span class="badge bg-secondary">Rejected</span>' };
+            return m[s] || `<span class="badge bg-secondary">${s}</span>`;
+          };
+          const roleBadge = r => r === 'admin'
+            ? '<span class="badge" style="background:rgba(96,165,250,.15);color:#60a5fa">Admin</span>'
+            : '<span class="badge" style="background:rgba(45,212,191,.12);color:#2dd4bf">Staff</span>';
+
+          document.getElementById('allMembersTable').innerHTML = members.map(m => `
+            <tr>
+              <td>${m.username}</td>
+              <td style="color:#94a3b8">${m.email}</td>
+              <td>${roleBadge(m.role)}</td>
+              <td>${statusBadge(m.status)}</td>
+              <td style="color:#64748b">${new Date(m.created_at).toLocaleDateString('en-IN')}</td>
+            </tr>`).join('');
+        } catch {
+          document.getElementById('pendingStaffList').innerHTML = '<p class="text-center text-secondary">Cannot reach backend.</p>';
+        }
+      }
+
+      async function memberAction(userId, action) {
+        try {
+          const res = await apiPost(`/api/admin/members/${userId}/${action}`, {}, true);
+          if (res.ok) loadStaffPanel();
+        } catch { alert('Error. Please try again.'); }
+      }
+
+      // Sidebar Toggle
+      const toggle = document.getElementById("sidebarToggle");
+      const sidebar = document.getElementById("sidebar");
+      const wrapper = document.getElementById("pageWrapper");
+      toggle.addEventListener("click", () => {
+        sidebar.classList.toggle("sidebar-collapsed");
+        wrapper.classList.toggle("sidebar-collapsed");
+      });
+
+      // ── SPA Navigation ──────────────────────────────────────────
+      const pageTitles = {
+        dashboard: "Security Operations Center",
+        analytics: "Analytics & Reporting",
+        threats: "Threat Detection",
+        phishing: "Phishing Scanner",
+        incidents: "Incident Response",
+        firewall: "Firewall Rules",
+        monitor: "Network Monitor",
+        logs: "Audit Logs",
+        settings: "Settings",
+        help: "Help & Support",
+        ai: "Neural Threat Intelligence",
+        staff: "Staff Management",
+      };
+
+      function navigateTo(page) {
+        // Update sidebar active link
+        document
+          .querySelectorAll(".sidebar-link")
+          .forEach((l) => l.classList.remove("active"));
+        const activeLink = document.querySelector(
+          `.sidebar-link[data-page="${page}"]`,
+        );
+        if (activeLink) activeLink.classList.add("active");
+
+        // Hide all panels
+        document
+          .querySelectorAll(".page-panel")
+          .forEach((p) => (p.style.display = "none"));
+
+        // Show target panel
+        const target = document.getElementById("page-" + page);
+        if (target) target.style.display = "block";
+
+        // Update page title
+        document.getElementById("pageTitle").textContent =
+          pageTitles[page] || page;
+
+        // Show period tabs only on dashboard
+        document.getElementById("periodTabs").style.display =
+          page === "dashboard" ? "" : "none";
+
+        // Load live data when switching to relevant pages
+        if (page === "incidents") loadIncidents();
+        if (page === "staff") loadStaffPanel();
+      }
+
+      document.querySelectorAll(".sidebar-link").forEach((link) => {
+        link.addEventListener("click", function (e) {
+          e.preventDefault();
+          navigateTo(this.dataset.page);
+        });
+      });
+
+      // Init dashboard
+      navigateTo("dashboard");
+
+      // ── AI Security Assistant Logic ────────────────────────────
+      const aiInput = document.getElementById("aiInput");
+      const aiChatFeed = document.getElementById("aiChatFeed");
+
+      function addChatMessage(text, isUser = false) {
+        const msg = document.createElement("div");
+        msg.className = `chat-bubble ${isUser ? "user" : "bot"}`;
+        msg.textContent = text;
+        aiChatFeed.appendChild(msg);
+        aiChatFeed.scrollTop = aiChatFeed.scrollHeight;
+      }
+
+      function sendAIMessage() {
+        const text = aiInput.value.trim();
+        if (!text) return;
+
+        addChatMessage(text, true);
+        aiInput.value = "";
+
+        // Thinking state
+        const typing = document.createElement("div");
+        typing.className = "ai-typing";
+        typing.innerHTML =
+          '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        aiChatFeed.appendChild(typing);
+        aiChatFeed.scrollTop = aiChatFeed.scrollHeight;
+
+        setTimeout(() => {
+          typing.remove();
+          generateAIResponse(text);
+        }, 1500);
+      }
+
+      function generateAIResponse(query) {
+        const q = query.toLowerCase();
+        let response =
+          "I'm analyzing the perimeter data. Please specify the node or protocol you're inquiring about.";
+
+        if (q.includes("anomaly") || q.includes("threat")) {
+          response =
+            "Recent analysis shows 3 active anomalies: a brute-force spike on Gateway-01, an unusual encrypted tunnel on Node #12, and a potential SQLi signature detected by our IDS enginge.";
+        } else if (q.includes("health") || q.includes("status")) {
+          response =
+            "System health is stabilized at 78%. All core firewall rules are operational. I have detected high CPU load on the monitoring node, likely due to real-time packet inspection.";
+        } else if (q.includes("code") || q.includes("script")) {
+          response =
+            "I can generate a mitigation script for the current brute-force attack. Execute this on the affected gateway:";
+          const code = document.createElement("div");
+          code.className = "ai-code-block";
+          code.textContent =
+            "iptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --set\niptables -A INPUT -p tcp --dport 22 -m state --state NEW -m recent --update --seconds 60 --hitcount 10 -j DROP";
+          addChatMessage(response);
+          aiChatFeed.appendChild(code);
+          aiChatFeed.scrollTop = aiChatFeed.scrollHeight;
+          return;
+        } else if (q.includes("help")) {
+          response =
+            "I can help with: threat analysis, firewall optimization, incident reasoning, and mitigation scripts. Try asking 'What are the current threats?'";
+        }
+
+        addChatMessage(response);
+      }
+
+      function clearAIChat() {
+        if (aiChatFeed) {
+          aiChatFeed.innerHTML = `<div class="chat-bubble bot">Context reset. Neural engine ready for new queries.</div>`;
+        }
+      }
+
+      function runPhishScan() {
+        const urlInput = document.getElementById("scanUrl");
+        const results = document.getElementById("scanResult");
+        const url = urlInput?.value.trim();
+
+        if (!url || !results) return;
+
+        results.style.display = "block";
+        results.innerHTML = `
+          <div class="d-flex align-items-center gap-3 p-3 glass-card border-info" style="background: rgba(56, 189, 248, 0.05); border-radius: 12px">
+            <div class="spinner-border text-info spinner-border-sm" role="status"></div>
+            <span style="font-size: 0.9rem; color: #38bdf8; font-weight: 500">Neural signature analysis in progress...</span>
+          </div>
+        `;
+
+        // Call real backend phishing check endpoint
+        apiPost('/api/phishing/check', { url }, true)
+          .then(res => {
+            if (!res.ok) {
+              results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ ${res.data.error || 'Could not analyse URL.'}</div>`;
+              return;
+            }
+            const d = res.data;
+            const isPhish = d.is_phishing || d.phishing || d.threat || false;
+            const score = d.score ?? d.confidence ?? (isPhish ? 92 : 4);
+            const reasons = d.reasons || d.indicators || [];
+            const reasonHtml = reasons.length ? `<ul class="mb-0 small mt-2">${reasons.map(r => `<li>${r}</li>`).join('')}</ul>` : '';
+
+            if (isPhish) {
+              results.innerHTML = `
+                <div class="alert alert-danger glass-card border-danger anim-fade-in" style="background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2)">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-shield-x" style="font-size: 1.2rem; color: #f87171"></i>
+                    <h6 class="mb-0 text-danger" style="font-weight: 700">⚠ Phishing Threat Detected (Score: ${score}%)</h6>
+                  </div>
+                  <p class="mb-0 small" style="color: #fca5a5">This URL was flagged by the backend engine. Exercise extreme caution.${reasonHtml}</p>
+                </div>`;
+            } else {
+              results.innerHTML = `
+                <div class="alert alert-success glass-card border-success anim-fade-in" style="background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2)">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-shield-check" style="font-size: 1.2rem; color: #4ade80"></i>
+                    <h6 class="mb-0 text-success" style="font-weight: 700">✓ URL Appears Safe (Score: ${score}%)</h6>
+                  </div>
+                  <p class="mb-0 small" style="color: #86efac">No phishing indicators detected by the backend engine.</p>
+                </div>`;
+            }
+          })
+          .catch(() => {
+            results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ Cannot reach backend. Make sure the Flask server is running.</div>`;
+          });
+
+      }
+
+      // Allow Enter key to send
+      aiInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") sendAIMessage();
+      });
+
+      // ── Period Filter ──────────────────────────────────────────
+      const periodData = {
+        daily: {
+          label: "Today",
+          threats: { val: "124", delta: "+12", up: true },
+          incidents: { val: "8", delta: "+3", up: true },
+          health: { val: "SAFE", delta: "", up: null },
+          risk: { val: "HIGH", delta: "↑", up: true },
+        },
+        yesterday: {
+          label: "Yesterday",
+          threats: { val: "98", delta: "-26", up: false },
+          incidents: { val: "5", delta: "-3", up: false },
+          health: { val: "SAFE", delta: "", up: null },
+          risk: { val: "MED", delta: "↓", up: false },
+        },
+        weekly: {
+          label: "This Week",
+          threats: { val: "613", delta: "+89", up: true },
+          incidents: { val: "34", delta: "+11", up: true },
+          health: { val: "WARN", delta: "", up: null },
+          risk: { val: "HIGH", delta: "↑", up: true },
+        },
+        monthly: {
+          label: "This Month",
+          threats: { val: "2,451", delta: "+320", up: true },
+          incidents: { val: "142", delta: "+56", up: true },
+          health: { val: "SAFE", delta: "", up: null },
+          risk: { val: "CRIT", delta: "↑↑", up: true },
+        },
+      };
+
+      // Health color map
+      const healthColors = {
+        SAFE: "#22c55e",
+        WARN: "#f59e0b",
+        CRIT: "#ef4444",
+      };
+
+      // Risk color map
+      const riskColors = {
+        LOW: "#22c55e",
+        MED: "#f59e0b",
+        HIGH: "#ef4444",
+        CRIT: "#ef4444",
+      };
+
+      function animateValue(el, newVal) {
+        el.style.opacity = "0";
+        el.style.transform = "translateY(6px)";
+        setTimeout(() => {
+          el.textContent = newVal;
+          el.style.transition = "opacity 0.25s ease, transform 0.25s ease";
+          el.style.opacity = "1";
+          el.style.transform = "translateY(0)";
+        }, 120);
+      }
+
+      function setDelta(el, deltaText, up) {
+        if (!deltaText) {
+          el.textContent = "";
+          el.className = "stat-delta";
+          return;
+        }
+        el.textContent = deltaText;
+        el.className = "stat-delta " + (up ? "delta-up" : "delta-down");
+      }
+
+      function applyPeriod(period) {
+        const d = periodData[period];
+
+        // Threats
+        const tEl = document.getElementById("statThreats");
+        animateValue(tEl, d.threats.val);
+        setDelta(
+          document.getElementById("deltaThreats"),
+          d.threats.delta,
+          d.threats.up,
+        );
+        document.getElementById("periodLabelThreats").textContent = d.label;
+
+        // Incidents
+        const iEl = document.getElementById("statIncidents");
+        animateValue(iEl, d.incidents.val);
+        setDelta(
+          document.getElementById("deltaIncidents"),
+          d.incidents.delta,
+          d.incidents.up,
+        );
+        document.getElementById("periodLabelIncidents").textContent = d.label;
+
+        // Health
+        const hEl = document.getElementById("statHealth");
+        animateValue(hEl, d.health.val);
+        hEl.style.color = healthColors[d.health.val] || "#22c55e";
+        setDelta(
+          document.getElementById("deltaHealth"),
+          d.health.delta,
+          d.health.up,
+        );
+        document.getElementById("periodLabelHealth").textContent = d.label;
+
+        // Risk
+        const rEl = document.getElementById("statRisk");
+        animateValue(rEl, d.risk.val);
+        rEl.style.color = riskColors[d.risk.val] || "#ef4444";
+        setDelta(document.getElementById("deltaRisk"), d.risk.delta, d.risk.up);
+        document.getElementById("periodLabelRisk").textContent = d.label;
+      }
+
+      // Tab click handler
+      document.querySelectorAll(".period-tab").forEach((btn) => {
+        btn.addEventListener("click", function () {
+          document
+            .querySelectorAll(".period-tab")
+            .forEach((b) => b.classList.remove("active"));
+          this.classList.add("active");
+          applyPeriod(this.dataset.period);
+        });
+      });
+
+      // Init with daily
+      applyPeriod("daily");
+
+      // ── Notification Drawer ────────────────────────────────────────
+      const drawer = document.getElementById("notifDrawer");
+      const backdrop = document.getElementById("notifBackdrop");
+      const countEl = document.getElementById("notifCount");
+      const dotEl = document.getElementById("notifDot");
+      const labelEl = document.getElementById("unreadLabel");
+
+      function updateBadge() {
+        const unread = document.querySelectorAll(
+          "#notifFeed .notif-item.unread",
+        ).length;
+        countEl.textContent = unread;
+        countEl.style.display = unread > 0 ? "flex" : "none";
+        dotEl.style.display = unread > 0 ? "block" : "none";
+        labelEl.textContent = unread > 0 ? unread + " unread" : "All caught up";
+      }
+
+      // ── Logout with notification ───────────────────────────────────
+      function logoutUser() {
+        const now = new Date();
+        const timeStr =
+          now.getHours().toString().padStart(2, "0") +
+          ":" +
+          now.getMinutes().toString().padStart(2, "0") +
+          ":" +
+          now.getSeconds().toString().padStart(2, "0");
+
+        // Determine current user from sidebar
+        const userName =
+          document.querySelector(".sidebar-username")?.textContent.trim() ||
+          "Admin User";
+        const userRole =
+          document.querySelector(".sidebar-role")?.textContent.trim() ||
+          "SOC Analyst";
+
+        // Write logout notification for next admin session
+        const pending = JSON.parse(
+          localStorage.getItem("kavach_pending_notifs") || "[]",
+        );
+        pending.push({
+          id: Date.now(),
+          severity: "warning",
+          title: "User Logged Out \u2014 " + userName,
+          sub: userRole + "  \u00b7  Session ended at " + timeStr,
+          time: "Just now (" + timeStr + ")",
+        });
+        localStorage.setItem("kavach_pending_notifs", JSON.stringify(pending));
+
+        // Visual feedback on logout button before redirect
+        const btn = document.querySelector(".logout-btn");
+        btn.innerHTML =
+          '<i class="bi bi-check-circle me-1"></i> Logging out\u2026';
+        btn.style.opacity = ".7";
+        btn.disabled = true;
+
+        setTimeout(() => {
+          clearToken();
+          clearSession();
+          window.location.href = "portal.html";
+        }, 700);
+      }
+
+      function toggleNotifDrawer() {
+        const open = drawer.classList.toggle("open");
+        backdrop.classList.toggle("show", open);
+        document.body.style.overflow = open ? "hidden" : "";
+      }
+
+      function closeNotifDrawer() {
+        drawer.classList.remove("open");
+        backdrop.classList.remove("show");
+        document.body.style.overflow = "";
+      }
+
+      function markAllRead() {
+        document
+          .querySelectorAll("#notifFeed .notif-item.unread")
+          .forEach((el) => el.classList.remove("unread"));
+        updateBadge();
+      }
+
+      function dismissNotif(btn) {
+        const item = btn.closest(".notif-item");
+        item.style.opacity = "0";
+        item.style.transform = "translateX(40px)";
+        item.style.transition = "opacity .25s, transform .25s";
+        setTimeout(() => {
+          item.remove();
+          updateBadge();
+        }, 260);
+      }
+
+      function clearAll() {
+        const feed = document.getElementById("notifFeed");
+        [...feed.querySelectorAll(".notif-item")].forEach((item, i) => {
+          setTimeout(() => {
+            item.style.opacity = "0";
+            item.style.transform = "translateX(40px)";
+            item.style.transition = "opacity .2s, transform .2s";
+            setTimeout(() => item.remove(), 210);
+          }, i * 60);
+        });
+        setTimeout(updateBadge, 600);
+      }
+
+      function filterNotifs(severity, tab) {
+        document
+          .querySelectorAll(".notif-tab")
+          .forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+        document.querySelectorAll("#notifFeed .notif-item").forEach((item) => {
+          item.style.display =
+            severity === "all" || item.dataset.severity === severity
+              ? ""
+              : "none";
+        });
+      }
+
+      // Close on Escape key
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeNotifDrawer();
+      });
+
+      // Handle incoming notifications from other pages
+      (function injectPendingNotifs() {
+        const pending = JSON.parse(
+          localStorage.getItem("kavach_pending_notifs") || "[]",
+        );
+        if (!pending.length) {
+          updateBadge();
+          return;
+        }
+
+        const feed = document.getElementById("notifFeed");
+        const sevIcon = {
+          critical: "critical",
+          warning: "warning",
+          info: "info",
+        };
+
+        pending.forEach((n) => {
+          const div = document.createElement("div");
+          div.className = "notif-item unread";
+          div.dataset.severity = n.severity || "info";
+          div.dataset.id = n.id;
+          div.innerHTML = `
+            <span class="notif-sev-dot ${sevIcon[n.severity] || "info"}"></span>
+            <div class="notif-item-body">
+              <p class="notif-item-title">${n.title}</p>
+              <p class="notif-item-sub">${n.sub}</p>
+              <p class="notif-item-time"><i class="bi bi-clock me-1"></i>${n.time}</p>
+            </div>
+            <button class="notif-dismiss" onclick="dismissNotif(this)" title="Dismiss"><i class="bi bi-x"></i></button>`;
+
+          // Animate in from top
+          div.style.opacity = "0";
+          div.style.transform = "translateY(-12px)";
+          feed.insertBefore(div, feed.firstChild);
+          requestAnimationFrame(() => {
+            div.style.transition = "opacity .35s, transform .35s";
+            div.style.opacity = "1";
+            div.style.transform = "translateY(0)";
+          });
+        });
+
+        localStorage.removeItem("kavach_pending_notifs");
+        updateBadge();
+      })();
+
+      updateBadge();
+
+      // --- Settings Panel Logic ---
+
+      // Sync initials and name in the avatar preview
+      function syncAvatar() {
+        const first = (
+          document.getElementById("sfFirstName")?.value || ""
+        ).trim();
+        const last = (
+          document.getElementById("sfLastName")?.value || ""
+        ).trim();
+        const initials = (first[0] || "") + (last[0] || "");
+        const initEl = document.getElementById("avatarInitials");
+        const nameEl = document.getElementById("avatarName");
+        if (initEl) initEl.textContent = initials.toUpperCase() || "AU";
+        if (nameEl)
+          nameEl.textContent = (first + " " + last).trim() || "Admin User";
+      }
+
+      // Handle avatar photo upload preview
+      function previewAvatar(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const av = document.getElementById("settingsAvatar");
+          if (av) av.innerHTML = `<img src="${ev.target.result}" alt="avatar">`;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // Show a temporary "Saved" message
+      function flashMsg(id, text = "Saved!") {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = text;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 2800);
+      }
+
+      function saveProfile() {
+        const first = document.getElementById("sfFirstName")?.value;
+        const last = document.getElementById("sfLastName")?.value;
+        const email = document.getElementById("sfEmail")?.value;
+        const phone = document.getElementById("sfPhone")?.value;
+        const dept = document.getElementById("sfDept")?.value;
+
+        const data = { firstName: first, lastName: last, email, phone, dept };
+        localStorage.setItem("kavach_profile", JSON.stringify(data));
+        flashMsg("profileSavedMsg", "✓ Profile saved");
+      }
+
+      function togglePwField(id, btn) {
+        const inp = document.getElementById(id);
+        if (!inp) return;
+        const visible = inp.type === "text";
+        inp.type = visible ? "password" : "text";
+        btn.innerHTML = visible
+          ? '<i class="bi bi-eye"></i>'
+          : '<i class="bi bi-eye-slash"></i>';
+      }
+
+      function checkPwStrength(val) {
+        const bar = document.getElementById("pwStrengthBar");
+        const label = document.getElementById("pwStrengthLabel");
+        const rules = {
+          ruleLen: val.length >= 8,
+          ruleUpper: /[A-Z]/.test(val),
+          ruleSym: /[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]/.test(val),
+          ruleNum: /[0-9]/.test(val),
+        };
+
+        Object.entries(rules).forEach(([id, met]) => {
+          const el = document.getElementById(id);
+          if (!el) return;
+          el.classList.toggle("met", met);
+          el.querySelector("i").className = met
+            ? "bi bi-check-circle-fill me-1"
+            : "bi bi-circle me-1";
+        });
+
+        const score = Object.values(rules).filter(Boolean).length;
+        const levels = [
+          { width: "0%", color: "", text: "" },
+          { width: "25%", color: "#ef4444", text: "Weak" },
+          { width: "50%", color: "#f59e0b", text: "Fair" },
+          { width: "75%", color: "#3b82f6", text: "Good" },
+          { width: "100%", color: "#22c55e", text: "Strong" },
+        ];
+        const lv = levels[score];
+        if (bar) {
+          bar.style.width = lv.width;
+          bar.style.background = lv.color;
+        }
+        if (label) {
+          label.textContent = lv.text;
+          label.style.color = lv.color;
+        }
+      }
+
+      function changePassword() {
+        const cur = document.getElementById("pwCurrent")?.value;
+        const nw = document.getElementById("pwNew")?.value;
+        const conf = document.getElementById("pwConfirm")?.value;
+
+        if (!cur) {
+          flashMsg("pwSavedMsg", "⚠ Current password required");
+          return;
+        }
+        if (nw.length < 8) {
+          flashMsg("pwSavedMsg", "⚠ Minimum 8 chars");
+          return;
+        }
+        if (nw !== conf) {
+          flashMsg("pwSavedMsg", "⚠ Passwords mismatch");
+          return;
+        }
+
+        ["pwCurrent", "pwNew", "pwConfirm"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        checkPwStrength("");
+        flashMsg("pwSavedMsg", "✓ Password updated");
+      }
+
+      function saveNotifPrefs() {
+        const prefs = {
+          critical: document.getElementById("npCritical")?.checked,
+          phishing: document.getElementById("npPhishing")?.checked,
+          brute: document.getElementById("npBrute")?.checked,
+          staff: document.getElementById("npStaff")?.checked,
+          incidents: document.getElementById("npIncidents")?.checked,
+          daily: document.getElementById("npDaily")?.checked,
+          weekly: document.getElementById("npWeekly")?.checked,
+        };
+        localStorage.setItem("kavach_notif_prefs", JSON.stringify(prefs));
+        flashMsg("notifSavedMsg", "✓ Preferences saved");
+      }
+
+      function revokeSession(btn) {
+        const row = btn.closest(".session-row");
+        if (!row) return;
+        row.style.opacity = ".4";
+        row.style.pointerEvents = "none";
+        btn.textContent = "Revoked";
+      }
+
+      function revokeAllSessions() {
+        if (!confirm("Logout from all other devices?")) return;
+        document.querySelectorAll(".session-revoke-btn").forEach((b) => {
+          b.closest(".session-row").style.opacity = ".4";
+          b.closest(".session-row").style.pointerEvents = "none";
+          b.textContent = "Revoked";
+        });
+        flashMsg("notifSavedMsg", "✓ All sessions revoked");
+      }
+
+      (function restoreProfile() {
+        const raw = localStorage.getItem("kavach_profile");
+        if (!raw) return;
+        try {
+          const d = JSON.parse(raw);
+          if (d.firstName && document.getElementById("sfFirstName"))
+            document.getElementById("sfFirstName").value = d.firstName;
+          if (d.lastName && document.getElementById("sfLastName"))
+            document.getElementById("sfLastName").value = d.lastName;
+          if (d.email && document.getElementById("sfEmail"))
+            document.getElementById("sfEmail").value = d.email;
+          if (d.phone && document.getElementById("sfPhone"))
+            document.getElementById("sfPhone").value = d.phone;
+          syncAvatar();
+        } catch (e) {}
+      })();
+    </script>
+  </body>
+</html>

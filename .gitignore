@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+Backend/.env
+Backend/kavachnet.db
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+.gemini/

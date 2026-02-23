@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kavach Net — Security Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Base */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d1117;
+            color: #e2e8f0;
+            padding: 40px 20px 80px;
+        }
+
+        /* Screen layout */
+        .report-wrap {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Print button */
+        .print-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .btn-print {
+            background: linear-gradient(135deg, #1d4ed8, #4f46e5);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: .85rem;
+            font-weight: 600;
+            padding: 9px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .btn-print:hover {
+            opacity: .9
+        }
+
+        /* Report card */
+        .report-card {
+            background: #161b27;
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        /* Header band */
+        .report-header {
+            background: linear-gradient(135deg, #1e3a8a, #1e1b4b);
+            padding: 36px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .report-header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px
+        }
+
+        .report-logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, .1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .report-org h1 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #f1f5f9
+        }
+
+        .report-org p {
+            font-size: .78rem;
+            color: #94a3b8;
+            margin-top: 2px
+        }
+
+        .report-header-right {
+            text-align: right
+        }
+
+        .report-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e2e8f0;
+            margin-bottom: 4px;
+        }
+
+        .report-meta {
+            font-size: .75rem;
+            color: #64748b;
+            line-height: 1.8
+        }
+
+        /* Classification band */
+        .classify-band {
+            background: rgba(239, 68, 68, .1);
+            border-bottom: 1px solid rgba(239, 68, 68, .2);
+            padding: 8px 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: .75rem;
+            font-weight: 700;
+            color: #fca5a5;
+            letter-spacing: 1px;
+        }
+
+        /* Body */
+        .report-body {
+            padding: 36px 40px
+        }
+
+        /* Section */
+        .r-section {
+            margin-bottom: 36px
+        }
+
+        .r-section-title {
+            font-size: .7rem;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .r-section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(255, 255, 255, .06)
+        }
+
+        /* Summary cards row */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-bottom: 0;
+        }
+
+        .s-card {
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .s-card-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+
+        .s-card-label {
+            font-size: .72rem;
+            color: #64748b
+        }
+
+        .c-red {
+            color: #f87171
+        }
+
+        .c-yellow {
+            color: #fbbf24
+        }
+
+        .c-green {
+            color: #4ade80
+        }
+
+        .c-blue {
+            color: #60a5fa
+        }
+
+        .c-purple {
+            color: #a78bfa
+        }
+
+        /* Table */
+        .r-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: .82rem;
+        }
+
+        .r-table thead tr {
+            background: rgba(255, 255, 255, .04);
+        }
+
+        .r-table th {
+            text-align: left;
+            padding: 10px 14px;
+            font-size: .7rem;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: .7px;
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+        }
+
+        .r-table td {
+            padding: 10px 14px;
+            color: #cbd5e1;
+            border-bottom: 1px solid rgba(255, 255, 255, .04);
+            vertical-align: middle;
+        }
+
+        .r-table tr:last-child td {
+            border-bottom: none
+        }
+
+        /* Badge */
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: .68rem;
+            font-weight: 700;
+        }
+
+        .b-red {
+            background: rgba(239, 68, 68, .15);
+            color: #f87171
+        }
+
+        .b-yellow {
+            background: rgba(251, 191, 36, .15);
+            color: #fbbf24
+        }
+
+        .b-green {
+            background: rgba(34, 197, 94, .15);
+            color: #4ade80
+        }
+
+        .b-blue {
+            background: rgba(56, 189, 248, .15);
+            color: #38bdf8
+        }
+
+        .b-gray {
+            background: rgba(100, 116, 139, .15);
+            color: #94a3b8
+        }
+
+        /* Status bar */
+        .status-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .06);
+            border-radius: 8px;
+            font-size: .84rem;
+        }
+
+        .status-row span:first-child {
+            color: #94a3b8
+        }
+
+        /* Two-col */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px
+        }
+
+        /* Signature block */
+        .sig-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 10px;
+        }
+
+        .sig-box {
+            border-top: 1px solid rgba(255, 255, 255, .12);
+            padding-top: 10px;
+        }
+
+        .sig-label {
+            font-size: .72rem;
+            color: #64748b;
+            margin-bottom: 24px
+        }
+
+        .sig-name {
+            font-size: .82rem;
+            color: #94a3b8
+        }
+
+        /* Footer */
+        .report-footer {
+            border-top: 1px solid rgba(255, 255, 255, .06);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: .72rem;
+            color: #374151;
+        }
+
+        /* @media print */
+        @media print {
+            @page {
+                size: A4;
+                margin: 15mm 15mm 15mm 15mm
+            }
+
+            body {
+                background: #fff !important;
+                color: #111 !important;
+                padding: 0;
+            }
+
+            .print-bar {
+                display: none !important
+            }
+
+            .report-card {
+                background: #fff !important;
+                border: none !important;
+                border-radius: 0 !important;
+            }
+
+            .report-header {
+                background: #1e3a8a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .classify-band {
+                background: #fee2e2 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+
+            .s-card {
+                background: #f8fafc !important;
+                border: 1px solid #e2e8f0 !important;
+            }
+
+            .r-table td,
+            .r-section-title,
+            .report-footer,
+            .sig-name,
+            .sig-label,
+            .status-row span:first-child {
+                color: #334155 !important;
+            }
+
+            .r-table th {
+                color: #64748b !important
+            }
+
+            .r-table thead tr {
+                background: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact
+            }
+
+            .r-table td {
+                border-bottom-color: #e2e8f0 !important
+            }
+
+            .status-row {
+                background: #f8fafc !important;
+                border-color: #e2e8f0 !important
+            }
+
+            /* keep badge colors */
+            .b-red {
+                background: #fee2e2 !important;
+                color: #dc2626 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact
+            }
+
+            .b-yellow {
+                background: #fef9c3 !important;
+                color: #ca8a04 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact
+            }
+
+            .b-green {
+                background: #dcfce7 !important;
+                color: #16a34a !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact
+            }
+
+            .b-blue {
+                background: #dbeafe !important;
+                color: #2563eb !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact
+            }
+
+            .report-footer {
+                border-top-color: #e2e8f0 !important;
+                color: #94a3b8 !important
+            }
+
+            .r-section-title::after {
+                background: #e2e8f0 !important
+            }
+
+            .summary-grid {
+                break-inside: avoid
+            }
+
+            .r-section {
+                break-inside: avoid
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="report-wrap">
+
+        <!-- Print button (screen only) -->
+        <div class="print-bar">
+            <button class="btn-print" onclick="window.print()">
+                🖨️ Print / Save as PDF
+            </button>
+        </div>
+
+        <div class="report-card">
+
+            <!-- Header -->
+            <div class="report-header">
+                <div class="report-header-left">
+                    <div class="report-logo">🛡️</div>
+                    <div class="report-org">
+                        <h1>Kavach Net</h1>
+                        <p>Security Operations Center — Confidential</p>
+                    </div>
+                </div>
+                <div class="report-header-right">
+                    <div class="report-title">Monthly Security Report</div>
+                    <div class="report-meta">
+                        Period: February 2026<br>
+                        Generated: 20 Feb 2026, 15:35 IST<br>
+                        Report ID: <span id="rptId">KN-RPT-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Classification -->
+            <div class="classify-band">
+                🔴 &nbsp; CONFIDENTIAL — FOR AUTHORIZED PERSONNEL ONLY
+            </div>
+
+            <!-- Body -->
+            <div class="report-body">
+
+                <!-- Executive Summary -->
+                <div class="r-section">
+                    <div class="r-section-title">Executive Summary</div>
+                    <div class="summary-grid">
+                        <div class="s-card">
+                            <div class="s-card-val c-red" id="rpt-total-threats">—</div>
+                            <div class="s-card-label">Total Incidents Recorded</div>
+                        </div>
+                        <div class="s-card">
+                            <div class="s-card-val c-yellow" id="rpt-open">—</div>
+                            <div class="s-card-label">Open / Active</div>
+                        </div>
+                        <div class="s-card">
+                            <div class="s-card-val c-green" id="rpt-resolved">—</div>
+                            <div class="s-card-label">Resolved</div>
+                        </div>
+                        <div class="s-card">
+                            <div class="s-card-val c-purple" id="rpt-critical">—</div>
+                            <div class="s-card-label">Avg Incident Resolution</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Incidents -->
+                <div class="r-section">
+                    <div class="r-section-title">Critical Incidents This Period</div>
+                    <table class="r-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Severity</th>
+                                <th>Assignee</th>
+                                <th>Status</th>
+                                <th>Resolved</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incidentsTbody">
+                            <tr><td colspan="6" style="text-align:center;color:#64748b;padding:20px">Loading incidents from backend…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Threat Breakdown + System Status -->
+                <div class="two-col">
+
+                    <div class="r-section">
+                        <div class="r-section-title">Threat Breakdown</div>
+                        <table class="r-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Count</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Brute Force</td>
+                                    <td>612</td>
+                                    <td><span class="badge b-red">↑ +18%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Phishing URLs</td>
+                                    <td>489</td>
+                                    <td><span class="badge b-yellow">↑ +7%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Port Scanning</td>
+                                    <td>401</td>
+                                    <td><span class="badge b-gray">→ Stable</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Malware Uploads</td>
+                                    <td>318</td>
+                                    <td><span class="badge b-red">↑ +22%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>SQL Injection</td>
+                                    <td>274</td>
+                                    <td><span class="badge b-green">↓ -5%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>XSS Attempts</td>
+                                    <td>211</td>
+                                    <td><span class="badge b-green">↓ -11%</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Other</td>
+                                    <td>146</td>
+                                    <td><span class="badge b-gray">—</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="r-section">
+                        <div class="r-section-title">System Status</div>
+                        <div class="status-list">
+                            <div class="status-row"><span>Firewall</span><span class="badge b-green">Active</span></div>
+                            <div class="status-row"><span>IDS / IPS</span><span class="badge b-green">Active</span>
+                            </div>
+                            <div class="status-row"><span>Encryption (AES-256)</span><span
+                                    class="badge b-green">Enabled</span></div>
+                            <div class="status-row"><span>TLS Version</span><span class="badge b-blue">TLS 1.3</span>
+                            </div>
+                            <div class="status-row"><span>MFA Enforcement</span><span
+                                    class="badge b-green">Enabled</span></div>
+                            <div class="status-row"><span>Patch Status</span><span class="badge b-yellow">3
+                                    Pending</span></div>
+                            <div class="status-row"><span>Backup Status</span><span class="badge b-green">Up to
+                                    Date</span></div>
+                            <div class="status-row"><span>SOC Monitoring</span><span class="badge b-blue">24 × 7</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Top Attacked Assets -->
+                <div class="r-section">
+                    <div class="r-section-title">Top Targeted Assets</div>
+                    <table class="r-table">
+                        <thead>
+                            <tr>
+                                <th>Asset</th>
+                                <th>IP</th>
+                                <th>Type</th>
+                                <th>Attacks</th>
+                                <th>Risk Level</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Gateway-01</td>
+                                <td>10.0.0.1</td>
+                                <td>Router</td>
+                                <td>841</td>
+                                <td><span class="badge b-red">Critical</span></td>
+                            </tr>
+                            <tr>
+                                <td>API-Gateway</td>
+                                <td>10.0.2.5</td>
+                                <td>API Server</td>
+                                <td>504</td>
+                                <td><span class="badge b-red">Critical</span></td>
+                            </tr>
+                            <tr>
+                                <td>FileServer03</td>
+                                <td>10.0.1.5</td>
+                                <td>File Server</td>
+                                <td>319</td>
+                                <td><span class="badge b-yellow">High</span></td>
+                            </tr>
+                            <tr>
+                                <td>DB-Primary</td>
+                                <td>10.0.1.8</td>
+                                <td>Database</td>
+                                <td>207</td>
+                                <td><span class="badge b-yellow">High</span></td>
+                            </tr>
+                            <tr>
+                                <td>Mail-Server</td>
+                                <td>10.0.3.2</td>
+                                <td>Email</td>
+                                <td>188</td>
+                                <td><span class="badge b-blue">Medium</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="r-section">
+                    <div class="r-section-title">Recommendations</div>
+                    <table class="r-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Recommendation</th>
+                                <th>Priority</th>
+                                <th>Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>Patch 3 outstanding OS vulnerabilities on Gateway-01</td>
+                                <td><span class="badge b-red">Critical</span></td>
+                                <td>Network Team</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>Enable rate-limiting on API authentication endpoints</td>
+                                <td><span class="badge b-red">Critical</span></td>
+                                <td>DevOps</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>Conduct phishing awareness training for Finance dept</td>
+                                <td><span class="badge b-yellow">High</span></td>
+                                <td>HR / SOC</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>Review and tighten firewall inbound rules</td>
+                                <td><span class="badge b-yellow">High</span></td>
+                                <td>SOC Lead</td>
+                            </tr>
+                            <tr>
+                                <td>5</td>
+                                <td>Rotate DB-Primary credentials and audit access list</td>
+                                <td><span class="badge b-blue">Medium</span></td>
+                                <td>DBA</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Signatures -->
+                <div class="r-section">
+                    <div class="r-section-title">Authorisation & Sign-off</div>
+                    <div class="sig-block">
+                        <div class="sig-box">
+                            <div class="sig-label">Prepared by</div>
+                            <div class="sig-name">Admin User &nbsp;|&nbsp; SOC Analyst</div>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-label">Reviewed & Approved by</div>
+                            <div class="sig-name">______________________________ &nbsp;|&nbsp; SOC Lead</div>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-label">CISO Sign-off</div>
+                            <div class="sig-name">______________________________ &nbsp;|&nbsp; CISO</div>
+                        </div>
+                        <div class="sig-box">
+                            <div class="sig-label">Date of Approval</div>
+                            <div class="sig-name">______________________________ </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /report-body -->
+
+            <!-- Footer -->
+            <div class="report-footer">
+                <span>Kavach Net Security Operations Center — Report ID: KN-RPT-2026-02</span>
+                <span>CONFIDENTIAL · Page 1 of 1</span>
+            </div>
+
+        </div><!-- /report-card -->
+    </div>
+
+</body>
+
+<script src="api.js"></script>
+<script>
+  // Auth guard
+  requireAuth();
+
+  // Dynamic report metadata
+  const now = new Date();
+  const yyyymm = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+  const reportId = 'KN-RPT-' + yyyymm + '-' + String(Math.floor(Math.random() * 900) + 100);
+  document.getElementById('rptId').textContent = reportId;
+
+  // Set report date fields
+  document.querySelectorAll('.rpt-date').forEach(el => el.textContent = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' }));
+
+  // Badge classes
+  const severityClass = s => ({ critical: 'b-red', high: 'b-yellow', medium: 'b-blue', low: 'b-green' })[s?.toLowerCase()] || 'b-blue';
+  const statusClass = s => ({ open: 'b-yellow', in_progress: 'b-blue', resolved: 'b-green', closed: 'b-green' })[s?.toLowerCase()] || 'b-blue';
+
+  // Load incidents
+  apiGet('/api/incidents').then(res => {
+    if (!res.ok) { 
+      document.getElementById('incidentsTbody').innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;padding:20px">Error loading incidents: ${res.data.error || 'backend error'}</td></tr>`;
+      return; 
+    }
+    const incidents = res.data.incidents || [];
+    const open = incidents.filter(i => i.status === 'open').length;
+    const resolved = incidents.filter(i => i.status === 'resolved' || i.status === 'closed').length;
+    const critical = incidents.filter(i => (i.severity || i.priority || '').toLowerCase() === 'critical').length;
+
+    // Update summary cards
+    document.getElementById('rpt-total-threats').textContent = incidents.length;
+    document.getElementById('rpt-open').textContent = open;
+    document.getElementById('rpt-resolved').textContent = resolved;
+    if (document.getElementById('rpt-critical')) document.getElementById('rpt-critical').textContent = critical;
+
+    // Populate incidents table
+    const tbody = document.getElementById('incidentsTbody');
+    if (incidents.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#64748b;padding:20px">No incidents found in the system.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = incidents.map(i => {
+      const sev = i.severity || i.priority || 'medium';
+      const resolvedDate = (i.status === 'resolved' || i.status === 'closed') && i.updated_at
+        ? new Date(i.updated_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+        : '—';
+      return `<tr>
+        <td>#${String(i.id || '').padStart(3, '0')}</td>
+        <td>${i.title || i.description || '—'}</td>
+        <td><span class="badge ${severityClass(sev)}">${sev.charAt(0).toUpperCase() + sev.slice(1)}</span></td>
+        <td>${i.assigned_to || i.assignee || '—'}</td>
+        <td><span class="badge ${statusClass(i.status)}">${(i.status || '').replace('_', ' ')}</span></td>
+        <td>${resolvedDate}</td>
+      </tr>`;
+    }).join('');
+
+  }).catch(() => {
+    document.getElementById('incidentsTbody').innerHTML = `<tr><td colspan="6" style="color:#f87171;text-align:center;padding:20px">⚠️ Cannot reach backend (localhost:5000). Start the Flask server and refresh.</td></tr>`;
+  });
+</script>
+
+</html>
