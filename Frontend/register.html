@@ -949,47 +949,104 @@
                   id="institutionCode"
                   placeholder="Institution code"
                   maxlength="8"
-                  style="text-transform:uppercase;letter-spacing:2px;font-family:monospace;font-size:1rem;"
-                  oninput="this.value=this.value.toUpperCase(); resetCodeValidation();"
+                  style="
+                    text-transform: uppercase;
+                    letter-spacing: 2px;
+                    font-family: monospace;
+                    font-size: 1rem;
+                  "
+                  oninput="
+                    this.value = this.value.toUpperCase();
+                    resetCodeValidation();
+                  "
                   required
                 />
                 <label for="institutionCode">Institution Code</label>
                 <span class="input-icon"><i class="bi bi-key"></i></span>
               </div>
               <p class="field-hint">
-                Provided by Kavach Net after your institution is approved. <a href="institution-register.html" style="color:#38bdf8;text-decoration:none;">Register your institution →</a>
+                Provided by Kavach Net after your institution is approved.
+                <a
+                  href="institution-register.html"
+                  style="color: #38bdf8; text-decoration: none"
+                  >Register your institution →</a
+                >
               </p>
 
               <!-- Code validation result box -->
-              <div id="codeValidation" style="display:none;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:0.8rem;align-items:center;gap:8px;"></div>
+              <div
+                id="codeValidation"
+                style="
+                  display: none;
+                  border-radius: 10px;
+                  padding: 10px 14px;
+                  margin-bottom: 14px;
+                  font-size: 0.8rem;
+                  align-items: center;
+                  gap: 8px;
+                "
+              ></div>
 
-              <button type="button" class="btn-primary" id="validateCodeBtn" onclick="validateCode()" style="margin-bottom:16px;">
-                <span id="validateBtnText"><i class="bi bi-search me-1"></i> Validate Code</span>
+              <button
+                type="button"
+                class="btn-primary"
+                id="validateCodeBtn"
+                onclick="validateCode()"
+                style="margin-bottom: 16px"
+              >
+                <span id="validateBtnText"
+                  ><i class="bi bi-search me-1"></i> Validate Code</span
+                >
               </button>
 
-              <div id="roleSection" style="display:none;">
+              <div id="roleSection" style="display: none">
                 <div class="section-label">Select Your Role</div>
                 <div class="role-selector">
                   <div class="role-option">
-                    <input type="radio" name="role" id="roleAdmin" value="admin" checked />
+                    <input
+                      type="radio"
+                      name="role"
+                      id="roleAdmin"
+                      value="admin"
+                      checked
+                    />
                     <label for="roleAdmin">
                       <i class="bi bi-shield-lock-fill"></i>
                       Administrator
-                      <span style="font-size:0.64rem;color:#64748b;font-weight:400;">(1 per institution)</span>
+                      <span
+                        style="
+                          font-size: 0.64rem;
+                          color: #64748b;
+                          font-weight: 400;
+                        "
+                        >(1 per institution)</span
+                      >
                     </label>
                   </div>
                   <div class="role-option">
-                    <input type="radio" name="role" id="roleStaff" value="staff" />
+                    <input
+                      type="radio"
+                      name="role"
+                      id="roleStaff"
+                      value="staff"
+                    />
                     <label for="roleStaff">
                       <i class="bi bi-person-badge-fill"></i>
                       Staff / Analyst
-                      <span style="font-size:0.64rem;color:#64748b;font-weight:400;">(max 2, needs admin approval)</span>
+                      <span
+                        style="
+                          font-size: 0.64rem;
+                          color: #64748b;
+                          font-weight: 400;
+                        "
+                        >(max 2, needs admin approval)</span
+                      >
                     </label>
                   </div>
                 </div>
               </div>
 
-              <div class="btn-row" style="margin-top:4px;">
+              <div class="btn-row" style="margin-top: 4px">
                 <button class="btn-secondary" onclick="prevStep(2)">
                   <i class="bi bi-arrow-left"></i>
                 </button>
@@ -1118,9 +1175,12 @@
       const totalSteps = 3;
 
       // Institution code — allow Enter to trigger validate
-      document.addEventListener('DOMContentLoaded', () => {
-        const codeInput = document.getElementById('institutionCode');
-        if (codeInput) codeInput.addEventListener('keydown', e => { if (e.key === 'Enter') validateCode(); });
+      document.addEventListener("DOMContentLoaded", () => {
+        const codeInput = document.getElementById("institutionCode");
+        if (codeInput)
+          codeInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") validateCode();
+          });
       });
 
       // Toggle password visibility
@@ -1236,7 +1296,7 @@
             showAlert("Please enter your 8-character institution code.");
             return;
           }
-          if (roleSection.style.display === 'none') {
+          if (roleSection.style.display === "none") {
             showAlert("Please validate your institution code first.");
             return;
           }
@@ -1252,66 +1312,84 @@
       let validatedInstitution = null;
       function resetCodeValidation() {
         validatedInstitution = null;
-        document.getElementById('roleSection').style.display = 'none';
-        const box = document.getElementById('codeValidation');
-        box.style.display = 'none';
-        box.innerHTML = '';
+        document.getElementById("roleSection").style.display = "none";
+        const box = document.getElementById("codeValidation");
+        box.style.display = "none";
+        box.innerHTML = "";
       }
 
       async function validateCode() {
-        const code = document.getElementById('institutionCode').value.trim().toUpperCase();
-        if (code.length !== 8) { showAlert('Institution code must be exactly 8 characters.'); return; }
+        const code = document
+          .getElementById("institutionCode")
+          .value.trim()
+          .toUpperCase();
+        if (code.length !== 8) {
+          showAlert("Institution code must be exactly 8 characters.");
+          return;
+        }
 
-        const btn = document.getElementById('validateCodeBtn');
-        const btnText = document.getElementById('validateBtnText');
+        const btn = document.getElementById("validateCodeBtn");
+        const btnText = document.getElementById("validateBtnText");
         btn.disabled = true;
-        btnText.innerHTML = '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></span> Validating…';
+        btnText.innerHTML =
+          '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></span> Validating…';
 
         try {
           const res = await apiGet(`/api/institutions/validate/${code}`, false);
           btn.disabled = false;
           btnText.innerHTML = '<i class="bi bi-search me-1"></i> Validate Code';
-          const box = document.getElementById('codeValidation');
-          box.style.display = 'flex';
+          const box = document.getElementById("codeValidation");
+          box.style.display = "flex";
 
           if (res.ok && res.data.valid) {
             validatedInstitution = res.data;
-            box.style.background = 'rgba(34,197,94,0.08)';
-            box.style.border = '1px solid rgba(34,197,94,0.2)';
-            box.style.color = '#86efac';
+            box.style.background = "rgba(34,197,94,0.08)";
+            box.style.border = "1px solid rgba(34,197,94,0.2)";
+            box.style.color = "#86efac";
             box.innerHTML = `<i class="bi bi-check-circle-fill"></i> <span><strong>${res.data.institution_name}</strong> — ${res.data.admin_slots_available} admin slot · ${res.data.staff_slots_available} staff slot(s) remaining</span>`;
 
             // Show role section and disable unavailable roles
-            document.getElementById('roleSection').style.display = 'block';
-            const adminRadio = document.getElementById('roleAdmin');
-            const staffRadio = document.getElementById('roleStaff');
+            document.getElementById("roleSection").style.display = "block";
+            const adminRadio = document.getElementById("roleAdmin");
+            const staffRadio = document.getElementById("roleStaff");
             if (res.data.admin_slots_available === 0) {
               adminRadio.disabled = true;
-              adminRadio.closest('.role-option').querySelector('label').style.opacity = '0.4';
+              adminRadio
+                .closest(".role-option")
+                .querySelector("label").style.opacity = "0.4";
               staffRadio.checked = true;
             } else {
               adminRadio.disabled = false;
-              adminRadio.closest('.role-option').querySelector('label').style.opacity = '1';
+              adminRadio
+                .closest(".role-option")
+                .querySelector("label").style.opacity = "1";
             }
             if (res.data.staff_slots_available === 0) {
               staffRadio.disabled = true;
-              staffRadio.closest('.role-option').querySelector('label').style.opacity = '0.4';
+              staffRadio
+                .closest(".role-option")
+                .querySelector("label").style.opacity = "0.4";
             } else {
               staffRadio.disabled = false;
-              staffRadio.closest('.role-option').querySelector('label').style.opacity = '1';
+              staffRadio
+                .closest(".role-option")
+                .querySelector("label").style.opacity = "1";
             }
           } else {
             validatedInstitution = null;
-            box.style.background = 'rgba(239,68,68,0.08)';
-            box.style.border = '1px solid rgba(239,68,68,0.2)';
-            box.style.color = '#fca5a5';
-            box.innerHTML = `<i class="bi bi-x-circle-fill"></i> <span>${res.data.error || 'Invalid institution code.'}</span>`;
-            document.getElementById('roleSection').style.display = 'none';
+            box.style.background = "rgba(239,68,68,0.08)";
+            box.style.border = "1px solid rgba(239,68,68,0.2)";
+            box.style.color = "#fca5a5";
+            box.innerHTML = `<i class="bi bi-x-circle-fill"></i> <span>${res.data.error || "Invalid institution code."}</span>`;
+            document.getElementById("roleSection").style.display = "none";
           }
         } catch {
-          document.getElementById('validateCodeBtn').disabled = false;
-          document.getElementById('validateBtnText').innerHTML = '<i class="bi bi-search me-1"></i> Validate Code';
-          showAlert('Cannot reach backend. Make sure the server is running on localhost:5000.');
+          document.getElementById("validateCodeBtn").disabled = false;
+          document.getElementById("validateBtnText").innerHTML =
+            '<i class="bi bi-search me-1"></i> Validate Code';
+          showAlert(
+            "Cannot reach backend. The security systems might be temporarily unreachable.",
+          );
         }
       }
 
@@ -1322,53 +1400,94 @@
         const cpw = document.getElementById("confirmPassword").value;
         const terms = document.getElementById("termsCheck").checked;
 
-        if (!pw || pw.length < 8) { showAlert("Password must be at least 8 characters."); return; }
-        if (!/[A-Z]/.test(pw)) { showAlert("Password must contain at least one uppercase letter."); return; }
-        if (!/[0-9]/.test(pw)) { showAlert("Password must contain at least one number."); return; }
-        if (!/[^A-Za-z0-9]/.test(pw)) { showAlert("Password must contain at least one special character."); return; }
-        if (pw !== cpw) { showAlert("Passwords do not match."); return; }
-        if (!terms) { showAlert("Please agree to the Terms of Use and Security Policy."); return; }
-        if (!validatedInstitution) { showAlert("Please go back and validate your institution code."); return; }
+        if (!pw || pw.length < 8) {
+          showAlert("Password must be at least 8 characters.");
+          return;
+        }
+        if (!/[A-Z]/.test(pw)) {
+          showAlert("Password must contain at least one uppercase letter.");
+          return;
+        }
+        if (!/[0-9]/.test(pw)) {
+          showAlert("Password must contain at least one number.");
+          return;
+        }
+        if (!/[^A-Za-z0-9]/.test(pw)) {
+          showAlert("Password must contain at least one special character.");
+          return;
+        }
+        if (pw !== cpw) {
+          showAlert("Passwords do not match.");
+          return;
+        }
+        if (!terms) {
+          showAlert("Please agree to the Terms of Use and Security Policy.");
+          return;
+        }
+        if (!validatedInstitution) {
+          showAlert("Please go back and validate your institution code.");
+          return;
+        }
 
         const role = document.querySelector("input[name=role]:checked").value;
         const btn = document.getElementById("submitBtn");
         btn.classList.add("loading");
         btn.disabled = true;
 
-        const username = document.getElementById("firstName").value.trim().toLowerCase() + '_' + document.getElementById("lastName").value.trim().toLowerCase();
+        const username =
+          document.getElementById("firstName").value.trim().toLowerCase() +
+          "_" +
+          document.getElementById("lastName").value.trim().toLowerCase();
         const email = document.getElementById("emailField").value.trim();
-        const institution_code = document.getElementById("institutionCode").value.trim().toUpperCase();
-        const endpoint = role === 'admin' ? '/api/register/admin' : '/api/register/staff';
+        const institution_code = document
+          .getElementById("institutionCode")
+          .value.trim()
+          .toUpperCase();
+        const endpoint =
+          role === "admin" ? "/api/register/admin" : "/api/register/staff";
 
         (async () => {
           try {
-            const res = await apiPost(endpoint, { username, password: pw, email, institution_code });
+            const res = await apiPost(endpoint, {
+              username,
+              password: pw,
+              email,
+              institution_code,
+            });
             btn.classList.remove("loading");
             btn.disabled = false;
 
             if (res.ok) {
-              const isAdmin = role === 'admin';
-              const statusColor = isAdmin ? '#22c55e' : '#fbbf24';
-              const statusText = isAdmin ? '✅ Active — You can log in now' : '⏳ Awaiting Admin Approval';
+              const isAdmin = role === "admin";
+              const statusColor = isAdmin ? "#22c55e" : "#fbbf24";
+              const statusText = isAdmin
+                ? "✅ Active — You can log in now"
+                : "⏳ Awaiting Admin Approval";
               document.getElementById("successDetail").innerHTML = `
                 <div class="success-detail-row"><span>Name</span><span>${document.getElementById("firstName").value} ${document.getElementById("lastName").value}</span></div>
                 <div class="success-detail-row"><span>Username</span><span>${username}</span></div>
                 <div class="success-detail-row"><span>Email</span><span>${email}</span></div>
                 <div class="success-detail-row"><span>Institution</span><span>${validatedInstitution.institution_name}</span></div>
-                <div class="success-detail-row"><span>Role</span><span style="color:${isAdmin ? '#60a5fa' : '#2dd4bf'}">${isAdmin ? 'Administrator' : 'Staff / Analyst'}</span></div>
+                <div class="success-detail-row"><span>Role</span><span style="color:${isAdmin ? "#60a5fa" : "#2dd4bf"}">${isAdmin ? "Administrator" : "Staff / Analyst"}</span></div>
                 <div class="success-detail-row"><span>Status</span><span style="color:${statusColor}">${statusText}</span></div>
               `;
               document.getElementById("stepProgress").style.display = "none";
-              document.querySelectorAll(".form-step").forEach((s) => s.classList.remove("active"));
+              document
+                .querySelectorAll(".form-step")
+                .forEach((s) => s.classList.remove("active"));
               document.getElementById("cardFooter").style.display = "none";
               document.getElementById("successScreen").classList.add("show");
             } else {
-              showAlert(res.data.error || "Registration failed. Please try again.");
+              showAlert(
+                res.data.error || "Registration failed. Please try again.",
+              );
             }
           } catch (err) {
             btn.classList.remove("loading");
             btn.disabled = false;
-            showAlert("Cannot reach backend. Make sure the server is running on localhost:5000.");
+            showAlert(
+              "Cannot reach backend. The security systems might be temporarily unreachable.",
+            );
           }
         })();
       }

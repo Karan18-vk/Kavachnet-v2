@@ -622,6 +622,14 @@
 
       // ── Load all institutions ─────────────────────────────
       async function loadInstitutions() {
+        const container = document.getElementById("cardsContainer");
+        container.innerHTML = `
+          <div class="spinner-wrap">
+            <div class="spinner-sm"></div>
+            Connecting to security systems...<br>
+            <small style="color:#64748b;font-size:0.7rem">Backend usually takes ~20s to wake up on first load.</small>
+          </div>`;
+
         try {
           const res = await apiGet("/api/superadmin/institutions");
           if (!res.ok) {
@@ -635,26 +643,42 @@
           renderCards(currentFilter);
         } catch (err) {
           console.error("Load error:", err);
-          const isNetworkError =
-            err.message.includes("Failed to fetch") || err.name === "TypeError";
-          const isJwtError =
-            err.message.includes("Subject must be a string") ||
-            err.message.includes("Invalid security token");
 
-          if (isJwtError) {
-            console.error("JWT Error detected:", err.message);
+          let title = "Server Error";
+          let message = err.message;
+          let icon = "bi-exclamation-octagon";
+
+          if (message.includes("timed out")) {
+            title = "Request Timed Out";
+            message =
+              "The backend is taking too long to respond. It might be under heavy load or cold-starting.";
+            icon = "bi-clock-history";
+          } else if (
+            message.includes("Failed to fetch") ||
+            err.name === "TypeError"
+          ) {
+            title = "Connection Failed";
+            message =
+              "Cannot reach the security backend. Check your internet or CORS settings.";
+            icon = "bi-wifi-off";
+          } else if (
+            message.includes("Subject must be a string") ||
+            message.includes("Invalid security token")
+          ) {
             showToast("⚠️ Security session issue. Please log in again.");
-            // Don't auto-logout immediately, let the user see the error or try to retry once
+            setTimeout(() => {
+              clearToken();
+              window.location.href = "superadmin-login.html";
+            }, 3000);
             return;
           }
 
-          const title = isNetworkError ? "Connection Failed" : "Server Error";
-          document.getElementById("cardsContainer").innerHTML =
-            `<div class="empty-state">
-              <i class="bi bi-exclamation-octagon"></i>
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi ${icon}"></i>
               <strong>${title}</strong><br>
-              <small style="color:#64748b">${err.message}</small><br>
-              <button class="btn-approve mt-3" onclick="loadInstitutions()" style="font-size:0.75rem">Retry</button>
+              <p style="color:#64748b;font-size:0.8rem;margin-top:8px">${message}</p>
+              <button class="btn-approve mt-3" onclick="loadInstitutions()" style="font-size:0.75rem">Retry Connection</button>
             </div>`;
         }
       }

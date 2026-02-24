@@ -52,40 +52,113 @@ function logoutSuperAdmin() {
     window.location.href = 'superadmin-login.html';
 }
 
-// ── Fetch wrappers ───────────────────────────────────────
+// ── Fetch wrappers with Timeout and Robust Parsing ────────────────
 async function apiPost(endpoint, body, auth = false) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
     const headers = { 'Content-Type': 'application/json' };
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
-    const res = await fetch(API_BASE + endpoint, {
-        method: 'POST', headers, body: JSON.stringify(body)
-    });
-    return res.json().then(data => ({ 
-        ok: res.ok, 
-        status: res.status, 
-        data: { ...data, error: data.error || data.msg } 
-    }));
+
+    try {
+        const res = await fetch(API_BASE + endpoint, {
+            method: 'POST', 
+            headers, 
+            body: JSON.stringify(body),
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+
+        const contentType = res.headers.get("content-type");
+        let data = {};
+        if (contentType && contentType.includes("application/json")) {
+            data = await res.json();
+        } else {
+            const text = await res.text();
+            data = { msg: text || res.statusText };
+        }
+
+        return { 
+            ok: res.ok, 
+            status: res.status, 
+            data: { ...data, error: data.error || data.msg } 
+        };
+    } catch (err) {
+        clearTimeout(timeout);
+        const isTimeout = err.name === 'AbortError';
+        throw new Error(isTimeout ? "Request timed out (server slow to respond)" : err.message);
+    }
 }
 
 async function apiGet(endpoint, auth = true) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
     const headers = {};
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
-    const res = await fetch(API_BASE + endpoint, { headers });
-    return res.json().then(data => ({ 
-        ok: res.ok, 
-        status: res.status, 
-        data: { ...data, error: data.error || data.msg } 
-    }));
+
+    try {
+        const res = await fetch(API_BASE + endpoint, { 
+            headers,
+            signal: controller.signal 
+        });
+        clearTimeout(timeout);
+
+        const contentType = res.headers.get("content-type");
+        let data = {};
+        if (contentType && contentType.includes("application/json")) {
+            data = await res.json();
+        } else {
+            const text = await res.text();
+            data = { msg: text || res.statusText };
+        }
+
+        return { 
+            ok: res.ok, 
+            status: res.status, 
+            data: { ...data, error: data.error || data.msg } 
+        };
+    } catch (err) {
+        clearTimeout(timeout);
+        const isTimeout = err.name === 'AbortError';
+        throw new Error(isTimeout ? "Request timed out (server slow to respond)" : err.message);
+    }
 }
 
 async function apiPatch(endpoint, body, auth = true) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
     const headers = { 'Content-Type': 'application/json' };
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
-    const res = await fetch(API_BASE + endpoint, {
-        method: 'PATCH', headers, body: JSON.stringify(body)
-    });
-    return res.json().then(data => ({ 
-        ok: res.ok, 
-        status: res.status, 
-        data: { ...data, error: data.error || data.msg } 
-    }));
+
+    try {
+        const res = await fetch(API_BASE + endpoint, {
+            method: 'PATCH', 
+            headers, 
+            body: JSON.stringify(body),
+            signal: controller.signal
+        });
+        clearTimeout(timeout);
+
+        const contentType = res.headers.get("content-type");
+        let data = {};
+        if (contentType && contentType.includes("application/json")) {
+            data = await res.json();
+        } else {
+            const text = await res.text();
+            data = { msg: text || res.statusText };
+        }
+
+        return { 
+            ok: res.ok, 
+            status: res.status, 
+            data: { ...data, error: data.error || data.msg } 
+        };
+    } catch (err) {
+        clearTimeout(timeout);
+        const isTimeout = err.name === 'AbortError';
+        throw new Error(isTimeout ? "Request timed out (server slow to respond)" : err.message);
+    }
 }
+
