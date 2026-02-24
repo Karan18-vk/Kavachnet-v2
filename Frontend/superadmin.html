@@ -630,9 +630,10 @@
           allInstitutions = res.data.institutions || [];
           updateStats();
           renderCards(currentFilter);
-        } catch {
+        } catch (err) {
+          console.error("Load error:", err);
           document.getElementById("cardsContainer").innerHTML =
-            '<div class="empty-state"><i class="bi bi-wifi-off"></i>Cannot reach backend. Ensure Flask server is running on localhost:5000.</div>';
+            `<div class="empty-state"><i class="bi bi-wifi-off"></i>Failed to reach backend.<br><small style="color:#64748b">${err.message}</small></div>`;
         }
       }
 
@@ -696,9 +697,14 @@
       <div style="font-size:0.72rem;color:#475569;margin-top:6px">
         Members: ${inst.admin_count || 0} admin · ${inst.staff_count || 0} staff / 2 max
       </div>
+      ${
+        inst.code_expires_at
+          ? `
       <div style="font-size:0.7rem;color:#94a3b8;margin-top:4px;display:flex;align-items:center;gap:4px;">
         <i class="bi bi-clock-history"></i> Expires: ${new Date(inst.code_expires_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
       </div>`
+          : ""
+      } `
           : "";
 
         const actions =

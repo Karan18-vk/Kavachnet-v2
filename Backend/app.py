@@ -17,6 +17,19 @@ jwt = JWTManager(app)
 CORS(app)
 db = Database()
 
+# ── DATABASE MIGRATION ────────────────────────────
+def migrate_db():
+    conn = sqlite3.connect(Config.DB_NAME)
+    try:
+        conn.execute("ALTER TABLE institutions ADD COLUMN code_expires_at TEXT")
+        print("[DB] Added code_expires_at column.")
+    except sqlite3.OperationalError:
+        pass # Column already exists
+    conn.commit()
+    conn.close()
+
+migrate_db()
+
 # ── Super Admin credentials (only for Kavach Net team) ──────────
 SUPERADMIN_USERNAME = os.getenv("SUPERADMIN_USERNAME", "kavachnet_root")
 SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "KN@SuperAdmin2026!")
