@@ -55,7 +55,7 @@ function logoutSuperAdmin() {
 // ── Fetch wrappers with Timeout and Robust Parsing ────────────────
 async function apiPost(endpoint, body, auth = false) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+    const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold-starts
 
     const headers = { 'Content-Type': 'application/json' };
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
@@ -100,7 +100,7 @@ async function apiPost(endpoint, body, auth = false) {
 
 async function apiGet(endpoint, auth = true) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+    const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold-starts
 
     const headers = {};
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
@@ -143,7 +143,7 @@ async function apiGet(endpoint, auth = true) {
 
 async function apiPatch(endpoint, body, auth = true) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000); // 20s timeout
+    const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold-starts
 
     const headers = { 'Content-Type': 'application/json' };
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();

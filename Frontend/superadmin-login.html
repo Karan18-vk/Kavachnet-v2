@@ -338,9 +338,16 @@
               '<i class="bi bi-shield-lock me-1"></i> Access Control Panel';
           }
         } catch (err) {
-          showAlert(
-            "Cannot reach backend. The security systems might be temporarily unreachable.",
-          );
+          console.error("[AUTH] Login error:", err);
+          if (err.message.includes("timed out")) {
+            showAlert(
+              "Request Timed Out. The security server is currently waking up (takes ~60s). Please try again in a moment.",
+            );
+          } else {
+            showAlert(
+              "Cannot reach backend. The security systems might be temporarily unreachable.",
+            );
+          }
           btn.disabled = false;
           document.getElementById("btnText").innerHTML =
             '<i class="bi bi-shield-lock me-1"></i> Access Control Panel';
