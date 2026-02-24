@@ -59,65 +59,77 @@ def superadmin_login():
     return jsonify({"access_token": token, "role": "superadmin"}), 200
 
 
+# ── JWT IDENTITY HELPER ────────────────────────────
+def is_superadmin(identity):
+    if not identity: return False
+    # Handle dictionary identity (new)
+    if isinstance(identity, dict):
+        return identity.get("role") == "superadmin"
+    # Handle string identity (old)
+    return identity == SUPERADMIN_USERNAME
+
 @app.route("/api/superadmin/institutions", methods=["GET"])
 @jwt_required()
 def sa_get_institutions():
     identity = get_jwt_identity()
-    if identity.get("role") != "superadmin":
-        return jsonify({"error": "Forbidden."}), 403
+    if not is_superadmin(identity):
+        return jsonify({"error": "Forbidden. Super Admin required."}), 403
     
-    institutions = db.get_all_institutions()
-    import datetime
-    now = datetime.datetime.now()
-    
-    # Auto-rotate expired codes
-    for inst in institutions:
-        if inst.get('status') == 'approved' and inst.get('code_expires_at'):
-            expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
-            if now > expiry:
-                new_code, new_expiry = db.rotate_institution_code(inst['id'])
-                inst['institution_code'] = new_code
-                inst['code_expires_at'] = new_expiry
-                print(f"[SYSTEM] Auto-rotated code for institution {inst['name']}")
-
-        # Attach member counts
-        if inst.get('institution_code'):
-            a, s = db.get_member_count(inst['institution_code'])
-            inst['admin_count'] = a
-            inst['staff_count'] = s
-        else:
-            inst['admin_count'] = 0
-            inst['staff_count'] = 0
+    try:
+        institutions = db.get_all_institutions()
+        import datetime
+        now = datetime.datetime.now()
+        
+        # Auto-rotate expired codes
+        for inst in institutions:
+            if inst.get('status') == 'approved' and inst.get('code_expires_at'):
+                try:
+                    expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
+                    if now > expiry:
+                        new_code, new_expiry = db.rotate_institution_code(inst['id'])
+                        inst['institution_code'] = new_code
+                        inst['code_expires_at'] = new_expiry
+                        print(f"[SYSTEM] Auto-rotated code for {inst['name']}")
+                except:
+                    pass # Ignore bad date formats
             
-    return jsonify({"institutions": institutions}), 200
+            # Attach member counts
+            if inst.get('institution_code'):
+                a, s = db.get_member_count(inst['institution_code'])
+                inst['admin_count'] = a
+                inst['staff_count'] = s
+            else:
+                inst['admin_count'] = 0
+                inst['staff_count'] = 0
+                
+        return jsonify({"institutions": institutions}), 200
+    except Exception as e:
+        print(f"[ERROR] sa_get_institutions: {e}")
+        return jsonify({"error": f"Internal Error: {str(e)}"}), 500
 
 
 @app.route("/api/superadmin/institutions/<inst_id>/approve", methods=["POST"])
 @jwt_required()
 def sa_approve_institution(inst_id):
     identity = get_jwt_identity()
-    if identity.get("role") != "superadmin":
+    if not is_superadmin(identity):
         return jsonify({"error": "Forbidden."}), 403
+    # ... rest of the code is unchanged but I'll update the whole route for safety
     inst = db.get_institution_by_id(inst_id)
-    if not inst:
-        return jsonify({"error": "Institution not found."}), 404
+    if not inst: return jsonify({"error": "Institution not found."}), 404
     if inst['status'] == 'approved':
         return jsonify({"error": "Already approved.", "institution_code": inst['institution_code']}), 400
     
     code, expiry = db.approve_institution(inst_id)
-    
-    # Send approval email
     from utils.email_sender import send_institution_approval
     send_institution_approval(inst['email'], inst['contact_person'], code, expiry)
-    
     return jsonify({"message": "Institution approved. Code sent via email.", "institution_code": code, "expires_at": expiry}), 200
 
 
 @app.route("/api/superadmin/institutions/<inst_id>/reject", methods=["POST"])
 @jwt_required()
 def sa_reject_institution(inst_id):
-    identity = get_jwt_identity()
-    if identity.get("role") != "superadmin":
+    if not is_superadmin(get_jwt_identity()):
         return jsonify({"error": "Forbidden."}), 403
     data = request.json or {}
     db.reject_institution(inst_id, data.get("reason", ""))
@@ -130,8 +142,7 @@ def sa_reject_institution(inst_id):
 @app.route("/api/maker/stats", methods=["GET"])
 @jwt_required()
 def maker_get_stats():
-    identity = get_jwt_identity()
-    if identity.get("role") != "superadmin":
+    if not is_superadmin(get_jwt_identity()):
         return jsonify({"error": "Forbidden. Maker access required."}), 403
     
     # Internal system metrics

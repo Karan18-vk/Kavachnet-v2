@@ -59,14 +59,22 @@ async function apiPost(endpoint, body, auth = false) {
     const res = await fetch(API_BASE + endpoint, {
         method: 'POST', headers, body: JSON.stringify(body)
     });
-    return res.json().then(data => ({ ok: res.ok, status: res.status, data }));
+    return res.json().then(data => ({ 
+        ok: res.ok, 
+        status: res.status, 
+        data: { ...data, error: data.error || data.msg } 
+    }));
 }
 
 async function apiGet(endpoint, auth = true) {
     const headers = {};
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
     const res = await fetch(API_BASE + endpoint, { headers });
-    return res.json().then(data => ({ ok: res.ok, status: res.status, data }));
+    return res.json().then(data => ({ 
+        ok: res.ok, 
+        status: res.status, 
+        data: { ...data, error: data.error || data.msg } 
+    }));
 }
 
 async function apiPatch(endpoint, body, auth = true) {
@@ -75,5 +83,9 @@ async function apiPatch(endpoint, body, auth = true) {
     const res = await fetch(API_BASE + endpoint, {
         method: 'PATCH', headers, body: JSON.stringify(body)
     });
-    return res.json().then(data => ({ ok: res.ok, status: res.status, data }));
+    return res.json().then(data => ({ 
+        ok: res.ok, 
+        status: res.status, 
+        data: { ...data, error: data.error || data.msg } 
+    }));
 }

@@ -624,16 +624,26 @@
         try {
           const res = await apiGet("/api/superadmin/institutions");
           if (!res.ok) {
-            showError(res.data.error || "Failed to load.");
-            return;
+            const errorMsg =
+              res.data.error || `Error ${res.status}: Failed to load.`;
+            showToast("❌ " + errorMsg);
+            throw new Error(errorMsg);
           }
           allInstitutions = res.data.institutions || [];
           updateStats();
           renderCards(currentFilter);
         } catch (err) {
           console.error("Load error:", err);
+          const isNetworkError =
+            err.message.includes("Failed to fetch") || err.name === "TypeError";
+          const title = isNetworkError ? "Connection Failed" : "Server Error";
           document.getElementById("cardsContainer").innerHTML =
-            `<div class="empty-state"><i class="bi bi-wifi-off"></i>Failed to reach backend.<br><small style="color:#64748b">${err.message}</small></div>`;
+            `<div class="empty-state">
+              <i class="bi bi-exclamation-octagon"></i>
+              <strong>${title}</strong><br>
+              <small style="color:#64748b">${err.message}</small><br>
+              <button class="btn-approve mt-3" onclick="loadInstitutions()" style="font-size:0.75rem">Retry</button>
+            </div>`;
         }
       }
 
