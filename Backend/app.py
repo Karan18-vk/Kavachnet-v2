@@ -92,6 +92,50 @@ def sa_reject_institution(inst_id):
 
 
 # ══════════════════════════════════════════
+# MAKER PORTAL (restricted to Super Admin)
+# ══════════════════════════════════════════
+@app.route("/api/maker/stats", methods=["GET"])
+@jwt_required()
+def maker_get_stats():
+    identity = get_jwt_identity()
+    if identity.get("role") != "superadmin":
+        return jsonify({"error": "Forbidden. Maker access required."}), 403
+    
+    # Internal system metrics
+    logs = db.get_all_login_logs()
+    total_patterns = sum(log['failed_count'] + log['success_count'] for log in logs)
+    
+    from modules.threat import run_anomaly_detection
+    # Preview anomalies without saving to incidents for "Stats"
+    # We'll just return the count from the last logs analysis for now
+    analysis = run_anomaly_detection(db)
+    
+    return jsonify({
+        "system_status": "operational",
+        "database": "connected",
+        "ml_model": "Isolation Forest (scikit-learn)",
+        "patterns_analyzed": total_patterns,
+        "anomalies_detected": analysis.get("anomalies_detected", 0),
+        "db_size_rough": len(logs) + len(db.get_all_incidents())
+    }), 200
+
+
+@app.route("/api/maker/scan", methods=["POST"])
+@jwt_required()
+def maker_trigger_scan():
+    identity = get_jwt_identity()
+    if identity.get("role") != "superadmin":
+        return jsonify({"error": "Forbidden. Maker access required."}), 403
+    
+    from modules.threat import run_anomaly_detection
+    result = run_anomaly_detection(db)
+    return jsonify({
+        "message": "Manual threat scan completed.",
+        "details": result
+    }), 200
+
+
+# ══════════════════════════════════════════
 # INSTITUTION REGISTRATION (public)
 # ══════════════════════════════════════════
 @app.route("/api/institutions/request", methods=["POST"])
