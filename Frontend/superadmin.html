@@ -609,11 +609,8 @@
 
     <script src="api.js"></script>
     <script>
-      if (getToken() && getSession()?.role !== "superadmin") {
-        console.warn("Invalid role for superadmin dashboard. Clearing...");
-        clearToken();
-        window.location.href = "superadmin-login.html";
-      }
+      requireSuperAdmin();
+      console.log("[SESSION] Dashboard accessed as:", getSession());
 
       let allInstitutions = [];
       let currentFilter = "all";
@@ -645,11 +642,9 @@
             err.message.includes("Invalid security token");
 
           if (isJwtError) {
-            showToast("⚠️ Security session invalid. Logging out...");
-            setTimeout(() => {
-              clearToken();
-              window.location.href = "superadmin-login.html";
-            }, 2000);
+            console.error("JWT Error detected:", err.message);
+            showToast("⚠️ Security session issue. Please log in again.");
+            // Don't auto-logout immediately, let the user see the error or try to retry once
             return;
           }
 
