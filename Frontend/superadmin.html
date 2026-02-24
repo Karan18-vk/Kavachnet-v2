@@ -609,7 +609,11 @@
 
     <script src="api.js"></script>
     <script>
-      requireSuperAdmin();
+      if (getToken() && getSession()?.role !== "superadmin") {
+        console.warn("Invalid role for superadmin dashboard. Clearing...");
+        clearToken();
+        window.location.href = "superadmin-login.html";
+      }
 
       let allInstitutions = [];
       let currentFilter = "all";
@@ -636,6 +640,19 @@
           console.error("Load error:", err);
           const isNetworkError =
             err.message.includes("Failed to fetch") || err.name === "TypeError";
+          const isJwtError =
+            err.message.includes("Subject must be a string") ||
+            err.message.includes("Invalid security token");
+
+          if (isJwtError) {
+            showToast("⚠️ Security session invalid. Logging out...");
+            setTimeout(() => {
+              clearToken();
+              window.location.href = "superadmin-login.html";
+            }, 2000);
+            return;
+          }
+
           const title = isNetworkError ? "Connection Failed" : "Server Error";
           document.getElementById("cardsContainer").innerHTML =
             `<div class="empty-state">

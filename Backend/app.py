@@ -14,6 +14,20 @@ app.config["JWT_SECRET_KEY"] = Config.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = Config.JWT_ACCESS_TOKEN_EXPIRES
 
 jwt = JWTManager(app)
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    # CRITICAL: Force all identities to be strings to prevent "Subject must be a string" error
+    return str(user)
+
+@jwt.unauthorized_loader
+def unauthorized_response(callback):
+    return jsonify({"error": "Missing Authorization Header"}), 401
+
+@jwt.invalid_token_loader
+def invalid_token_response(callback):
+    return jsonify({"error": "Invalid security token. Please log out and in again."}), 422
+
 CORS(app)
 db = Database()
 
@@ -52,12 +66,14 @@ def health_check():
 @app.route("/api/superadmin/login", methods=["POST"])
 def superadmin_login():
     data = request.json
+    print(f"[AUTH] SuperAdmin login attempt: {data.get('username')}")
+    
     if data.get("username") != SUPERADMIN_USERNAME or data.get("password") != SUPERADMIN_PASSWORD:
         return jsonify({"error": "Invalid super admin credentials."}), 401
     
     # Standardize: Identity as string, metadata in claims
     token = create_access_token(
-        identity=SUPERADMIN_USERNAME,
+        identity=str(SUPERADMIN_USERNAME),
         additional_claims={"role": "superadmin", "institution_code": None}
     )
     return jsonify({"access_token": token, "role": "superadmin"}), 200
@@ -68,6 +84,7 @@ from flask_jwt_extended import get_jwt
 
 def is_superadmin(identity):
     claims = get_jwt()
+    print(f"[DEBUG] Identity: {identity}, Claims: {claims}")
     return claims.get("role") == "superadmin"
 
 @app.route("/api/superadmin/institutions", methods=["GET"])
