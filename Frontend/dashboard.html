@@ -364,10 +364,23 @@
           </a>
 
           <!-- Admin only: Staff Management -->
-          <a href="#" class="sidebar-link admin-only" data-page="staff" id="staffMgmtLink" style="display:none;">
-            <span class="sidebar-link-icon"><i class="bi bi-people-fill"></i></span>
+          <a
+            href="#"
+            class="sidebar-link admin-only"
+            data-page="staff"
+            id="staffMgmtLink"
+            style="display: none"
+          >
+            <span class="sidebar-link-icon"
+              ><i class="bi bi-people-fill"></i
+            ></span>
             <span class="sidebar-link-text">Staff Management</span>
-            <span class="sidebar-link-badge badge-yellow" id="pendingStaffBadge" style="display:none;">!</span>
+            <span
+              class="sidebar-link-badge badge-yellow"
+              id="pendingStaffBadge"
+              style="display: none"
+              >!</span
+            >
           </a>
         </nav>
 
@@ -1105,20 +1118,30 @@
           <div class="row mt-4">
             <div class="col-12">
               <div class="card glass-card p-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+                <div
+                  class="d-flex justify-content-between align-items-center mb-3"
+                >
                   <h5 class="mb-0">Incident Tickets</h5>
                   <div class="d-flex gap-2">
-                    <a href="incident-report.html" target="_blank" class="btn btn-sm btn-outline-info">
+                    <a
+                      href="incident-report.html"
+                      target="_blank"
+                      class="btn btn-sm btn-outline-info"
+                    >
                       <i class="bi bi-file-earmark-text me-1"></i>Full Report
                     </a>
-                    <button class="btn btn-sm btn-outline-secondary" onclick="loadIncidents()">
+                    <button
+                      class="btn btn-sm btn-outline-secondary"
+                      onclick="loadIncidents()"
+                    >
                       <i class="bi bi-arrow-clockwise me-1"></i>Refresh
                     </button>
                   </div>
                 </div>
                 <div id="incidentsTableWrap">
                   <div class="text-center py-4 text-secondary">
-                    <div class="spinner-border spinner-border-sm me-2"></div>Loading incidents…
+                    <div class="spinner-border spinner-border-sm me-2"></div>
+                    Loading incidents…
                   </div>
                 </div>
               </div>
@@ -2057,20 +2080,22 @@
           <div class="row g-3 mt-3">
             <div class="col-md-4">
               <div class="card glass-card p-3">
-                <small style="color:#94a3b8">Admin</small>
+                <small style="color: #94a3b8">Admin</small>
                 <h3 class="text-info mb-0" id="sm-admin-count">—</h3>
               </div>
             </div>
             <div class="col-md-4">
               <div class="card glass-card p-3">
-                <small style="color:#94a3b8">Active Staff</small>
-                <h3 style="color:#22c55e" class="mb-0" id="sm-staff-count">—</h3>
+                <small style="color: #94a3b8">Active Staff</small>
+                <h3 style="color: #22c55e" class="mb-0" id="sm-staff-count">
+                  —
+                </h3>
               </div>
             </div>
             <div class="col-md-4">
               <div class="card glass-card p-3">
-                <small style="color:#94a3b8">Staff Slots Left</small>
-                <h3 style="color:#a78bfa" class="mb-0" id="sm-slots">—</h3>
+                <small style="color: #94a3b8">Staff Slots Left</small>
+                <h3 style="color: #a78bfa" class="mb-0" id="sm-slots">—</h3>
               </div>
             </div>
           </div>
@@ -2078,8 +2103,16 @@
           <!-- Pending approvals -->
           <div class="card glass-card p-3 mt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
-              <h5 class="mb-0"><i class="bi bi-hourglass-split me-2" style="color:#fbbf24"></i>Pending Approval</h5>
-              <button class="btn btn-sm btn-outline-secondary" onclick="loadStaffPanel()"><i class="bi bi-arrow-clockwise"></i></button>
+              <h5 class="mb-0">
+                <i class="bi bi-hourglass-split me-2" style="color: #fbbf24"></i
+                >Pending Approval
+              </h5>
+              <button
+                class="btn btn-sm btn-outline-secondary"
+                onclick="loadStaffPanel()"
+              >
+                <i class="bi bi-arrow-clockwise"></i>
+              </button>
             </div>
             <div id="pendingStaffList">
               <div class="text-center py-3 text-secondary">Loading…</div>
@@ -2088,19 +2121,36 @@
 
           <!-- All members -->
           <div class="card glass-card p-3 mt-3">
-            <h5 class="mb-3"><i class="bi bi-people me-2" style="color:#60a5fa"></i>All Members</h5>
+            <h5 class="mb-3">
+              <i class="bi bi-people me-2" style="color: #60a5fa"></i>All
+              Members
+            </h5>
             <div class="table-responsive">
-              <table class="table table-dark table-hover" style="font-size:0.85rem">
-                <thead><tr><th>Username</th><th>Email</th><th>Role</th><th>Status</th><th>Joined</th></tr></thead>
+              <table
+                class="table table-dark table-hover"
+                style="font-size: 0.85rem"
+              >
+                <thead>
+                  <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                  </tr>
+                </thead>
                 <tbody id="allMembersTable">
-                  <tr><td colspan="5" class="text-center text-secondary py-3">Loading…</td></tr>
+                  <tr>
+                    <td colspan="5" class="text-center text-secondary py-3">
+                      Loading…
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </div>
         </div>
         <!-- /page-staff -->
-
       </main>
     </div>
     <!-- /page-wrapper -->
@@ -2108,60 +2158,76 @@
     <script src="api.js"></script>
     <script>
       // 🔐 Auth guard — only admin and staff can access
-      requireAuth(['admin', 'staff']);
+      requireAuth(["admin", "staff"]);
 
       // Populate sidebar with logged-in user info and show admin features
       const _session = getSession();
       (function loadUserInfo() {
         if (_session) {
-          const usernameEl = document.querySelector('.sidebar-username');
-          const roleEl = document.querySelector('.sidebar-role');
+          const usernameEl = document.querySelector(".sidebar-username");
+          const roleEl = document.querySelector(".sidebar-role");
           if (usernameEl) usernameEl.textContent = _session.username;
-          if (roleEl) roleEl.textContent = _session.role === 'admin' ? 'Administrator' : 'Staff / Analyst';
+          if (roleEl)
+            roleEl.textContent =
+              _session.role === "admin" ? "Administrator" : "Staff / Analyst";
         }
         // Show Staff Management link only for admins
-        if (_session && _session.role === 'admin') {
-          const link = document.getElementById('staffMgmtLink');
-          if (link) link.style.display = '';
+        if (_session && _session.role === "admin") {
+          const link = document.getElementById("staffMgmtLink");
+          if (link) link.style.display = "";
         }
       })();
 
       // ── Load Incidents from API ─────────────────────────────────
       async function loadIncidents() {
-        const wrap = document.getElementById('incidentsTableWrap');
+        const wrap = document.getElementById("incidentsTableWrap");
         if (!wrap) return;
-        wrap.innerHTML = '<div class="text-center py-4 text-secondary"><div class="spinner-border spinner-border-sm me-2"></div>Loading incidents…</div>';
+        wrap.innerHTML =
+          '<div class="text-center py-4 text-secondary"><div class="spinner-border spinner-border-sm me-2"></div>Loading incidents…</div>';
 
         try {
-          const res = await apiGet('/api/incidents');
-          if (!res.ok) { wrap.innerHTML = `<div class="alert alert-danger">Failed to load incidents: ${res.data.error || 'unknown error'}</div>`; return; }
+          const res = await apiGet("/api/incidents");
+          if (!res.ok) {
+            wrap.innerHTML = `<div class="alert alert-danger">Failed to load incidents: ${res.data.error || "unknown error"}</div>`;
+            return;
+          }
 
           const incidents = res.data.incidents || [];
 
           // Update stat cards
-          const open = incidents.filter(i => i.status === 'open').length;
-          const inprog = incidents.filter(i => i.status === 'in_progress').length;
-          const resolved = incidents.filter(i => i.status === 'resolved').length;
-          document.getElementById('inc-open').textContent = open;
-          document.getElementById('inc-progress').textContent = inprog;
-          document.getElementById('inc-resolved').textContent = resolved;
-          document.getElementById('inc-total').textContent = incidents.length;
+          const open = incidents.filter((i) => i.status === "open").length;
+          const inprog = incidents.filter(
+            (i) => i.status === "in_progress",
+          ).length;
+          const resolved = incidents.filter(
+            (i) => i.status === "resolved",
+          ).length;
+          document.getElementById("inc-open").textContent = open;
+          document.getElementById("inc-progress").textContent = inprog;
+          document.getElementById("inc-resolved").textContent = resolved;
+          document.getElementById("inc-total").textContent = incidents.length;
 
           if (incidents.length === 0) {
-            wrap.innerHTML = '<p class="text-center text-secondary py-4">No incidents found.</p>';
+            wrap.innerHTML =
+              '<p class="text-center text-secondary py-4">No incidents found.</p>';
             return;
           }
 
-          const priorityBadge = p => {
-            const m = { critical: 'bg-danger', high: 'bg-warning text-dark', medium: 'bg-info text-dark', low: 'bg-secondary' };
-            return `<span class="badge ${m[p] || 'bg-secondary'}">${p || '—'}</span>`;
+          const priorityBadge = (p) => {
+            const m = {
+              critical: "bg-danger",
+              high: "bg-warning text-dark",
+              medium: "bg-info text-dark",
+              low: "bg-secondary",
+            };
+            return `<span class="badge ${m[p] || "bg-secondary"}">${p || "—"}</span>`;
           };
-          const statusBadge = s => {
+          const statusBadge = (s) => {
             const m = {
               open: `<span class="badge badge-warning-soft">Open</span>`,
               in_progress: `<span class="badge" style="background:rgba(56,189,248,.15);color:#38bdf8">In Progress</span>`,
               resolved: `<span class="badge bg-success">Resolved</span>`,
-              closed: `<span class="badge bg-secondary">Closed</span>`
+              closed: `<span class="badge bg-secondary">Closed</span>`,
             };
             return m[s] || `<span class="badge bg-secondary">${s}</span>`;
           };
@@ -2171,49 +2237,60 @@
               <table class="table table-dark table-hover" style="font-size:0.85rem">
                 <thead><tr><th>ID</th><th>Title</th><th>Type</th><th>Priority</th><th>Status</th><th>Created</th></tr></thead>
                 <tbody>
-                  ${incidents.map(i => `
+                  ${incidents
+                    .map(
+                      (i) => `
                     <tr>
-                      <td><code style="color:#a78bfa">#${(i.id || '').toString().padStart(3,'0')}</code></td>
-                      <td>${i.title || i.description || '—'}</td>
-                      <td>${i.incident_type || i.type || '—'}</td>
+                      <td><code style="color:#a78bfa">#${(i.id || "").toString().padStart(3, "0")}</code></td>
+                      <td>${i.title || i.description || "—"}</td>
+                      <td>${i.incident_type || i.type || "—"}</td>
                       <td>${priorityBadge(i.severity || i.priority)}</td>
                       <td>${statusBadge(i.status)}</td>
-                      <td>${i.created_at ? new Date(i.created_at).toLocaleString() : '—'}</td>
-                    </tr>`).join('')}
+                      <td>${i.created_at ? new Date(i.created_at).toLocaleString() : "—"}</td>
+                    </tr>`,
+                    )
+                    .join("")}
                 </tbody>
               </table>
             </div>`;
         } catch (err) {
-          wrap.innerHTML = `<div class="alert alert-warning">⚠️ Cannot reach backend. Make sure Flask server is running on localhost:5000.</div>`;
+          wrap.innerHTML = `<div class="alert alert-warning">⚠️ Cannot reach backend. The security systems might be temporarily unreachable.</div>`;
         }
       }
 
       // ── Staff Management (admin only) ─────────────────────────────
       async function loadStaffPanel() {
-        if (!_session || _session.role !== 'admin') return;
+        if (!_session || _session.role !== "admin") return;
         try {
-          const res = await apiGet('/api/admin/members');
+          const res = await apiGet("/api/admin/members");
           if (!res.ok) return;
-          const { members, admin_count, staff_count, slots_remaining } = res.data;
+          const { members, admin_count, staff_count, slots_remaining } =
+            res.data;
 
-          document.getElementById('sm-admin-count').textContent = admin_count;
-          document.getElementById('sm-staff-count').textContent = staff_count;
-          document.getElementById('sm-slots').textContent = slots_remaining;
+          document.getElementById("sm-admin-count").textContent = admin_count;
+          document.getElementById("sm-staff-count").textContent = staff_count;
+          document.getElementById("sm-slots").textContent = slots_remaining;
 
           // Pending
-          const pending = members.filter(m => m.status === 'pending');
-          const badge = document.getElementById('pendingStaffBadge');
-          if (badge) { badge.textContent = pending.length; badge.style.display = pending.length ? '' : 'none'; }
+          const pending = members.filter((m) => m.status === "pending");
+          const badge = document.getElementById("pendingStaffBadge");
+          if (badge) {
+            badge.textContent = pending.length;
+            badge.style.display = pending.length ? "" : "none";
+          }
 
-          const pendingList = document.getElementById('pendingStaffList');
+          const pendingList = document.getElementById("pendingStaffList");
           if (pending.length === 0) {
-            pendingList.innerHTML = '<p class="text-center text-secondary py-3" style="font-size:0.85rem">No pending requests.</p>';
+            pendingList.innerHTML =
+              '<p class="text-center text-secondary py-3" style="font-size:0.85rem">No pending requests.</p>';
           } else {
-            pendingList.innerHTML = pending.map(m => `
+            pendingList.innerHTML = pending
+              .map(
+                (m) => `
               <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(251,191,36,0.05);border:1px solid rgba(251,191,36,0.15);border-radius:10px;padding:12px 16px;margin-bottom:10px;gap:12px;flex-wrap:wrap;">
                 <div>
                   <div style="font-weight:600;font-size:0.88rem;color:#f1f5f9">${m.username}</div>
-                  <div style="font-size:0.76rem;color:#64748b">${m.email} · Applied ${new Date(m.created_at).toLocaleDateString('en-IN')}</div>
+                  <div style="font-size:0.76rem;color:#64748b">${m.email} · Applied ${new Date(m.created_at).toLocaleDateString("en-IN")}</div>
                 </div>
                 <div style="display:flex;gap:8px;">
                   <button onclick="memberAction('${m.id}','approve')" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);color:#4ade80;border-radius:7px;padding:5px 14px;font-size:0.78rem;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;">
@@ -2223,36 +2300,55 @@
                     <i class="bi bi-x-lg me-1"></i>Reject
                   </button>
                 </div>
-              </div>`).join('');
+              </div>`,
+              )
+              .join("");
           }
 
           // All members table
-          const statusBadge = s => {
-            const m = { approved:'<span class="badge bg-success">Active</span>', pending:'<span class="badge" style="background:rgba(251,191,36,.15);color:#fbbf24">Pending</span>', rejected:'<span class="badge bg-secondary">Rejected</span>' };
+          const statusBadge = (s) => {
+            const m = {
+              approved: '<span class="badge bg-success">Active</span>',
+              pending:
+                '<span class="badge" style="background:rgba(251,191,36,.15);color:#fbbf24">Pending</span>',
+              rejected: '<span class="badge bg-secondary">Rejected</span>',
+            };
             return m[s] || `<span class="badge bg-secondary">${s}</span>`;
           };
-          const roleBadge = r => r === 'admin'
-            ? '<span class="badge" style="background:rgba(96,165,250,.15);color:#60a5fa">Admin</span>'
-            : '<span class="badge" style="background:rgba(45,212,191,.12);color:#2dd4bf">Staff</span>';
+          const roleBadge = (r) =>
+            r === "admin"
+              ? '<span class="badge" style="background:rgba(96,165,250,.15);color:#60a5fa">Admin</span>'
+              : '<span class="badge" style="background:rgba(45,212,191,.12);color:#2dd4bf">Staff</span>';
 
-          document.getElementById('allMembersTable').innerHTML = members.map(m => `
+          document.getElementById("allMembersTable").innerHTML = members
+            .map(
+              (m) => `
             <tr>
               <td>${m.username}</td>
               <td style="color:#94a3b8">${m.email}</td>
               <td>${roleBadge(m.role)}</td>
               <td>${statusBadge(m.status)}</td>
-              <td style="color:#64748b">${new Date(m.created_at).toLocaleDateString('en-IN')}</td>
-            </tr>`).join('');
+              <td style="color:#64748b">${new Date(m.created_at).toLocaleDateString("en-IN")}</td>
+            </tr>`,
+            )
+            .join("");
         } catch {
-          document.getElementById('pendingStaffList').innerHTML = '<p class="text-center text-secondary">Cannot reach backend.</p>';
+          document.getElementById("pendingStaffList").innerHTML =
+            '<p class="text-center text-secondary">Cannot reach backend.</p>';
         }
       }
 
       async function memberAction(userId, action) {
         try {
-          const res = await apiPost(`/api/admin/members/${userId}/${action}`, {}, true);
+          const res = await apiPost(
+            `/api/admin/members/${userId}/${action}`,
+            {},
+            true,
+          );
           if (res.ok) loadStaffPanel();
-        } catch { alert('Error. Please try again.'); }
+        } catch {
+          alert("Error. Please try again.");
+        }
       }
 
       // Sidebar Toggle
@@ -2407,17 +2503,19 @@
         `;
 
         // Call real backend phishing check endpoint
-        apiPost('/api/phishing/check', { url }, true)
-          .then(res => {
+        apiPost("/api/phishing/check", { url }, true)
+          .then((res) => {
             if (!res.ok) {
-              results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ ${res.data.error || 'Could not analyse URL.'}</div>`;
+              results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ ${res.data.error || "Could not analyse URL."}</div>`;
               return;
             }
             const d = res.data;
             const isPhish = d.is_phishing || d.phishing || d.threat || false;
             const score = d.score ?? d.confidence ?? (isPhish ? 92 : 4);
             const reasons = d.reasons || d.indicators || [];
-            const reasonHtml = reasons.length ? `<ul class="mb-0 small mt-2">${reasons.map(r => `<li>${r}</li>`).join('')}</ul>` : '';
+            const reasonHtml = reasons.length
+              ? `<ul class="mb-0 small mt-2">${reasons.map((r) => `<li>${r}</li>`).join("")}</ul>`
+              : "";
 
             if (isPhish) {
               results.innerHTML = `
@@ -2442,7 +2540,6 @@
           .catch(() => {
             results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ Cannot reach backend. Make sure the Flask server is running.</div>`;
           });
-
       }
 
       // Allow Enter key to send
