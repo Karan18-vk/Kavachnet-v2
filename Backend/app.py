@@ -19,15 +19,46 @@ jwt = JWTManager(app)
 CORS(app)
 db = Database()
 
-# ── DATABASE MIGRATION ────────────────────────────
+# ── DATABASE MIGRATION & SEEDING ──────────────────
 def migrate_db():
     import sqlite3
+    import uuid
+    import datetime
+    import bcrypt
+    
     conn = sqlite3.connect(Config.DB_NAME)
+    conn.row_factory = sqlite3.Row
+    
+    # 1. Migration: Add columns if missing
     try:
         conn.execute("ALTER TABLE institutions ADD COLUMN code_expires_at TEXT")
         print("[DB] Added code_expires_at column.")
     except sqlite3.OperationalError:
-        pass # Column already exists
+        pass 
+
+    # 2. Seeding: Ensure at least one approved institution exists
+    # This prevents the dashboard from being empty after Render wipes the disk.
+    count = conn.execute("SELECT COUNT(*) FROM institutions").fetchone()[0]
+    if count == 0:
+        inst_id = str(uuid.uuid4())
+        code = "KAVACH2026"
+        now = datetime.datetime.now()
+        expiry = (now + datetime.timedelta(days=365)).isoformat() # Long expiry for seed
+        
+        # Create Demo Institution
+        conn.execute(
+            "INSERT INTO institutions (id, name, email, contact_person, institution_code, status, created_at, approved_at, code_expires_at) VALUES (?,?,?,?,?,?,?,?,?)",
+            (inst_id, "Kavach Net Sentinel HQ", "sentinel@kavachnet.com", "Operations Lead", code, "approved", now.isoformat(), now.isoformat(), expiry)
+        )
+        
+        # Create Demo Admin User (Password: DemoAdmin123!)
+        hashed = bcrypt.hashpw("DemoAdmin123!".encode(), bcrypt.gensalt()).decode()
+        conn.execute(
+            "INSERT INTO users (id, username, password, email, role, institution_code, status, created_at) VALUES (?,?,?,?,?,?,?,?)",
+            (str(uuid.uuid4()), "sentinel_admin", hashed, "admin@kavachnet.com", "admin", code, "approved", now.isoformat())
+        )
+        print("[DB] Seeded Demo Institution and Admin User.")
+
     conn.commit()
     conn.close()
 
