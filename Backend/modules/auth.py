@@ -22,6 +22,13 @@ def register_institution_admin(username: str, password: str, email: str, institu
     if inst['status'] != 'approved':
         return {"error": "Your institution has not been approved yet."}, 403
 
+    # Security Enhancement: Check if invitation code is expired
+    import datetime
+    if inst.get('code_expires_at'):
+        expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
+        if datetime.datetime.now() > expiry:
+            return {"error": "Invitation code has expired. Request a new one from Kavach Net makers."}, 403
+
     admin_count, _ = db.get_member_count(institution_code)
     # Also check pending admins
     pending = db.get_pending_staff(institution_code)
@@ -47,6 +54,13 @@ def register_staff(username: str, password: str, email: str, institution_code: s
         return {"error": "Invalid institution code."}, 400
     if inst['status'] != 'approved':
         return {"error": "Your institution has not been approved yet."}, 403
+    
+    # Security Enhancement: Check if invitation code is expired
+    import datetime
+    if inst.get('code_expires_at'):
+        expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
+        if datetime.datetime.now() > expiry:
+            return {"error": "Invitation code has expired. Ask your admin to get a fresh one from makers."}, 403
 
     admin_count, staff_count = db.get_member_count(institution_code)
     if admin_count == 0:
@@ -116,6 +130,15 @@ def login_step2(username: str, otp_input: str, db: Database):
     })
     del otp_store[username]
     db.log_login(username, "SUCCESS")
+
+    # Security Enhancement: Log incident if this is an Admin login
+    if user['role'] == 'admin':
+        db.save_incident({
+            "type": "SECURITY_EVENT",
+            "severity": "LOW",
+            "message": f"Institution Admin '{username}' session initialized."
+        }, user.get('institution_code'))
+        print(f"[SECURITY] Admin login notification logged for {username}")
 
     return {
         "message": "Login successful.",

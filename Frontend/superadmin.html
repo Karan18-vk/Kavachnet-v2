@@ -695,6 +695,9 @@
       </div>
       <div style="font-size:0.72rem;color:#475569;margin-top:6px">
         Members: ${inst.admin_count || 0} admin · ${inst.staff_count || 0} staff / 2 max
+      </div>
+      <div style="font-size:0.7rem;color:#94a3b8;margin-top:4px;display:flex;align-items:center;gap:4px;">
+        <i class="bi bi-clock-history"></i> Expires: ${new Date(inst.code_expires_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
       </div>`
           : "";
 

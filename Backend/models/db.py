@@ -38,7 +38,8 @@ class Database:
                 status TEXT DEFAULT 'pending',
                 rejection_reason TEXT,
                 created_at TEXT NOT NULL,
-                approved_at TEXT
+                approved_at TEXT,
+                code_expires_at TEXT
             );
 
             CREATE TABLE IF NOT EXISTS users (
@@ -120,13 +121,36 @@ class Database:
             existing = conn.execute("SELECT id FROM institutions WHERE institution_code=?", (code,)).fetchone()
             if not existing:
                 break
+        
+        now = datetime.datetime.now()
+        expiry = (now + datetime.timedelta(days=7)).isoformat()
+        
         conn.execute(
-            "UPDATE institutions SET status='approved', institution_code=?, approved_at=? WHERE id=?",
-            (code, datetime.datetime.now().isoformat(), inst_id)
+            "UPDATE institutions SET status='approved', institution_code=?, approved_at=?, code_expires_at=? WHERE id=?",
+            (code, now.isoformat(), expiry, inst_id)
         )
         conn.commit()
         conn.close()
-        return code
+        return code, expiry
+
+    def rotate_institution_code(self, inst_id):
+        conn = self._connect()
+        while True:
+            code = _generate_institution_code()
+            existing = conn.execute("SELECT id FROM institutions WHERE institution_code=?", (code,)).fetchone()
+            if not existing:
+                break
+        
+        now = datetime.datetime.now()
+        expiry = (now + datetime.timedelta(days=7)).isoformat()
+        
+        conn.execute(
+            "UPDATE institutions SET institution_code=?, code_expires_at=? WHERE id=?",
+            (code, expiry, inst_id)
+        )
+        conn.commit()
+        conn.close()
+        return code, expiry
 
     def reject_institution(self, inst_id, reason=""):
         conn = self._connect()

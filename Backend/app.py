@@ -52,9 +52,22 @@ def sa_get_institutions():
     identity = get_jwt_identity()
     if identity.get("role") != "superadmin":
         return jsonify({"error": "Forbidden."}), 403
+    
     institutions = db.get_all_institutions()
-    # Attach member counts for each
+    import datetime
+    now = datetime.datetime.now()
+    
+    # Auto-rotate expired codes
     for inst in institutions:
+        if inst.get('status') == 'approved' and inst.get('code_expires_at'):
+            expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
+            if now > expiry:
+                new_code, new_expiry = db.rotate_institution_code(inst['id'])
+                inst['institution_code'] = new_code
+                inst['code_expires_at'] = new_expiry
+                print(f"[SYSTEM] Auto-rotated code for institution {inst['name']}")
+
+        # Attach member counts
         if inst.get('institution_code'):
             a, s = db.get_member_count(inst['institution_code'])
             inst['admin_count'] = a
@@ -62,6 +75,7 @@ def sa_get_institutions():
         else:
             inst['admin_count'] = 0
             inst['staff_count'] = 0
+            
     return jsonify({"institutions": institutions}), 200
 
 
@@ -76,8 +90,14 @@ def sa_approve_institution(inst_id):
         return jsonify({"error": "Institution not found."}), 404
     if inst['status'] == 'approved':
         return jsonify({"error": "Already approved.", "institution_code": inst['institution_code']}), 400
-    code = db.approve_institution(inst_id)
-    return jsonify({"message": "Institution approved.", "institution_code": code}), 200
+    
+    code, expiry = db.approve_institution(inst_id)
+    
+    # Send approval email
+    from utils.email_sender import send_institution_approval
+    send_institution_approval(inst['email'], inst['contact_person'], code, expiry)
+    
+    return jsonify({"message": "Institution approved. Code sent via email.", "institution_code": code, "expires_at": expiry}), 200
 
 
 @app.route("/api/superadmin/institutions/<inst_id>/reject", methods=["POST"])
