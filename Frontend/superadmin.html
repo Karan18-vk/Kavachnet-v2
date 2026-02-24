@@ -681,8 +681,23 @@
               <i class="bi ${icon}"></i>
               <strong>${title}</strong><br>
               <p style="color:#64748b;font-size:0.8rem;margin-top:8px">${message}</p>
-              <button class="btn-approve mt-3" onclick="loadInstitutions()" style="font-size:0.75rem">Retry Connection</button>
+              <div class="mt-3" style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn-approve" onclick="loadInstitutions()" style="font-size:0.75rem">Retry Connection</button>
+                <button class="btn-reject" onclick="safetyLogout()" style="font-size:0.75rem;padding: 6px 12px;">🛡️ Safety Logout</button>
+              </div>
             </div>`;
+        }
+      }
+
+      function safetyLogout() {
+        if (
+          confirm(
+            "This will clear your security session and log you out. Proceed?",
+          )
+        ) {
+          clearToken();
+          clearSession();
+          window.location.href = "superadmin-login.html";
         }
       }
 

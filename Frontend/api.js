@@ -78,6 +78,13 @@ async function apiPost(endpoint, body, auth = false) {
             data = { msg: text || res.statusText };
         }
 
+        if (res.status === 401 || res.status === 422) {
+            const errText = data.error?.toLowerCase() || "";
+            if (errText.includes("string") || errText.includes("token") || errText.includes("signature") || errText.includes("identity")) {
+                throw new Error("AUTH_SESSION_INVALID");
+            }
+        }
+
         return { 
             ok: res.ok, 
             status: res.status, 
@@ -85,10 +92,8 @@ async function apiPost(endpoint, body, auth = false) {
         };
     } catch (err) {
         clearTimeout(timeout);
+        if (err.message === "AUTH_SESSION_INVALID") throw err;
         if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
-        if (err.message.includes("422") || err.message.includes("401") || err.message.includes("string")) {
-            throw new Error("AUTH_SESSION_INVALID");
-        }
         throw err;
     }
 }
@@ -116,6 +121,13 @@ async function apiGet(endpoint, auth = true) {
             data = { msg: text || res.statusText };
         }
 
+        if (res.status === 401 || res.status === 422) {
+            const errText = data.error?.toLowerCase() || "";
+            if (errText.includes("string") || errText.includes("token") || errText.includes("signature") || errText.includes("identity")) {
+                throw new Error("AUTH_SESSION_INVALID");
+            }
+        }
+
         return { 
             ok: res.ok, 
             status: res.status, 
@@ -123,10 +135,8 @@ async function apiGet(endpoint, auth = true) {
         };
     } catch (err) {
         clearTimeout(timeout);
+        if (err.message === "AUTH_SESSION_INVALID") throw err;
         if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
-        if (err.message.includes("422") || err.message.includes("401") || err.message.includes("string")) {
-            throw new Error("AUTH_SESSION_INVALID");
-        }
         throw err;
     }
 }
@@ -156,6 +166,13 @@ async function apiPatch(endpoint, body, auth = true) {
             data = { msg: text || res.statusText };
         }
 
+        if (res.status === 401 || res.status === 422) {
+            const errText = data.error?.toLowerCase() || "";
+            if (errText.includes("string") || errText.includes("token") || errText.includes("signature") || errText.includes("identity")) {
+                throw new Error("AUTH_SESSION_INVALID");
+            }
+        }
+
         return { 
             ok: res.ok, 
             status: res.status, 
@@ -163,10 +180,8 @@ async function apiPatch(endpoint, body, auth = true) {
         };
     } catch (err) {
         clearTimeout(timeout);
+        if (err.message === "AUTH_SESSION_INVALID") throw err;
         if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
-        if (err.message.includes("422") || err.message.includes("401") || err.message.includes("string")) {
-            throw new Error("AUTH_SESSION_INVALID");
-        }
         throw err;
     }
 }
