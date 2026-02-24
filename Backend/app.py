@@ -15,24 +15,13 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = Config.JWT_ACCESS_TOKEN_EXPIRES
 
 jwt = JWTManager(app)
 
-@jwt.user_identity_loader
-def user_identity_lookup(user):
-    # CRITICAL: Force all identities to be strings to prevent "Subject must be a string" error
-    return str(user)
-
-@jwt.unauthorized_loader
-def unauthorized_response(callback):
-    return jsonify({"error": "Missing Authorization Header"}), 401
-
-@jwt.invalid_token_loader
-def invalid_token_response(callback):
-    return jsonify({"error": "Invalid security token. Please log out and in again."}), 422
-
+# CORS enabled for all routes
 CORS(app)
 db = Database()
 
 # ── DATABASE MIGRATION ────────────────────────────
 def migrate_db():
+    import sqlite3
     conn = sqlite3.connect(Config.DB_NAME)
     try:
         conn.execute("ALTER TABLE institutions ADD COLUMN code_expires_at TEXT")
@@ -66,15 +55,16 @@ def health_check():
 @app.route("/api/superadmin/login", methods=["POST"])
 def superadmin_login():
     data = request.json
-    print(f"[AUTH] SuperAdmin login attempt: {data.get('username')}")
+    print(f"[AUTH] SuperAdmin login: {data.get('username')}")
     
     if data.get("username") != SUPERADMIN_USERNAME or data.get("password") != SUPERADMIN_PASSWORD:
-        return jsonify({"error": "Invalid super admin credentials."}), 401
+        return jsonify({"error": "Invalid credentials."}), 401
     
-    # Standardize: Identity as string, metadata in claims
+    from flask_jwt_extended import create_access_token
+    # BE EXPLICIT: string only
     token = create_access_token(
-        identity=str(SUPERADMIN_USERNAME),
-        additional_claims={"role": "superadmin", "institution_code": None}
+        identity="kavachnet_root",
+        additional_claims={"role": "superadmin"}
     )
     return jsonify({"access_token": token, "role": "superadmin"}), 200
 
@@ -84,7 +74,6 @@ from flask_jwt_extended import get_jwt
 
 def is_superadmin(identity):
     claims = get_jwt()
-    print(f"[DEBUG] Identity: {identity}, Claims: {claims}")
     return claims.get("role") == "superadmin"
 
 @app.route("/api/superadmin/institutions", methods=["GET"])

@@ -292,10 +292,11 @@
 
     <script src="api.js"></script>
     <script>
-      // If already logged in as superadmin, go straight to panel
-      if (getToken() && getSession()?.role === "superadmin") {
-        window.location.href = "superadmin.html";
-      }
+      // Nuclear Fix: Force clear any old tokens on the login page to ensure
+      // the browser doesn't try to use a "broken" identity token.
+      clearToken();
+      clearSession();
+      console.log("[AUTH] Security session cleared for fresh start.");
 
       document.addEventListener("keydown", (e) => {
         if (e.key === "Enter") doLogin();

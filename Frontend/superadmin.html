@@ -644,6 +644,19 @@
         } catch (err) {
           console.error("Load error:", err);
 
+          if (err.message === "AUTH_SESSION_INVALID") {
+            showToast(
+              "⚠️ Session invalid or expired. Re-authenticating...",
+              "error",
+            );
+            setTimeout(() => {
+              clearToken();
+              clearSession();
+              window.location.href = "superadmin-login.html";
+            }, 2000);
+            return;
+          }
+
           let title = "Server Error";
           let message = err.message;
           let icon = "bi-exclamation-octagon";
@@ -651,7 +664,7 @@
           if (message.includes("timed out")) {
             title = "Request Timed Out";
             message =
-              "The backend is taking too long to respond. It might be under heavy load or cold-starting.";
+              "The backend is taking too long to respond. Please try again.";
             icon = "bi-clock-history";
           } else if (
             message.includes("Failed to fetch") ||
@@ -659,18 +672,8 @@
           ) {
             title = "Connection Failed";
             message =
-              "Cannot reach the security backend. Check your internet or CORS settings.";
+              "Cannot reach the security backend. Check your firewall or internet.";
             icon = "bi-wifi-off";
-          } else if (
-            message.includes("Subject must be a string") ||
-            message.includes("Invalid security token")
-          ) {
-            showToast("⚠️ Security session issue. Please log in again.");
-            setTimeout(() => {
-              clearToken();
-              window.location.href = "superadmin-login.html";
-            }, 3000);
-            return;
           }
 
           container.innerHTML = `
@@ -848,9 +851,19 @@
       }
 
       // ── Toast ─────────────────────────────────────────────
-      function showToast(msg) {
+      function showToast(msg, type = "success") {
         const t = document.getElementById("toast");
+        const icon = t.querySelector("i");
         document.getElementById("toastMsg").textContent = msg;
+
+        if (type === "error") {
+          icon.className = "bi bi-exclamation-triangle-fill";
+          icon.style.color = "#f87171";
+        } else {
+          icon.className = "bi bi-check-circle-fill";
+          icon.style.color = "#22c55e";
+        }
+
         t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 3500);
       }

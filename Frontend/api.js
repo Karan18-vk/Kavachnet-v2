@@ -85,8 +85,11 @@ async function apiPost(endpoint, body, auth = false) {
         };
     } catch (err) {
         clearTimeout(timeout);
-        const isTimeout = err.name === 'AbortError';
-        throw new Error(isTimeout ? "Request timed out (server slow to respond)" : err.message);
+        if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
+        if (err.message.includes("422") || err.message.includes("401") || err.message.includes("string")) {
+            throw new Error("AUTH_SESSION_INVALID");
+        }
+        throw err;
     }
 }
 
@@ -120,8 +123,11 @@ async function apiGet(endpoint, auth = true) {
         };
     } catch (err) {
         clearTimeout(timeout);
-        const isTimeout = err.name === 'AbortError';
-        throw new Error(isTimeout ? "Request timed out (server slow to respond)" : err.message);
+        if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
+        if (err.message.includes("422") || err.message.includes("401") || err.message.includes("string")) {
+            throw new Error("AUTH_SESSION_INVALID");
+        }
+        throw err;
     }
 }
 
@@ -157,8 +163,11 @@ async function apiPatch(endpoint, body, auth = true) {
         };
     } catch (err) {
         clearTimeout(timeout);
-        const isTimeout = err.name === 'AbortError';
-        throw new Error(isTimeout ? "Request timed out (server slow to respond)" : err.message);
+        if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
+        if (err.message.includes("422") || err.message.includes("401") || err.message.includes("string")) {
+            throw new Error("AUTH_SESSION_INVALID");
+        }
+        throw err;
     }
 }
 
