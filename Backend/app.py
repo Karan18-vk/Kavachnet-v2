@@ -54,25 +54,26 @@ def superadmin_login():
     data = request.json
     if data.get("username") != SUPERADMIN_USERNAME or data.get("password") != SUPERADMIN_PASSWORD:
         return jsonify({"error": "Invalid super admin credentials."}), 401
-    from flask_jwt_extended import create_access_token
-    token = create_access_token(identity={"username": SUPERADMIN_USERNAME, "role": "superadmin", "institution_code": None})
+    
+    # Standardize: Identity as string, metadata in claims
+    token = create_access_token(
+        identity=SUPERADMIN_USERNAME,
+        additional_claims={"role": "superadmin", "institution_code": None}
+    )
     return jsonify({"access_token": token, "role": "superadmin"}), 200
 
 
 # ── JWT IDENTITY HELPER ────────────────────────────
+from flask_jwt_extended import get_jwt
+
 def is_superadmin(identity):
-    if not identity: return False
-    # Handle dictionary identity (new)
-    if isinstance(identity, dict):
-        return identity.get("role") == "superadmin"
-    # Handle string identity (old)
-    return identity == SUPERADMIN_USERNAME
+    claims = get_jwt()
+    return claims.get("role") == "superadmin"
 
 @app.route("/api/superadmin/institutions", methods=["GET"])
 @jwt_required()
 def sa_get_institutions():
-    identity = get_jwt_identity()
-    if not is_superadmin(identity):
+    if not is_superadmin(get_jwt_identity()):
         return jsonify({"error": "Forbidden. Super Admin required."}), 403
     
     try:
@@ -167,8 +168,7 @@ def maker_get_stats():
 @app.route("/api/maker/scan", methods=["POST"])
 @jwt_required()
 def maker_trigger_scan():
-    identity = get_jwt_identity()
-    if identity.get("role") != "superadmin":
+    if not is_superadmin(get_jwt_identity()):
         return jsonify({"error": "Forbidden. Maker access required."}), 403
     
     from modules.threat import run_anomaly_detection
@@ -268,8 +268,8 @@ def get_debug_otp(username):
 @app.route("/api/me", methods=["GET"])
 @jwt_required()
 def get_me():
-    identity = get_jwt_identity()
-    result, status = auth.get_current_user_info(identity['username'], db)
+    username = get_jwt_identity()
+    result, status = auth.get_current_user_info(username, db)
     return jsonify(result), status
 
 
@@ -279,10 +279,10 @@ def get_me():
 @app.route("/api/admin/members", methods=["GET"])
 @jwt_required()
 def admin_get_members():
-    identity = get_jwt_identity()
-    if identity.get("role") not in ("admin", "superadmin"):
+    claims = get_jwt()
+    if claims.get("role") not in ("admin", "superadmin"):
         return jsonify({"error": "Forbidden."}), 403
-    inst_code = identity.get("institution_code")
+    inst_code = claims.get("institution_code")
     members = db.get_users_by_institution(inst_code)
     admin_count, staff_count = db.get_member_count(inst_code)
     return jsonify({
@@ -296,8 +296,8 @@ def admin_get_members():
 @app.route("/api/admin/members/<user_id>/approve", methods=["POST"])
 @jwt_required()
 def admin_approve_member(user_id):
-    identity = get_jwt_identity()
-    if identity.get("role") not in ("admin", "superadmin"):
+    claims = get_jwt()
+    if claims.get("role") not in ("admin", "superadmin"):
         return jsonify({"error": "Forbidden."}), 403
     db.update_user_status(user_id, 'approved')
     return jsonify({"message": "Member approved."}), 200
@@ -306,8 +306,8 @@ def admin_approve_member(user_id):
 @app.route("/api/admin/members/<user_id>/reject", methods=["POST"])
 @jwt_required()
 def admin_reject_member(user_id):
-    identity = get_jwt_identity()
-    if identity.get("role") not in ("admin", "superadmin"):
+    claims = get_jwt()
+    if claims.get("role") not in ("admin", "superadmin"):
         return jsonify({"error": "Forbidden."}), 403
     db.update_user_status(user_id, 'rejected')
     return jsonify({"message": "Member rejected."}), 200
@@ -392,8 +392,8 @@ def check_brute_force_attack(username):
 @app.route("/api/incidents", methods=["GET"])
 @jwt_required()
 def get_incidents():
-    identity = get_jwt_identity()
-    inst_code = identity.get("institution_code") if identity.get("role") != "superadmin" else None
+    claims = get_jwt()
+    inst_code = claims.get("institution_code") if claims.get("role") != "superadmin" else None
     incidents = incident.get_incidents(db, institution_code=inst_code)
     return jsonify({"incidents": incidents, "count": len(incidents)}), 200
 

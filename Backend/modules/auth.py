@@ -122,12 +122,14 @@ def login_step2(username: str, otp_input: str, db: Database):
         return {"error": "Wrong OTP."}, 401
 
     user = db.get_user(username)
-    # Include role and institution_code in token identity
-    token = create_access_token(identity={
-        "username": username,
-        "role": user['role'],
-        "institution_code": user.get('institution_code')
-    })
+    # Standardize: Identity as string, metadata in claims
+    token = create_access_token(
+        identity=username,
+        additional_claims={
+            "role": user['role'],
+            "institution_code": user.get('institution_code')
+        }
+    )
     del otp_store[username]
     db.log_login(username, "SUCCESS")
 
