@@ -19,33 +19,34 @@ def test_health():
     return response.status_code == 200
 
 def test_register():
-    print(f"\n{BLUE}TEST 2: Register User{RESET}")
+    print(f"\n{BLUE}TEST 2: Register Staff{RESET}")
     data = {
-        "username": "testuser",
+        "username": "teststaff",
         "password": "Test@123",
-        "email": "thankssubscribe385@gmail.com" 
+        "email": "thankssubscribe385@gmail.com",
+        "institution_code": "KAVACH2026"
     }
-    response = requests.post(f"{BASE_URL}/api/register", json=data)
+    response = requests.post(f"{BASE_URL}/api/register/staff", json=data)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
-    return response.status_code in [201, 409]  # 409 if already exists
+    return response.status_code in [201, 409]
 
 def test_login_step1():
     print(f"\n{BLUE}TEST 3: Login Step 1 (Send OTP){RESET}")
+    # Using seeded admin for login test
     data = {
-        "username": "testuser",
-        "password": "Test@123"
+        "username": "sentinel_admin",
+        "password": "DemoAdmin123!"
     }
     response = requests.post(f"{BASE_URL}/api/login/step1", json=data)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
-    print(f"\n{GREEN}[OK] CHECK YOUR EMAIL FOR OTP!{RESET}")
     return response.status_code == 200
 
 def test_login_step2(otp):
     print(f"\n{BLUE}TEST 4: Login Step 2 (Verify OTP){RESET}")
     data = {
-        "username": "testuser",
+        "username": "sentinel_admin",
         "otp": otp
     }
     response = requests.post(f"{BASE_URL}/api/login/step2", json=data)
@@ -54,7 +55,7 @@ def test_login_step2(otp):
     print(f"Response: {result}")
     
     if response.status_code == 200:
-        token = result.get("token")
+        token = result.get("access_token")
         print(f"\n{GREEN}[OK] TOKEN RECEIVED!{RESET}")
         return token
     return None
@@ -147,7 +148,7 @@ def main():
     # Wait for user to enter OTP
     # Attempt to fetch OTP automatically
     print(f"\n{BLUE}DEBUG: Fetching OTP automatically...{RESET}")
-    otp_response = requests.get(f"{BASE_URL}/api/debug/otp/testuser")
+    otp_response = requests.get(f"{BASE_URL}/api/debug/otp/sentinel_admin")
     if otp_response.status_code == 200:
         otp = otp_response.json().get("otp")
         print(f"{GREEN}[OK] OTP Fetched: {otp}{RESET}")
