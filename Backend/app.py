@@ -4,6 +4,8 @@ import os
 from flask import Flask, request, jsonify, send_file
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from flask_cors import CORS
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from config import Config
 from models.db import Database
 from modules import auth, encryption, phishing, threat, incident
@@ -13,10 +15,19 @@ app.config["SECRET_KEY"] = Config.SECRET_KEY
 app.config["JWT_SECRET_KEY"] = Config.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = Config.JWT_ACCESS_TOKEN_EXPIRES
 
+# Ultra Security: Rate Limiting
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://",
+)
+
 jwt = JWTManager(app)
 
-# CORS enabled for all routes
-CORS(app)
+# Ultra Security: Strict CORS
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 db = Database()
 
 # ── DATABASE MIGRATION & SEEDING ──────────────────
@@ -32,7 +43,19 @@ def migrate_db():
     # 1. Migration: Add columns if missing
     try:
         conn.execute("ALTER TABLE institutions ADD COLUMN code_expires_at TEXT")
-        print("[DB] Added code_expires_at column.")
+        print("[DB] Added code_expires_at column to institutions.")
+    except sqlite3.OperationalError:
+        pass 
+
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN lockout_until TEXT")
+        print("[DB] Added lockout_until column to users.")
+    except sqlite3.OperationalError:
+        pass 
+
+    try:
+        conn.execute("ALTER TABLE incidents ADD COLUMN forensics TEXT")
+        print("[DB] Added forensics column to incidents.")
     except sqlite3.OperationalError:
         pass 
 
@@ -65,8 +88,13 @@ def migrate_db():
 migrate_db()
 
 # ── Super Admin credentials (only for Kavach Net team) ──────────
-SUPERADMIN_USERNAME = os.getenv("SUPERADMIN_USERNAME", "kavachnet_root")
-SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD", "KN@SuperAdmin2026!")
+SUPERADMIN_USERNAME = os.getenv("SUPERADMIN_USERNAME")
+SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD")
+
+if not SUPERADMIN_USERNAME or not SUPERADMIN_PASSWORD:
+    print("[CRITICAL] SUPERADMIN_USERNAME or SUPERADMIN_PASSWORD not set in environment.")
+    # In a real military production env, we'd exit(1) here.
+    # For now, we'll just log it clearly.
 
 # ══════════════════════════════════════════
 # HEALTH
@@ -254,6 +282,7 @@ def validate_institution_code(code):
 # USER REGISTRATION
 # ══════════════════════════════════════════
 @app.route("/api/register/admin", methods=["POST"])
+@limiter.limit("3 per minute")
 def register_admin():
     data = request.json
     if not all(k in data for k in ["username", "password", "email", "institution_code"]):
@@ -265,6 +294,7 @@ def register_admin():
 
 
 @app.route("/api/register/staff", methods=["POST"])
+@limiter.limit("3 per minute")
 def register_staff():
     data = request.json
     if not all(k in data for k in ["username", "password", "email", "institution_code"]):
@@ -279,6 +309,7 @@ def register_staff():
 # AUTH
 # ══════════════════════════════════════════
 @app.route("/api/login/step1", methods=["POST"])
+@limiter.limit("5 per minute")
 def login_step1():
     data = request.json
     if not all(k in data for k in ["username", "password"]):
@@ -288,6 +319,7 @@ def login_step1():
 
 
 @app.route("/api/login/step2", methods=["POST"])
+@limiter.limit("5 per minute")
 def login_step2():
     data = request.json
     if not all(k in data for k in ["username", "otp"]):
@@ -366,7 +398,7 @@ def encrypt():
     data = request.json
     if not all(k in data for k in ["text", "key"]):
         return jsonify({"error": "text and key required."}), 400
-    result = encryption.encrypt_data(data['text'], data['key'])
+    result = encryption.encrypt_data(data['text'], data['key'], db=db)
     if isinstance(result, dict) and "error" in result:
         return jsonify(result), 400
     return jsonify({"encrypted_text": result}), 200
@@ -378,7 +410,7 @@ def decrypt():
     data = request.json
     if not all(k in data for k in ["encrypted_text", "key"]):
         return jsonify({"error": "encrypted_text and key required."}), 400
-    result = encryption.decrypt_data(data['encrypted_text'], data['key'])
+    result = encryption.decrypt_data(data['encrypted_text'], data['key'], db=db)
     if isinstance(result, dict) and "error" in result:
         return jsonify(result), 400
     return jsonify({"decrypted_text": result}), 200
@@ -478,6 +510,18 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     return jsonify({"error": "Internal server error."}), 500
+
+
+# ── MILITARY GRADE SECURITY HEADERS ────────────────
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' cdn.jsdelivr.net; style-src 'self' cdn.jsdelivr.net fonts.googleapis.com; font-src fonts.gstatic.com cdn.jsdelivr.net;"
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
 
 
 if __name__ == "__main__":

@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  backend:
+    build: ./Backend
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./Backend:/app
+    environment:
+      - DB_NAME=kavachnet.db
+      - FLASK_ENV=development
+    env_file:
+      - ./Backend/.env

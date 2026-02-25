@@ -3,7 +3,9 @@
 //  Change API_BASE if your backend runs on a different host
 // ═══════════════════════════════════════════════════════
 
-const API_BASE = 'http://localhost:5000';
+// Use window.BACKEND_URL if set by a deployment script, else fallback to localhost
+const API_BASE = window.BACKEND_URL || 'http://localhost:5000';
+
 
 // ── Token / session helpers ─────────────────────────────
 function saveToken(token)   { localStorage.setItem('kn_token', token); }

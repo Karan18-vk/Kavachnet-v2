@@ -3,6 +3,7 @@
 import bcrypt
 import random
 import time
+from flask import request
 from flask_jwt_extended import create_access_token
 from utils.email_sender import send_otp
 from models.db import Database
@@ -13,9 +14,32 @@ otp_store = {}
 MAX_ADMIN_PER_INSTITUTION = 1
 MAX_STAFF_PER_INSTITUTION = 2
 
+# Ultra Security: Password Policy
+MIN_PASSWORD_LENGTH = 12
+
+def validate_password_complexity(password: str):
+    """
+    Ultra Security: Backend enforcement of password strength
+    """
+    if len(password) < MIN_PASSWORD_LENGTH:
+        return False, f"Password must be at least {MIN_PASSWORD_LENGTH} characters."
+    if not any(c.isupper() for c in password):
+        return False, "Password must contain at least one uppercase letter."
+    if not any(c.islower() for c in password):
+        return False, "Password must contain at least one lowercase letter."
+    if not any(c.isdigit() for c in password):
+        return False, "Password must contain at least one number."
+    if not any(c in "!@#$%^&*()-_=+[]{}|;:,.<>?/" for c in password):
+        return False, "Password must contain at least one special character."
+    return True, None
+
 
 def register_institution_admin(username: str, password: str, email: str, institution_code: str, db: Database):
     """Register the admin for an approved institution. Only one admin allowed."""
+    ok, error = validate_password_complexity(password)
+    if not ok:
+        return {"error": error}, 400
+        
     inst = db.get_institution_by_code(institution_code)
     if not inst:
         return {"error": "Invalid institution code. Contact Kavach Net support."}, 400
@@ -49,6 +73,10 @@ def register_institution_admin(username: str, password: str, email: str, institu
 
 def register_staff(username: str, password: str, email: str, institution_code: str, db: Database):
     """Register a staff member. Requires admin to exist and approve. Max 2 staff."""
+    ok, error = validate_password_complexity(password)
+    if not ok:
+        return {"error": error}, 400
+        
     inst = db.get_institution_by_code(institution_code)
     if not inst:
         return {"error": "Invalid institution code."}, 400
@@ -88,12 +116,40 @@ def login_step1(username: str, password: str, db: Database):
     if not user:
         db.log_failed_attempt(username)
         db.log_login(username, "FAILED")
-        return {"error": "User not found."}, 404
+        return {"error": "Invalid credentials."}, 401 # Standardized error
+
+    # Check lockout
+    import datetime
+    if user.get('lockout_until'):
+        try:
+            lockout_time = datetime.datetime.fromisoformat(user['lockout_until'])
+            if datetime.datetime.now() < lockout_time:
+                remaining = (lockout_time - datetime.datetime.now()).seconds // 60
+                return {"error": f"Account locked due to multiple failed attempts. Try again in {remaining + 1} minutes."}, 403
+            else:
+                # Lockout expired, clear it
+                db.clear_lockout(username)
+        except Exception:
+            pass
 
     if not bcrypt.checkpw(password.encode(), user['password'].encode()):
         db.log_failed_attempt(username)
         db.log_login(username, "FAILED")
-        return {"error": "Wrong password."}, 401
+        
+        # Check if we should lock
+        recent_fails = db.get_recent_failed_attempts(username, 300)
+        if len(recent_fails) >= 5:
+            lock_until = (datetime.datetime.now() + datetime.timedelta(hours=1)).isoformat()
+            db.lock_user(username, lock_until)
+            # Log as high severity incident
+            db.save_incident({
+                "type": "ACCOUNT_LOCKOUT",
+                "severity": "HIGH",
+                "message": f"User '{username}' locked for 1 hour after {len(recent_fails)} failed attempts."
+            }, user.get('institution_code'))
+            return {"error": "Too many failed attempts. Account locked for 1 hour."}, 403
+            
+        return {"error": "Invalid credentials."}, 401
 
     if user['status'] == 'pending':
         return {"error": "Your account is pending approval by your institution admin."}, 403
@@ -123,15 +179,20 @@ def login_step2(username: str, otp_input: str, db: Database):
 
     user = db.get_user(username)
     # Standardize: Identity as string, metadata in claims
+    # Ultra Security: Session Fingerprinting
+    user_agent = request.headers.get('User-Agent', 'unknown')
+    
     token = create_access_token(
         identity=username,
         additional_claims={
             "role": user['role'],
-            "institution_code": user.get('institution_code')
+            "institution_code": user.get('institution_code'),
+            "ua_fingerprint": user_agent[:50] # Store prefix of UA
         }
     )
     del otp_store[username]
     db.log_login(username, "SUCCESS")
+    db.clear_lockout(username) # Clear lockout on successful login
 
     # Security Enhancement: Log incident if this is an Admin login
     if user['role'] == 'admin':

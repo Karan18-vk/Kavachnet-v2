@@ -50,7 +50,8 @@ class Database:
                 role TEXT DEFAULT 'staff',
                 institution_code TEXT,
                 status TEXT DEFAULT 'pending',
-                created_at TEXT NOT NULL
+                created_at TEXT NOT NULL,
+                lockout_until TEXT
             );
 
             CREATE TABLE IF NOT EXISTS failed_attempts (
@@ -74,7 +75,8 @@ class Database:
                 message TEXT NOT NULL,
                 status TEXT DEFAULT 'OPEN',
                 timestamp TEXT NOT NULL,
-                institution_code TEXT
+                institution_code TEXT,
+                forensics TEXT -- Column for IP/UA
             );
         """)
         conn.commit()
@@ -213,6 +215,18 @@ class Database:
         conn.commit()
         conn.close()
 
+    def lock_user(self, username, until_iso):
+        conn = self._connect()
+        conn.execute("UPDATE users SET lockout_until=? WHERE username=?", (until_iso, username))
+        conn.commit()
+        conn.close()
+
+    def clear_lockout(self, username):
+        conn = self._connect()
+        conn.execute("UPDATE users SET lockout_until=NULL WHERE username=?", (username,))
+        conn.commit()
+        conn.close()
+
     # ── FAILED ATTEMPTS ───────────────────────
     def log_failed_attempt(self, username):
         conn = self._connect()
@@ -259,11 +273,25 @@ class Database:
 
     # ── INCIDENTS ─────────────────────────────
     def save_incident(self, incident: dict, institution_code=None):
+        import datetime
+        from flask import request
+        
+        # Ultra Security: Capture IP and UA if in request context
+        ip = "system"
+        ua = "system"
+        try:
+            ip = request.remote_addr or "unknown"
+            ua = request.headers.get("User-Agent", "unknown")
+        except:
+            pass
+            
+        forensics = f"IP: {ip} | UA: {ua}"
+        
         conn = self._connect()
         conn.execute(
-            "INSERT INTO incidents (id, type, severity, message, status, timestamp, institution_code) VALUES (?,?,?,?,?,?,?)",
+            "INSERT INTO incidents (id, type, severity, message, status, timestamp, institution_code, forensics) VALUES (?,?,?,?,?,?,?,?)",
             (str(uuid.uuid4()), incident.get("type","UNKNOWN"), incident.get("severity","LOW"),
-             incident.get("message",""), "OPEN", datetime.datetime.now().isoformat(), institution_code)
+             incident.get("message",""), "OPEN", datetime.datetime.now().isoformat(), institution_code, forensics)
         )
         conn.commit()
         conn.close()
