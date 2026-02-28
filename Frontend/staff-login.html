@@ -6,8 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kavach Net — Staff Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
     <style>
         *,
         *::before,
@@ -15,158 +16,6 @@
             box-sizing: border-box;
             margin: 0;
             padding: 0
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: #030d12;
-            color: #e2e8f0;
-            min-height: 100vh;
-            display: flex;
-            overflow: hidden
-        }
-
-        /* Page background */
-        .bg-canvas {
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            overflow: hidden
-        }
-
-        .blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(110px);
-            opacity: .38;
-            animation: drift 15s ease-in-out infinite alternate
-        }
-
-        .blob-1 {
-            width: 540px;
-            height: 540px;
-            background: #134e4a;
-            top: -160px;
-            left: -130px;
-            animation-delay: 0s
-        }
-
-        .blob-2 {
-            width: 400px;
-            height: 400px;
-            background: #164e63;
-            bottom: -100px;
-            right: -90px;
-            animation-delay: -7s
-        }
-
-        .blob-3 {
-            width: 240px;
-            height: 240px;
-            background: #1e3a5f;
-            top: 45%;
-            left: 32%;
-            animation-delay: -3s
-        }
-
-        @keyframes drift {
-            from {
-                transform: translate(0, 0) scale(1)
-            }
-
-            to {
-                transform: translate(26px, 18px) scale(1.07)
-            }
-        }
-
-        .bg-grid {
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(circle, rgba(45, 212, 191, .06) 1px, transparent 1px);
-            background-size: 36px 36px
-        }
-
-        .page {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            width: 100%;
-            min-height: 100vh
-        }
-
-        /* Left panel */
-        .brand-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 60px 64px;
-            gap: 36px
-        }
-
-        .brand-logo {
-            display: flex;
-            align-items: center;
-            gap: 14px
-        }
-
-        .brand-logo img {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            box-shadow: 0 0 22px rgba(20, 184, 166, .4)
-        }
-
-        .brand-name {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #f1f5f9
-        }
-
-        .brand-tagline h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            line-height: 1.2;
-            color: #f1f5f9;
-            margin-bottom: 12px
-        }
-
-        .brand-tagline h1 span {
-            background: linear-gradient(90deg, #2dd4bf, #38bdf8);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent
-        }
-
-        .brand-tagline p {
-            font-size: .95rem;
-            color: #94a3b8;
-            line-height: 1.65;
-            max-width: 420px
-        }
-
-        /* NEW CENTERED LAYOUT WRAPPER */
-        .page-content-wrapper {
-            width: 100%;
-            max-width: 1140px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 80px;
-            padding: 40px 20px;
-            min-height: 100vh;
-        }
-
-        /* Adjusted panels for centered container */
-        .brand-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 32px
         }
 
         /* Scope note */
@@ -251,25 +100,6 @@
             font-weight: 500
         }
 
-        /* Right panel */
-        .login-panel {
-            width: 440px;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .login-card {
-            width: 100%;
-            background: rgba(6, 18, 22, .9);
-            border: 1px solid rgba(255, 255, 255, .07);
-            border-radius: 22px;
-            padding: 40px 36px;
-            backdrop-filter: blur(24px);
-            box-shadow: 0 28px 64px rgba(0, 0, 0, .7)
-        }
-
         /* Site Branding */
         .login-card-header {
             text-align: center;
@@ -316,91 +146,6 @@
             margin-bottom: 20px
         }
 
-        /* Select dropdown */
-        .form-group {
-            position: relative;
-            margin-bottom: 18px
-        }
-
-        .form-group label {
-            position: absolute;
-            left: 14px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: .85rem;
-            color: #4b5563;
-            pointer-events: none;
-            transition: all .2s;
-            padding: 0 4px;
-            background: transparent
-        }
-
-        .form-group input:focus~label,
-        .form-group input:not(:placeholder-shown)~label,
-        .form-group select:focus~label,
-        .form-group select.has-val~label {
-            top: 0;
-            font-size: .7rem;
-            color: #2dd4bf;
-            background: #060e12;
-            border-radius: 3px
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            background: rgba(255, 255, 255, .04);
-            border: 1px solid rgba(255, 255, 255, .08);
-            border-radius: 10px;
-            color: #f1f5f9;
-            font-size: .88rem;
-            padding: 13px 44px 13px 14px;
-            outline: none;
-            transition: border-color .2s, box-shadow .2s;
-            font-family: 'Inter', sans-serif;
-            appearance: none
-        }
-
-        .form-group select {
-            cursor: pointer;
-            padding-right: 36px
-        }
-
-        .form-group select option {
-            background: #0a1a1f;
-            color: #f1f5f9
-        }
-
-        .form-group input::placeholder {
-            color: transparent
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #14b8a6;
-            box-shadow: 0 0 0 3px rgba(20, 184, 166, .18)
-        }
-
-        .input-icon {
-            position: absolute;
-            right: 13px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #4b5563;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: color .2s;
-            pointer-events: none
-        }
-
-        #togglePw {
-            pointer-events: all
-        }
-
-        .input-icon:hover {
-            color: #94a3b8
-        }
-
         /* Options */
         .form-options {
             display: flex;
@@ -433,69 +178,6 @@
 
         .forgot-link:hover {
             color: #99f6e4
-        }
-
-        /* Button */
-        .login-btn {
-            width: 100%;
-            padding: 13px;
-            background: linear-gradient(135deg, #0f766e, #0891b2);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: .94rem;
-            font-weight: 600;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            transition: box-shadow .25s, transform .15s;
-            font-family: 'Inter', sans-serif
-        }
-
-        .login-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(255, 255, 255, .1), transparent);
-            border-radius: inherit
-        }
-
-        .login-btn:hover {
-            box-shadow: 0 6px 26px rgba(20, 184, 166, .4);
-            transform: translateY(-1px)
-        }
-
-        .login-btn:active {
-            transform: translateY(0)
-        }
-
-        .login-btn.loading .btn-text {
-            display: none
-        }
-
-        .login-btn.loading .btn-spinner {
-            display: inline-block
-        }
-
-        .btn-spinner {
-            display: none
-        }
-
-        .spinner {
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, .3);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-            display: inline-block;
-            vertical-align: middle
-        }
-
-        @keyframes spin {
-            to {
-                transform: rotate(360deg)
-            }
         }
 
         /* Alert */
@@ -561,6 +243,108 @@
             box-shadow: 0 0 6px #22c55e
         }
 
+        .login-btn.loading .btn-text {
+            display: none;
+        }
+
+        .login-btn.loading .btn-spinner {
+            display: inline-block;
+        }
+
+        .btn-spinner {
+            display: none;
+        }
+
+        .spinner {
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* NEW CENTERED LAYOUT WRAPPER */
+        .page-content-wrapper {
+            width: 100%;
+            max-width: 1140px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 80px;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+
+        /* Adjusted panels for centered container */
+        .brand-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 32px
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 14px
+        }
+
+        .brand-logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            box-shadow: 0 0 22px rgba(20, 184, 166, .4)
+        }
+
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #f1f5f9
+        }
+
+        .brand-tagline h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #f1f5f9;
+            margin-bottom: 12px
+        }
+
+        .brand-tagline h1 span {
+            background: linear-gradient(90deg, #2dd4bf, #38bdf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent
+        }
+
+        .brand-tagline p {
+            font-size: .95rem;
+            color: #94a3b8;
+            line-height: 1.65;
+            max-width: 420px
+        }
+
+        /* Right panel */
+        .login-panel {
+            width: 440px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         @media(max-width:860px) {
             .brand-panel {
                 display: none
@@ -573,14 +357,11 @@
     </style>
 </head>
 
-<body>
+<body class="landing-body">
 
-    <div class="bg-canvas">
-        <div class="blob blob-1"></div>
-        <div class="blob blob-2"></div>
-        <div class="blob blob-3"></div>
-        <div class="bg-grid"></div>
-    </div>
+    <!-- PREMIUM BACKGROUND LAYERS -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow"></div>
 
     <div class="page">
         <div class="page-content-wrapper">
@@ -624,11 +405,16 @@
 
             <!-- Right Login Panel -->
             <div class="login-panel">
-                <div class="login-card">
+                <div class="auth-card auth-card-staff">
 
-                <a href="portal.html" class="back-link">
-                    <i class="bi bi-arrow-left"></i> Back to role selection
-                </a>
+                <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+                    <a href="landing.html" class="back-link" style="margin-bottom: 0;">
+                        <i class="bi bi-house"></i> Home
+                    </a>
+                    <a href="portal.html" class="back-link" style="margin-bottom: 0;">
+                        <i class="bi bi-arrow-left"></i> Back to role selection
+                    </a>
+                </div>
 
                 <div class="login-card-header">
                     <div class="login-shield">
@@ -648,14 +434,14 @@
                 <form id="loginForm" novalidate>
 
                     <!-- Staff ID -->
-                    <div class="form-group">
+                    <div class="auth-form-group">
                         <input type="text" id="staffIdInput" placeholder="Staff ID" autocomplete="username" required>
                         <label for="staffIdInput">Staff ID</label>
-                        <span class="input-icon"><i class="bi bi-person-badge"></i></span>
+                        <span class="auth-input-icon"><i class="bi bi-person-badge"></i></span>
                     </div>
 
                     <!-- Department -->
-                    <div class="form-group">
+                    <div class="auth-form-group">
                         <select id="deptSelect">
                             <option value="" disabled selected hidden></option>
                             <option value="soc">SOC — Security Operations</option>
@@ -665,16 +451,16 @@
                             <option value="threat">Threat Intelligence</option>
                         </select>
                         <label for="deptSelect">Department</label>
-                        <span class="input-icon"><i class="bi bi-diagram-3"></i></span>
+                        <span class="auth-input-icon"><i class="bi bi-diagram-3"></i></span>
                     </div>
 
                     <!-- Password -->
-                    <div class="form-group">
+                    <div class="auth-form-group">
                         <input type="password" id="passwordInput" placeholder="Password" autocomplete="current-password"
                             required>
                         <label for="passwordInput">Password</label>
-                        <span class="input-icon" id="togglePw">
-                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        <span class="auth-input-icon" id="togglePw" style="pointer-events: all;">
+                            <i class="bi bi-eye" id="eyeIcon" aria-label="Toggle password visibility" role="button" tabindex="0"></i>
                         </span>
                     </div>
 
@@ -683,10 +469,10 @@
                         <label class="remember-me">
                             <input type="checkbox" id="rememberMe"> Remember me
                         </label>
-                        <a href="#" class="forgot-link">Forgot password?</a>
+                        <a href="javascript:void(0)" class="forgot-link">Forgot password?</a>
                     </div>
 
-                    <button type="submit" class="login-btn" id="loginBtn">
+                    <button type="submit" class="auth-btn auth-btn-staff login-btn" id="loginBtn">
                         <span class="btn-text"><i class="bi bi-box-arrow-in-right me-1"></i> Sign In</span>
                         <span class="btn-spinner"><span class="spinner"></span></span>
                     </button>
@@ -736,7 +522,7 @@
             alertBar.className = 'alert-bar show ' + type;
             alertTxt.textContent = msg;
             if (type === 'error') {
-                const card = document.querySelector('.login-card');
+                const card = document.querySelector('.auth-card');
                 card.style.transform = 'translateX(7px)';
                 setTimeout(() => { card.style.transition = 'transform .35s cubic-bezier(.36,.07,.19,.97)'; card.style.transform = 'translateX(0)'; }, 20);
             }
@@ -746,12 +532,12 @@
         function showOtpField() {
             const pwGroup = document.getElementById('passwordInput').closest('.form-group');
             const otpDiv = document.createElement('div');
-            otpDiv.className = 'form-group';
+            otpDiv.className = 'auth-form-group';
             otpDiv.id = 'otpGroup';
             otpDiv.innerHTML = `
                 <input type="text" id="otpInput" placeholder="OTP Code" maxlength="6" autocomplete="one-time-code" />
                 <label for="otpInput">OTP Code (check your email)</label>
-                <span class="input-icon"><i class="bi bi-shield-lock"></i></span>`;
+                <span class="auth-input-icon"><i class="bi bi-shield-lock"></i></span>`;
             pwGroup.parentNode.insertBefore(otpDiv, pwGroup.nextSibling);
         }
 
@@ -776,7 +562,7 @@
             (async () => {
                 try {
                     if (loginStep === 1) {
-                        const res = await apiPost('/api/login/step1', { username: id, password: pass });
+                        const res = await apiPost('/auth/login/step1', { username: id, password: pass });
                         btn.classList.remove('loading');
                         btn.disabled = false;
 
@@ -793,12 +579,13 @@
                         const otp = document.getElementById('otpInput')?.value.trim();
                         if (!otp) { showAlert('Please enter the OTP.'); btn.classList.remove('loading'); btn.disabled = false; return; }
 
-                        const res = await apiPost('/api/login/step2', { username: staffUsername, otp });
+                        const res = await apiPost('/auth/login/step2', { username: staffUsername, otp });
                         btn.classList.remove('loading');
                         btn.disabled = false;
 
                         if (res.ok && res.data.access_token) {
                             saveToken(res.data.access_token);
+                            saveRefreshToken(res.data.refresh_token);
                             saveSession({ username: staffUsername, role: res.data.role || 'staff', institution_code: res.data.institution_code || null });
                             showAlert('Login successful! Redirecting…', 'success');
                             btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';

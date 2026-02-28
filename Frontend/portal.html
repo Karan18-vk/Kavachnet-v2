@@ -12,95 +12,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        background: #070d1a;
-        color: #e2e8f0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      /* Page background */
-      .bg-canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-      }
-
-      .blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(100px);
-        opacity: 0.35;
-        animation: drift 15s ease-in-out infinite alternate;
-      }
-
-      .blob-1 {
-        width: 560px;
-        height: 560px;
-        background: #1d4ed8;
-        top: -150px;
-        left: -120px;
-        animation-delay: 0s;
-      }
-
-      .blob-2 {
-        width: 400px;
-        height: 400px;
-        background: #7c3aed;
-        bottom: -100px;
-        right: -80px;
-        animation-delay: -7s;
-      }
-
-      .blob-3 {
-        width: 300px;
-        height: 300px;
-        background: #0e7490;
-        top: 50%;
-        left: 50%;
-        animation-delay: -4s;
-      }
-
-      @keyframes drift {
-        from {
-          transform: translate(0, 0) scale(1);
-        }
-
-        to {
-          transform: translate(28px, 18px) scale(1.07);
-        }
-      }
-
-      .bg-grid {
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.055) 1px,
-          transparent 1px
-        );
-        background-size: 36px 36px;
-      }
-
-      .section-heading {
-        text-align: left;
-        margin-bottom: 32px;
-      }
-
       /* NEW CENTERED LAYOUT WRAPPER */
       .page-content-wrapper {
         width: 100%;
@@ -212,6 +125,11 @@
         font-weight: 500;
       }
 
+      .section-heading {
+        text-align: left;
+        margin-bottom: 32px;
+      }
+
       .section-heading h2 {
         font-size: 1.75rem;
         font-weight: 700;
@@ -222,158 +140,6 @@
       .section-heading p {
         font-size: 0.9rem;
         color: #94a3b8;
-      }
-
-      /* Cards wrapper */
-      .role-cards {
-        display: flex;
-        gap: 24px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      /* Role card */
-      .role-card {
-        width: 280px;
-        background: rgba(15, 23, 42, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 20px;
-        padding: 36px 28px 32px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        text-decoration: none;
-        color: inherit;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition:
-          transform 0.25s,
-          border-color 0.25s,
-          box-shadow 0.25s;
-        backdrop-filter: blur(18px);
-      }
-
-      .role-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.04),
-          transparent
-        );
-        border-radius: inherit;
-        pointer-events: none;
-      }
-
-      .role-card:hover {
-        transform: translateY(-6px);
-      }
-
-      /* Admin card */
-      .role-card.admin:hover {
-        border-color: rgba(59, 130, 246, 0.45);
-        box-shadow: 0 20px 48px rgba(59, 130, 246, 0.2);
-      }
-
-      .role-card.admin .card-icon-wrap {
-        background: linear-gradient(135deg, #1d4ed8, #4f46e5);
-        box-shadow: 0 0 28px rgba(59, 130, 246, 0.45);
-      }
-
-      /* Staff card */
-      .role-card.staff:hover {
-        border-color: rgba(20, 184, 166, 0.45);
-        box-shadow: 0 20px 48px rgba(20, 184, 166, 0.18);
-      }
-
-      .role-card.staff .card-icon-wrap {
-        background: linear-gradient(135deg, #0f766e, #0891b2);
-        box-shadow: 0 0 28px rgba(20, 184, 166, 0.4);
-      }
-
-      .card-icon-wrap {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.55rem;
-        color: #fff;
-        flex-shrink: 0;
-      }
-
-      .card-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: #f1f5f9;
-      }
-
-      .card-desc {
-        font-size: 0.8rem;
-        color: #94a3b8;
-        text-align: center;
-        line-height: 1.6;
-      }
-
-      .card-perms {
-        display: flex;
-        flex-direction: column;
-        gap: 7px;
-        width: 100%;
-        margin-top: 4px;
-      }
-
-      .perm-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.76rem;
-        color: #94a3b8;
-      }
-
-      .perm-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        flex-shrink: 0;
-      }
-
-      .perm-dot.blue {
-        background: #60a5fa;
-      }
-
-      .perm-dot.teal {
-        background: #2dd4bf;
-      }
-
-      .card-arrow {
-        margin-top: 8px;
-        width: 100%;
-        padding: 10px;
-        border-radius: 10px;
-        font-size: 0.83rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        transition: opacity 0.2s;
-      }
-
-      .role-card.admin .card-arrow {
-        background: rgba(59, 130, 246, 0.15);
-        color: #60a5fa;
-        border: 1px solid rgba(59, 130, 246, 0.25);
-      }
-
-      .role-card.staff .card-arrow {
-        background: rgba(20, 184, 166, 0.12);
-        color: #2dd4bf;
-        border: 1px solid rgba(20, 184, 166, 0.22);
       }
 
       /* Footer */
@@ -398,13 +164,10 @@
     </style>
   </head>
 
-  <body>
-    <div class="bg-canvas">
-      <div class="blob blob-1"></div>
-      <div class="blob blob-2"></div>
-      <div class="blob blob-3"></div>
-      <div class="bg-grid"></div>
-    </div>
+  <body class="landing-body">
+    <!-- PREMIUM BACKGROUND LAYERS -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow"></div>
 
     <div class="page">
       <div class="page-content-wrapper">

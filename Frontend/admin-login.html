@@ -9,165 +9,11 @@
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        background: #060c18;
-        color: #e2e8f0;
-        min-height: 100vh;
-        display: flex;
-        overflow: hidden;
-      }
-
-      /* Page background */
-      .bg-canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        overflow: hidden;
-      }
-
-      .blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(110px);
-        opacity: 0.4;
-        animation: drift 16s ease-in-out infinite alternate;
-      }
-
-      .blob-1 {
-        width: 600px;
-        height: 600px;
-        background: #1e3a8a;
-        top: -180px;
-        left: -150px;
-        animation-delay: 0s;
-      }
-
-      .blob-2 {
-        width: 420px;
-        height: 420px;
-        background: #312e81;
-        bottom: -120px;
-        right: -100px;
-        animation-delay: -8s;
-      }
-
-      .blob-3 {
-        width: 220px;
-        height: 220px;
-        background: #075985;
-        top: 55%;
-        left: 30%;
-        animation-delay: -4s;
-      }
-
-      @keyframes drift {
-        from {
-          transform: translate(0, 0) scale(1);
-        }
-
-        to {
-          transform: translate(24px, 16px) scale(1.06);
-        }
-      }
-
-      .bg-grid {
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(
-          circle,
-          rgba(96, 165, 250, 0.07) 1px,
-          transparent 1px
-        );
-        background-size: 36px 36px;
-      }
-
-      .page {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        width: 100%;
-        min-height: 100vh;
-      }
-
-      /* Left panel logo styles */
-
-      .brand-logo {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-      }
-
-      .brand-logo img {
-        width: 50px;
-        height: 50px;
-        border-radius: 12px;
-        box-shadow: 0 0 22px rgba(59, 130, 246, 0.45);
-      }
-
-      .brand-name {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: #f1f5f9;
-      }
-
-      .brand-tagline h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        line-height: 1.2;
-        color: #f1f5f9;
-        margin-bottom: 12px;
-      }
-
-      .brand-tagline h1 span {
-        background: linear-gradient(90deg, #60a5fa, #818cf8);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      .brand-tagline p {
-        font-size: 0.95rem;
-        color: #94a3b8;
-        line-height: 1.65;
-        max-width: 420px;
-      }
-
-      /* NEW CENTERED LAYOUT WRAPPER */
-      .page-content-wrapper {
-        width: 100%;
-        max-width: 1140px;
-        margin: 0 auto;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 80px;
-        padding: 40px 20px;
-        min-height: 100vh;
-      }
-
-      /* Adjusted panels for centered container */
-      .brand-panel {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: flex-start;
-        gap: 32px;
-      }
-
       /* Admin warning */
       .admin-notice {
         background: rgba(239, 68, 68, 0.08);
@@ -199,7 +45,7 @@
         margin-bottom: 3px;
         font-size: 0.83rem;
       }
-
+      
       /* Feature pills */
       .feature-list {
         display: flex;
@@ -250,27 +96,6 @@
         font-weight: 500;
       }
 
-      /* Right panel */
-      .login-panel {
-        width: 440px;
-        flex-shrink: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .login-card {
-        width: 100%;
-        background: rgba(10, 18, 36, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.07);
-        border-radius: 22px;
-        padding: 40px 36px;
-        backdrop-filter: blur(24px);
-        box-shadow:
-          0 28px 64px rgba(0, 0, 0, 0.7),
-          0 0 0 1px rgba(255, 255, 255, 0.03);
-      }
-
       /* Card header */
       .login-card-header {
         text-align: center;
@@ -316,73 +141,6 @@
         font-weight: 600;
         color: #f87171;
         margin-bottom: 20px;
-      }
-
-      /* Inputs */
-      .form-group {
-        position: relative;
-        margin-bottom: 18px;
-      }
-
-      .form-group label {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 0.85rem;
-        color: #4b5563;
-        pointer-events: none;
-        transition: all 0.2s;
-        padding: 0 4px;
-        background: transparent;
-      }
-
-      .form-group input:focus ~ label,
-      .form-group input:not(:placeholder-shown) ~ label {
-        top: 0;
-        font-size: 0.7rem;
-        color: #60a5fa;
-        background: #0a1224;
-        border-radius: 3px;
-      }
-
-      .form-group input {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
-        color: #f1f5f9;
-        font-size: 0.88rem;
-        padding: 13px 44px 13px 14px;
-        outline: none;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
-        font-family: "Inter", sans-serif;
-      }
-
-      .form-group input::placeholder {
-        color: transparent;
-      }
-
-      .form-group input:focus {
-        border-color: #3b82f6;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-      }
-
-      .input-icon {
-        position: absolute;
-        right: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #4b5563;
-        font-size: 1rem;
-        cursor: pointer;
-        transition: color 0.2s;
-      }
-
-      .input-icon:hover {
-        color: #94a3b8;
       }
 
       /* MFA row */
@@ -436,46 +194,6 @@
         display: flex;
         align-items: center;
         gap: 6px;
-      }
-
-      /* Button */
-      .login-btn {
-        width: 100%;
-        padding: 13px;
-        background: linear-gradient(135deg, #1d4ed8, #4f46e5);
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        font-size: 0.94rem;
-        font-weight: 600;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-        transition:
-          box-shadow 0.25s,
-          transform 0.15s;
-        font-family: "Inter", sans-serif;
-      }
-
-      .login-btn::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          135deg,
-          rgba(255, 255, 255, 0.1),
-          transparent
-        );
-        border-radius: inherit;
-      }
-
-      .login-btn:hover {
-        box-shadow: 0 6px 26px rgba(59, 130, 246, 0.5);
-        transform: translateY(-1px);
-      }
-
-      .login-btn:active {
-        transform: translateY(0);
       }
 
       .login-btn.loading .btn-text {
@@ -570,6 +288,79 @@
         box-shadow: 0 0 6px #22c55e;
       }
 
+      /* NEW CENTERED LAYOUT WRAPPER */
+      .page-content-wrapper {
+        width: 100%;
+        max-width: 1140px;
+        margin: 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 80px;
+        padding: 40px 20px;
+        min-height: 100vh;
+      }
+
+      /* Adjusted panels for centered container */
+      .brand-panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 32px;
+      }
+
+      .brand-logo {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .brand-logo img {
+        width: 50px;
+        height: 50px;
+        border-radius: 12px;
+        box-shadow: 0 0 22px rgba(59, 130, 246, 0.45);
+      }
+
+      .brand-name {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: #f1f5f9;
+      }
+
+      .brand-tagline h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: #f1f5f9;
+        margin-bottom: 12px;
+      }
+
+      .brand-tagline h1 span {
+        background: linear-gradient(90deg, #60a5fa, #818cf8);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .brand-tagline p {
+        font-size: 0.95rem;
+        color: #94a3b8;
+        line-height: 1.65;
+        max-width: 420px;
+      }
+
+      /* Right panel */
+      .login-panel {
+        width: 440px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
       @media (max-width: 860px) {
         .brand-panel {
           display: none;
@@ -582,13 +373,10 @@
     </style>
   </head>
 
-  <body>
-    <div class="bg-canvas">
-      <div class="blob blob-1"></div>
-      <div class="blob blob-2"></div>
-      <div class="blob blob-3"></div>
-      <div class="bg-grid"></div>
-    </div>
+  <body class="landing-body">
+    <!-- PREMIUM BACKGROUND LAYERS -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow"></div>
 
     <div class="page">
       <div class="page-content-wrapper">
@@ -645,10 +433,15 @@
 
         <!-- Right Login Panel -->
         <div class="login-panel">
-          <div class="login-card">
-          <a href="portal.html" class="back-link">
-            <i class="bi bi-arrow-left"></i> Back to role selection
-          </a>
+          <div class="auth-card auth-card-admin">
+          <div style="display: flex; gap: 16px; margin-bottom: 24px;">
+            <a href="landing.html" class="back-link" style="margin-bottom: 0;">
+              <i class="bi bi-house"></i> Home
+            </a>
+            <a href="portal.html" class="back-link" style="margin-bottom: 0;">
+              <i class="bi bi-arrow-left"></i> Back to role selection
+            </a>
+          </div>
 
           <div class="login-card-header">
             <div class="login-shield">
@@ -669,7 +462,7 @@
 
           <form id="loginForm" novalidate>
             <!-- Email -->
-            <div class="form-group">
+            <div class="auth-form-group">
               <input
                 type="email"
                 id="emailInput"
@@ -678,11 +471,11 @@
                 required
               />
               <label for="emailInput">Admin email</label>
-              <span class="input-icon"><i class="bi bi-envelope"></i></span>
+              <span class="auth-input-icon"><i class="bi bi-envelope"></i></span>
             </div>
 
             <!-- Password -->
-            <div class="form-group">
+            <div class="auth-form-group">
               <input
                 type="password"
                 id="passwordInput"
@@ -691,8 +484,8 @@
                 required
               />
               <label for="passwordInput">Password</label>
-              <span class="input-icon" id="togglePw" style="cursor: pointer">
-                <i class="bi bi-eye" id="eyeIcon"></i>
+              <span class="auth-input-icon" id="togglePw" style="cursor: pointer">
+                <i class="bi bi-eye" id="eyeIcon" aria-label="Toggle password visibility" role="button" tabindex="0"></i>
               </span>
             </div>
 
@@ -702,7 +495,7 @@
                 <i class="bi bi-phone"></i> Enter the 6-digit code from your
                 authenticator app
               </p>
-              <div class="form-group" style="margin-bottom: 0">
+              <div class="auth-form-group" style="margin-bottom: 0">
                 <input
                   type="text"
                   id="mfaInput"
@@ -711,7 +504,7 @@
                   autocomplete="one-time-code"
                 />
                 <label for="mfaInput">MFA Code</label>
-                <span class="input-icon"><i class="bi bi-key"></i></span>
+                <span class="auth-input-icon"><i class="bi bi-key"></i></span>
               </div>
             </div>
 
@@ -720,10 +513,10 @@
               <label class="remember-me">
                 <input type="checkbox" id="rememberMe" /> Trusted device
               </label>
-              <a href="#" class="forgot-link">Forgot password?</a>
+              <a href="javascript:void(0)" class="forgot-link">Forgot password?</a>
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">
+            <button type="submit" class="auth-btn auth-btn-admin login-btn" id="loginBtn">
               <span class="btn-text"
                 ><i class="bi bi-shield-lock me-1"></i> Authenticate</span
               >
@@ -778,7 +571,7 @@
         alertBar.className = "alert-bar show " + type;
         alertTxt.textContent = msg;
         if (type === "error") {
-          const card = document.querySelector(".login-card");
+          const card = document.querySelector(".auth-card");
           card.style.transform = "translateX(7px)";
           setTimeout(() => {
             card.style.transition =
@@ -802,7 +595,7 @@
           try {
             if (step === 1) {
               // Step 1 — verify username + password
-              const res = await apiPost('/api/login/step1', { username, password: pass });
+              const res = await apiPost('/auth/login/step1', { username, password: pass });
               btn.classList.remove("loading");
               btn.disabled = false;
 
@@ -816,12 +609,13 @@
               }
             } else {
               // Step 2 — verify OTP
-              const res = await apiPost('/api/login/step2', { username, otp });
+              const res = await apiPost('/auth/login/step2', { username, otp });
               btn.classList.remove("loading");
               btn.disabled = false;
 
               if (res.ok && res.data.access_token) {
                 saveToken(res.data.access_token);
+                saveRefreshToken(res.data.refresh_token);
                 saveSession({ username, role: res.data.role || 'admin', institution_code: res.data.institution_code || null });
                 showAlert("Authentication successful! Redirecting…", "success");
                 btn.querySelector(".btn-text").innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';

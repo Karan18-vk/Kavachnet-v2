@@ -12,6 +12,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -25,9 +26,7 @@
         padding: 0;
       }
       body {
-        font-family: "Inter", sans-serif;
-        background: #060c15;
-        color: #e2e8f0;
+        font-family: "Outfit", sans-serif;
         min-height: 100vh;
       }
 
@@ -497,8 +496,14 @@
       }
     </style>
   </head>
-  <body>
-    <!-- Topbar -->
+  <body class="landing-body">
+    <!-- Premium background meshes -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow" style="top: -10%; left: -10%;"></div>
+    <div class="mesh-glow" style="bottom: -20%; right: -20%; background: radial-gradient(circle at center, rgba(14, 116, 144, 0.2) 0%, transparent 60%);"></div>
+
+    <div style="position: relative; z-index: 2;">
+      <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-brand">
         <img
@@ -580,6 +585,9 @@
       </div>
     </div>
 
+      </div>
+    </div> <!-- /End Page Wrapper -->
+
     <!-- Reject modal -->
     <div class="modal-overlay" id="rejectModal">
       <div class="modal-box">
@@ -631,7 +639,7 @@
           </div>`;
 
         try {
-          const res = await apiGet("/api/superadmin/institutions");
+          const res = await apiGet("/institutions/all");
           if (!res.ok) {
             const errorMsg =
               res.data.error || `Error ${res.status}: Failed to load.`;
@@ -809,7 +817,7 @@
       async function approveInstitution(id) {
         try {
           const res = await apiPost(
-            `/api/superadmin/institutions/${id}/approve`,
+            `/institutions/${id}/approve`,
             {},
             true,
           );
@@ -842,7 +850,7 @@
         const reason = document.getElementById("rejectReason").value.trim();
         try {
           const res = await apiPost(
-            `/api/superadmin/institutions/${rejectTargetId}/reject`,
+            `/institutions/${rejectTargetId}/reject`,
             { reason },
             true,
           );

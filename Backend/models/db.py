@@ -20,7 +20,8 @@ class Database:
         self._create_tables()
 
     def _connect(self):
-        conn = sqlite3.connect(self.db_name)
+        # Increased timeout for enterprise concurrency
+        conn = sqlite3.connect(self.db_name, timeout=20.0) 
         conn.row_factory = sqlite3.Row
         return conn
 
@@ -78,7 +79,71 @@ class Database:
                 institution_code TEXT,
                 forensics TEXT -- Column for IP/UA
             );
+
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id TEXT PRIMARY KEY,
+                username TEXT NOT NULL,
+                action TEXT NOT NULL,
+                object_type TEXT NOT NULL,
+                object_id TEXT,
+                timestamp TEXT NOT NULL,
+                forensics TEXT
+            );
+
+            CREATE TABLE IF NOT EXISTS institution_codes (
+                id TEXT PRIMARY KEY,
+                institution_id TEXT NOT NULL,
+                code_value TEXT NOT NULL UNIQUE,
+                generated_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL,
+                status TEXT DEFAULT 'ACTIVE',
+                generated_by TEXT,
+                FOREIGN KEY(institution_id) REFERENCES institutions(id)
+            );
+
+            CREATE TABLE IF NOT EXISTS email_logs (
+                id TEXT PRIMARY KEY,
+                recipient TEXT NOT NULL,
+                type TEXT NOT NULL,
+                status TEXT NOT NULL,
+                attempts INTEGER DEFAULT 1,
+                last_error TEXT,
+                created_at TEXT NOT NULL
+            );
+
+            CREATE TABLE IF NOT EXISTS email_queue (
+                id TEXT PRIMARY KEY,
+                recipient TEXT NOT NULL,
+                subject TEXT NOT NULL,
+                html_body TEXT NOT NULL,
+                text_body TEXT,
+                type TEXT NOT NULL,
+                institution_id TEXT,
+                status TEXT DEFAULT 'PENDING',
+                attempts INTEGER DEFAULT 0,
+                max_attempts INTEGER DEFAULT 3,
+                last_error TEXT,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                next_retry_at TEXT NOT NULL
+            );
+            
+            -- Production Performance: Indexes
+            CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+            CREATE INDEX IF NOT EXISTS idx_users_inst ON users(institution_code);
+            CREATE INDEX IF NOT EXISTS idx_incidents_inst ON incidents(institution_code);
+            CREATE INDEX IF NOT EXISTS idx_incidents_ts ON incidents(timestamp DESC);
+            CREATE INDEX IF NOT EXISTS idx_logs_username ON login_logs(username);
+            CREATE INDEX IF NOT EXISTS idx_audit_username ON audit_logs(username);
+            CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_logs(timestamp DESC);
         """)
+        
+        # Gracefully upgrade existing DBs without recreating
+        try:
+            cursor.execute("ALTER TABLE email_queue ADD COLUMN next_retry_at TEXT DEFAULT '2000-01-01T00:00:00'")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+            
         conn.commit()
         conn.close()
         print("[DB] Tables ready.")
@@ -116,7 +181,7 @@ class Database:
         conn.close()
         return dict(row) if row else None
 
-    def approve_institution(self, inst_id):
+    def approve_institution(self, inst_id, superadmin_username="superadmin"):
         conn = self._connect()
         while True:
             code = _generate_institution_code()
@@ -131,12 +196,27 @@ class Database:
             "UPDATE institutions SET status='approved', institution_code=?, approved_at=?, code_expires_at=? WHERE id=?",
             (code, now.isoformat(), expiry, inst_id)
         )
+        conn.execute(
+            "INSERT INTO institution_codes (id, institution_id, code_value, generated_at, expires_at, status, generated_by) VALUES (?,?,?,?,?,?,?)",
+            (str(uuid.uuid4()), inst_id, code, now.isoformat(), expiry, 'ACTIVE', superadmin_username)
+        )
         conn.commit()
         conn.close()
         return code, expiry
 
-    def rotate_institution_code(self, inst_id):
+    def rotate_institution_code(self, inst_id, superadmin_username="superadmin"):
         conn = self._connect()
+        
+        # Get old code
+        old_inst = conn.execute("SELECT institution_code FROM institutions WHERE id=?", (inst_id,)).fetchone()
+        old_code = old_inst['institution_code'] if old_inst else None
+
+        # Expire old codes in history
+        conn.execute(
+            "UPDATE institution_codes SET status='EXPIRED' WHERE institution_id=? AND status='ACTIVE'",
+            (inst_id,)
+        )
+
         while True:
             code = _generate_institution_code()
             existing = conn.execute("SELECT id FROM institutions WHERE institution_code=?", (code,)).fetchone()
@@ -150,9 +230,13 @@ class Database:
             "UPDATE institutions SET institution_code=?, code_expires_at=? WHERE id=?",
             (code, expiry, inst_id)
         )
+        conn.execute(
+            "INSERT INTO institution_codes (id, institution_id, code_value, generated_at, expires_at, status, generated_by) VALUES (?,?,?,?,?,?,?)",
+            (str(uuid.uuid4()), inst_id, code, now.isoformat(), expiry, 'ACTIVE', superadmin_username)
+        )
         conn.commit()
         conn.close()
-        return code, expiry
+        return old_code, code, expiry
 
     def reject_institution(self, inst_id, reason=""):
         conn = self._connect()
@@ -305,8 +389,220 @@ class Database:
         conn.close()
         return [dict(r) for r in rows]
 
+    def get_incident_by_id(self, incident_id):
+        conn = self._connect()
+        row = conn.execute("SELECT * FROM incidents WHERE id=?", (incident_id,)).fetchone()
+        conn.close()
+        return dict(row) if row else None
+
     def update_incident_status(self, incident_id, new_status):
         conn = self._connect()
         conn.execute("UPDATE incidents SET status=? WHERE id=?", (new_status, incident_id))
         conn.commit()
         conn.close()
+
+    # ── AUDIT LOGS ────────────────────────────
+    def save_audit_log(self, username, action, object_type, object_id=None):
+        # Capture IP/UA if in request context
+        forensics = "system"
+        try:
+            from flask import request
+            ip = request.remote_addr or "unknown"
+            ua = request.headers.get("User-Agent", "unknown")
+            forensics = f"IP: {ip} | UA: {ua}"
+        except:
+            pass
+
+        conn = self._connect()
+        conn.execute(
+            "INSERT INTO audit_logs (id, username, action, object_type, object_id, timestamp, forensics) VALUES (?,?,?,?,?,?,?)",
+            (str(uuid.uuid4()), username, action, object_type, object_id, datetime.datetime.now().isoformat(), forensics)
+        )
+        conn.commit()
+        conn.close()
+
+    def get_audit_logs(self, limit=100):
+        conn = self._connect()
+        rows = conn.execute("SELECT * FROM audit_logs ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()
+        conn.close()
+        return [dict(r) for r in rows]
+
+    # ── EMAIL LOGS ────────────────────────────
+    def log_email_dispatch(self, recipient: str, log_type: str, status: str, attempts: int = 1, last_error: str = None):
+        conn = self._connect()
+        conn.execute(
+            "INSERT INTO email_logs (id, recipient, type, status, attempts, last_error, created_at) VALUES (?,?,?,?,?,?,?)",
+            (str(uuid.uuid4()), recipient, log_type, status, attempts, last_error, datetime.datetime.now().isoformat())
+        )
+        conn.commit()
+        conn.close()
+
+    def get_email_logs(self, limit: int = 100, log_type: str = None, status: str = None):
+        """Fetches email logs for SuperAdmin observation with strict PII masking."""
+        conn = self._connect()
+        conn.row_factory = sqlite3.Row
+        
+        query = "SELECT * FROM email_logs"
+        params = []
+        conditions = []
+        
+        if log_type:
+            conditions.append("type = ?")
+            params.append(log_type)
+        if status:
+            conditions.append("status = ?")
+            params.append(status)
+            
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
+            
+        query += " ORDER BY created_at DESC LIMIT ?"
+        params.append(limit)
+        
+        try:
+            rows = conn.execute(query, params).fetchall()
+            logs = []
+            for r in rows:
+                d = dict(r)
+                # Apply Zero-Trust PII Masking
+                email = d.get('recipient', '')
+                if '@' in email:
+                    _, domain = email.split('@', 1)
+                    d['recipient'] = f"***@{domain}"
+                else:
+                    d['recipient'] = "***"
+                logs.append(d)
+            return logs
+        finally:
+            conn.close()
+
+    # ── EMAIL QUEUE & RATE LIMITING ───────────
+    def enqueue_email(self, recipient: str, subject: str, html_body: str, text_body: str, log_type: str, institution_id: str = None):
+        """Pushes an email to the DB-backed queue to be sent asynchronously."""
+        from utils.validators import validate_email_strict
+        from utils.json_logger import json_metrics_logger
+        
+        if not validate_email_strict(recipient):
+             json_metrics_logger.error("Zero-Trust Regex Rejected Email", extra={"metrics": {"recipient": recipient, "type": log_type}})
+             return
+        
+        conn = self._connect()
+        try:
+            now = datetime.datetime.now().isoformat()
+            email_id = str(uuid.uuid4())
+            conn.execute(
+                '''INSERT INTO email_queue 
+                   (id, recipient, subject, html_body, text_body, type, institution_id, created_at, updated_at, next_retry_at) 
+                   VALUES (?,?,?,?,?,?,?,?,?,?)''',
+                (email_id, recipient, subject, html_body, text_body, log_type, institution_id, now, now, now)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def claim_pending_emails(self, batch_size=10):
+        """Pulls pending (or retrying) emails safely."""
+        conn = self._connect()
+        conn.row_factory = sqlite3.Row
+        try:
+            conn.execute("BEGIN EXCLUSIVE")
+            
+            # Find eligible emails: PENDING (and time allows it), or PROCESSING that have been stuck for > 5 mins (crash recovery)
+            five_mins_ago = (datetime.datetime.now() - datetime.timedelta(minutes=5)).isoformat()
+            now = datetime.datetime.now().isoformat()
+            
+            # Select IDs to claim
+            rows = conn.execute(
+                '''SELECT id FROM email_queue 
+                   WHERE (status = 'PENDING' AND next_retry_at <= ?) OR (status = 'PROCESSING' AND updated_at < ?) 
+                   ORDER BY created_at ASC LIMIT ?''',
+                (now, five_mins_ago, batch_size)
+            ).fetchall()
+            
+            claimed_ids = [r['id'] for r in rows]
+            
+            if claimed_ids:
+                placeholders = ','.join('?' * len(claimed_ids))
+                now = datetime.datetime.now().isoformat()
+                conn.execute(
+                    f"UPDATE email_queue SET status='PROCESSING', updated_at=? WHERE id IN ({placeholders})",
+                    [now] + claimed_ids
+                )
+                
+                emails = conn.execute(
+                    f"SELECT * FROM email_queue WHERE id IN ({placeholders})",
+                    claimed_ids
+                ).fetchall()
+                
+                conn.commit()
+                return [dict(e) for e in emails]
+            
+            conn.commit()
+            return []
+        except Exception:
+            conn.rollback()
+            return []
+        finally:
+            conn.close()
+
+    def update_email_queue_status(self, email_id: str, status: str, error: str = None, next_retry_at: str = None):
+        """Updates attempt count and final state of queued email."""
+        conn = self._connect()
+        now = datetime.datetime.now().isoformat()
+        if not next_retry_at:
+            next_retry_at = now
+            
+        try:
+            conn.execute(
+                "UPDATE email_queue SET status=?, attempts=attempts+1, last_error=?, updated_at=?, next_retry_at=? WHERE id=?",
+                (status, error, now, next_retry_at, email_id)
+            )
+            conn.commit()
+        finally:
+            conn.close()
+
+    def check_anomaly_thresholds(self, recipient: str, institution_id: str, log_type: str) -> bool:
+        """Evaluates email volume against strict anomaly rules. Returns True if SAFE."""
+        conn = self._connect()
+        now = datetime.datetime.now()
+        try:
+            # Rule 1: OTPs (15 per hour per recipient)
+            if 'OTP' in log_type:
+                one_hour_ago = (now - datetime.timedelta(hours=1)).isoformat()
+                count = conn.execute(
+                    "SELECT COUNT(*) as count FROM email_queue WHERE recipient=? AND type LIKE '%OTP%' AND created_at > ?",
+                    (recipient, one_hour_ago)
+                ).fetchone()['count']
+                return count < 15
+                
+            # Enforce institution boundaries
+            if not institution_id:
+                return True
+                
+            # Rule 2: Code Rotations (5 per day per institution)
+            if 'ROTATION' in log_type or 'EXPIRY' in log_type:
+                one_day_ago = (now - datetime.timedelta(days=1)).isoformat()
+                count = conn.execute(
+                    "SELECT COUNT(*) as count FROM email_queue WHERE institution_id=? AND (type LIKE '%ROTATION%' OR type LIKE '%EXPIRY%') AND created_at > ?",
+                    (institution_id, one_day_ago)
+                ).fetchone()['count']
+                return count < 5
+                
+            # Rule 3: Alerts/Incidents (30 per hour per institution to prevent alert fatigue)
+            if 'THREAT' in log_type or 'INCIDENT' in log_type:
+                one_hour_ago = (now - datetime.timedelta(hours=1)).isoformat()
+                count = conn.execute(
+                    "SELECT COUNT(*) as count FROM email_queue WHERE institution_id=? AND (type LIKE '%THREAT%' OR type LIKE '%INCIDENT%') AND created_at > ?",
+                    (institution_id, one_hour_ago)
+                ).fetchone()['count']
+                return count < 30
+                
+            # Default rate limit (50 per hour)
+            one_hour_ago = (now - datetime.timedelta(hours=1)).isoformat()
+            count = conn.execute(
+                "SELECT COUNT(*) as count FROM email_queue WHERE institution_id=? AND created_at > ?",
+                (institution_id, one_hour_ago)
+            ).fetchone()['count']
+            return count < 50
+        finally:
+            conn.close()

@@ -1,190 +1,216 @@
 // ═══════════════════════════════════════════════════════
-//  KavachNet — API Helper v2.0
-//  Change API_BASE if your backend runs on a different host
+//  KavachNet — API Helper v4.0 (Production Hardened)
+//  Clean Architecture & Dual-Token Rotation
 // ═══════════════════════════════════════════════════════
 
-// Use window.BACKEND_URL if set by a deployment script, else fallback to localhost
-const API_BASE = window.BACKEND_URL || 'http://localhost:5000';
+const API_BASE = (() => {
+    if (window.BACKEND_URL) return window.BACKEND_URL + '/api/v1';
+    // Production safety: Disable localhost if not in dev mode
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (!isLocal && !window.BACKEND_URL) {
+        console.error("[CRITICAL] Production Backend URL not configured. Security fallback engaged.");
+        return 'https://api.kavachnet.io/api/v1'; // System fallback
+    }
+    return 'http://localhost:5000/api/v1';
+})();
 
+/**
+ * Global Security Interceptor
+ * Alerts the user to potential session hijacking or backend integrity failures.
+ */
+function handleSecurityAlert(errorType, message) {
+    console.error(`[SECURITY ALERT] ${errorType}: ${message}`);
+    if (errorType === 'INTEGRITY_FAILURE') {
+        alert("CRITICAL: System integrity failure detected. Your session has been terminated for safety.");
+        logout();
+    }
+}
 
-// ── Token / session helpers ─────────────────────────────
-function saveToken(token)   { localStorage.setItem('kn_token', token); }
-function getToken()         { return localStorage.getItem('kn_token'); }
-function clearToken()       { localStorage.removeItem('kn_token'); }
+// ── Token / session helpers (Ultra Hardening: sessionStorage) ──────
+function saveToken(token)           { sessionStorage.setItem('kn_token', token); }
+function getToken()                 { return sessionStorage.getItem('kn_token'); }
+function clearToken()               { sessionStorage.removeItem('kn_token'); }
+
+function saveRefreshToken(token)    { sessionStorage.setItem('kn_refresh', token); }
+function getRefreshToken()          { return sessionStorage.getItem('kn_refresh'); }
+function clearRefreshToken()        { sessionStorage.removeItem('kn_refresh'); }
 
 function saveSession(data) {
-    localStorage.setItem('kn_session', JSON.stringify({
+    sessionStorage.setItem('kn_session', JSON.stringify({
         username:         data.username || '',
         role:             data.role || 'staff',
         institution_code: data.institution_code || null
     }));
 }
 function getSession() {
-    const s = localStorage.getItem('kn_session');
+    const s = sessionStorage.getItem('kn_session');
     return s ? JSON.parse(s) : null;
 }
-function clearSession() { localStorage.removeItem('kn_session'); }
+function clearSession() { sessionStorage.removeItem('kn_session'); }
 
-// ── Auth guard ───────────────────────────────────────────
-function requireAuth(allowedRoles) {
-    if (!getToken()) { window.location.href = 'portal.html'; return; }
-    if (allowedRoles) {
-        const s = getSession();
-        if (!s || !allowedRoles.includes(s.role)) {
-            window.location.href = 'portal.html';
+// ── Session Heartbeat & "Self-Destruct" Sequence ──
+let heartbeatInterval = null;
+function startSessionHeartbeat() {
+    if (heartbeatInterval) return;
+    heartbeatInterval = setInterval(async () => {
+        if (!getToken()) return;
+        try {
+            // FIX: Use relative path — API_BASE already includes /api/v1
+            const res = await apiGet('/auth/me');
+            if (!res.ok) throw new Error("HEARTBEAT_FAILURE");
+        } catch (err) {
+            console.error("[SECURITY] Session heartbeat failed. Initiating self-destruct.");
+            logout();
         }
+    }, 300000); // Check every 5 minutes
+}
+function stopSessionHeartbeat() {
+    if (heartbeatInterval) {
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
     }
 }
+if (getToken()) startSessionHeartbeat();
 
-function requireSuperAdmin() {
-    if (!getToken()) { window.location.href = 'superadmin-login.html'; return; }
-    const s = getSession();
-    if (!s || s.role !== 'superadmin') { window.location.href = 'superadmin-login.html'; }
+// ── World-Class Security: XSS Sanitization ─────────────────────
+function sanitizeHTML(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+// ── Token Rotation ───────────────────────────────────────────
+async function refreshToken() {
+    const rf = getRefreshToken();
+    if (!rf) return false;
+    try {
+        // FIX: Use relative path — API_BASE already includes /api/v1
+        const res = await fetch(API_BASE + '/auth/refresh', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + rf }
+        });
+        if (res.ok) {
+            const result = await res.json();
+            // Handle standardized api_response format: {status, message, data}
+            const accessToken = result.data ? result.data.access_token : result.access_token;
+            if (accessToken) {
+                saveToken(accessToken);
+                return true;
+            }
+        }
+    } catch (e) { console.error("Refresh failed", e); }
+    return false;
 }
 
 // ── Logout ───────────────────────────────────────────────
 function logout() {
     clearToken();
+    clearRefreshToken();
     clearSession();
+    stopSessionHeartbeat();
     window.location.href = 'portal.html';
 }
 function logoutSuperAdmin() {
     clearToken();
+    clearRefreshToken();
     clearSession();
+    stopSessionHeartbeat();
     window.location.href = 'superadmin-login.html';
 }
 
-// ── Fetch wrappers with Timeout and Robust Parsing ────────────────
-async function apiPost(endpoint, body, auth = false) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold-starts
+// ── Auth Guards ──────────────────────────────────────────
+function requireSuperAdmin() {
+    const session = getSession();
+    if (!getToken() || !session || session.role !== 'superadmin') {
+        window.location.href = 'superadmin-login.html';
+    }
+}
 
+function requireAuth(allowedRoles) {
+    const session = getSession();
+    if (!getToken() || !session) {
+        window.location.href = 'portal.html';
+        return;
+    }
+    if (allowedRoles && !allowedRoles.includes(session.role)) {
+        window.location.href = 'portal.html';
+    }
+}
+
+// ── Fetch wrappers with Automatic Refresh ────────────────
+async function apiPost(endpoint, body, auth = false) {
     const headers = { 'Content-Type': 'application/json' };
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
 
-    try {
-        const res = await fetch(API_BASE + endpoint, {
-            method: 'POST', 
-            headers, 
-            body: JSON.stringify(body),
-            signal: controller.signal
-        });
-        clearTimeout(timeout);
+    let res = await fetch(API_BASE + endpoint, {
+        method: 'POST', 
+        headers, 
+        body: JSON.stringify(body)
+    });
 
-        const contentType = res.headers.get("content-type");
-        let data = {};
-        if (contentType && contentType.includes("application/json")) {
-            data = await res.json();
+    if (auth && res.status === 401) {
+        if (await refreshToken()) {
+            headers['Authorization'] = 'Bearer ' + getToken();
+            res = await fetch(API_BASE + endpoint, {
+                method: 'POST', 
+                headers, 
+                body: JSON.stringify(body)
+            });
         } else {
-            const text = await res.text();
-            data = { msg: text || res.statusText };
+            logout();
+            throw new Error("AUTH_SESSION_INVALID");
         }
-
-        if (res.status === 401 || res.status === 422) {
-            const errText = data.error?.toLowerCase() || "";
-            if (errText.includes("string") || errText.includes("token") || errText.includes("signature") || errText.includes("identity")) {
-                throw new Error("AUTH_SESSION_INVALID");
-            }
-        }
-
-        return { 
-            ok: res.ok, 
-            status: res.status, 
-            data: { ...data, error: data.error || data.msg } 
-        };
-    } catch (err) {
-        clearTimeout(timeout);
-        if (err.message === "AUTH_SESSION_INVALID") throw err;
-        if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
-        throw err;
     }
+
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
 }
 
 async function apiGet(endpoint, auth = true) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold-starts
-
     const headers = {};
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
 
-    try {
-        const res = await fetch(API_BASE + endpoint, { 
-            headers,
-            signal: controller.signal 
-        });
-        clearTimeout(timeout);
+    let res = await fetch(API_BASE + endpoint, { headers });
 
-        const contentType = res.headers.get("content-type");
-        let data = {};
-        if (contentType && contentType.includes("application/json")) {
-            data = await res.json();
+    if (auth && res.status === 401) {
+        if (await refreshToken()) {
+            headers['Authorization'] = 'Bearer ' + getToken();
+            res = await fetch(API_BASE + endpoint, { headers });
         } else {
-            const text = await res.text();
-            data = { msg: text || res.statusText };
+            logout();
+            throw new Error("AUTH_SESSION_INVALID");
         }
-
-        if (res.status === 401 || res.status === 422) {
-            const errText = data.error?.toLowerCase() || "";
-            if (errText.includes("string") || errText.includes("token") || errText.includes("signature") || errText.includes("identity")) {
-                throw new Error("AUTH_SESSION_INVALID");
-            }
-        }
-
-        return { 
-            ok: res.ok, 
-            status: res.status, 
-            data: { ...data, error: data.error || data.msg } 
-        };
-    } catch (err) {
-        clearTimeout(timeout);
-        if (err.message === "AUTH_SESSION_INVALID") throw err;
-        if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
-        throw err;
     }
+
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
 }
 
 async function apiPatch(endpoint, body, auth = true) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 60000); // Increased to 60s for Render cold-starts
-
     const headers = { 'Content-Type': 'application/json' };
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
 
-    try {
-        const res = await fetch(API_BASE + endpoint, {
-            method: 'PATCH', 
-            headers, 
-            body: JSON.stringify(body),
-            signal: controller.signal
-        });
-        clearTimeout(timeout);
+    let res = await fetch(API_BASE + endpoint, {
+        method: 'PATCH', 
+        headers, 
+        body: JSON.stringify(body)
+    });
 
-        const contentType = res.headers.get("content-type");
-        let data = {};
-        if (contentType && contentType.includes("application/json")) {
-            data = await res.json();
+    if (auth && res.status === 401) {
+        if (await refreshToken()) {
+            headers['Authorization'] = 'Bearer ' + getToken();
+            res = await fetch(API_BASE + endpoint, {
+                method: 'PATCH', 
+                headers, 
+                body: JSON.stringify(body)
+            });
         } else {
-            const text = await res.text();
-            data = { msg: text || res.statusText };
+            logout();
+            throw new Error("AUTH_SESSION_INVALID");
         }
-
-        if (res.status === 401 || res.status === 422) {
-            const errText = data.error?.toLowerCase() || "";
-            if (errText.includes("string") || errText.includes("token") || errText.includes("signature") || errText.includes("identity")) {
-                throw new Error("AUTH_SESSION_INVALID");
-            }
-        }
-
-        return { 
-            ok: res.ok, 
-            status: res.status, 
-            data: { ...data, error: data.error || data.msg } 
-        };
-    } catch (err) {
-        clearTimeout(timeout);
-        if (err.message === "AUTH_SESSION_INVALID") throw err;
-        if (err.name === 'AbortError') throw new Error("Request timed out (server slow to respond)");
-        throw err;
     }
-}
 
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+}

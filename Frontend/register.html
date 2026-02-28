@@ -12,96 +12,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: "Inter", sans-serif;
-        background: #060d16;
-        color: #e2e8f0;
-        min-height: 100vh;
-        display: flex;
-        overflow-x: hidden;
-      }
-
-      /* Background */
-      .bg-canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        overflow: hidden;
-      }
-
-      .blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(110px);
-        opacity: 0.35;
-        animation: drift 16s ease-in-out infinite alternate;
-      }
-
-      .blob-1 {
-        width: 580px;
-        height: 580px;
-        background: #155e75;
-        top: -160px;
-        left: -130px;
-        animation-delay: 0s;
-      }
-
-      .blob-2 {
-        width: 420px;
-        height: 420px;
-        background: #1e3a8a;
-        bottom: -110px;
-        right: -90px;
-        animation-delay: -7s;
-      }
-
-      .blob-3 {
-        width: 260px;
-        height: 260px;
-        background: #4c1d95;
-        top: 40%;
-        left: 40%;
-        animation-delay: -4s;
-      }
-
-      @keyframes drift {
-        from {
-          transform: translate(0, 0) scale(1);
-        }
-
-        to {
-          transform: translate(26px, 18px) scale(1.07);
-        }
-      }
-
-      .bg-grid {
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(
-          circle,
-          rgba(56, 189, 248, 0.06) 1px,
-          transparent 1px
-        );
-        background-size: 36px 36px;
-      }
-
-      .page {
-        position: relative;
-        z-index: 1;
-        display: flex;
-        width: 100%;
-        min-height: 100vh;
-      }
-
       /* NEW CENTERED LAYOUT WRAPPER */
       .page-content-wrapper {
         width: 100%;
@@ -805,13 +717,10 @@
     </style>
   </head>
 
-  <body>
-    <div class="bg-canvas">
-      <div class="blob blob-1"></div>
-      <div class="blob blob-2"></div>
-      <div class="blob blob-3"></div>
-      <div class="bg-grid"></div>
-    </div>
+  <body class="landing-body">
+    <!-- PREMIUM BACKGROUND LAYERS -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow"></div>
 
     <div class="page">
       <div class="page-content-wrapper">
@@ -853,7 +762,39 @@
 
         <!-- Right Registration Card -->
         <div class="login-panel">
-          <div class="register-card">
+          <div class="auth-card auth-card-staff">
+            <div style="display: flex; gap: 16px; margin-bottom: 24px">
+              <a
+                href="landing.html"
+                class="back-link"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 0.78rem;
+                  color: #4b5563;
+                  text-decoration: none;
+                  transition: color 0.2s;
+                "
+              >
+                <i class="bi bi-house"></i> Home
+              </a>
+              <a
+                href="portal.html"
+                class="back-link"
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 6px;
+                  font-size: 0.78rem;
+                  color: #4b5563;
+                  text-decoration: none;
+                  transition: color 0.2s;
+                "
+              >
+                <i class="bi bi-arrow-left"></i> Back to role selection
+              </a>
+            </div>
             <div class="card-header">
               <div class="shield-icon">
                 <i class="bi bi-person-plus-fill"></i>
@@ -891,7 +832,7 @@
               <div class="section-label">Personal Information</div>
 
               <div class="form-row">
-                <div class="form-group">
+                <div class="auth-form-group">
                   <input
                     type="text"
                     id="firstName"
@@ -899,9 +840,11 @@
                     required
                   />
                   <label for="firstName">First name</label>
-                  <span class="input-icon"><i class="bi bi-person"></i></span>
+                  <span class="auth-input-icon"
+                    ><i class="bi bi-person"></i
+                  ></span>
                 </div>
-                <div class="form-group">
+                <div class="auth-form-group">
                   <input
                     type="text"
                     id="lastName"
@@ -909,11 +852,13 @@
                     required
                   />
                   <label for="lastName">Last name</label>
-                  <span class="input-icon"><i class="bi bi-person"></i></span>
+                  <span class="auth-input-icon"
+                    ><i class="bi bi-person"></i
+                  ></span>
                 </div>
               </div>
 
-              <div class="form-group">
+              <div class="auth-form-group">
                 <input
                   type="email"
                   id="emailField"
@@ -921,13 +866,15 @@
                   required
                 />
                 <label for="emailField">Work email</label>
-                <span class="input-icon"><i class="bi bi-envelope"></i></span>
+                <span class="auth-input-icon"
+                  ><i class="bi bi-envelope"></i
+                ></span>
               </div>
 
-              <div class="form-group">
+              <div class="auth-form-group">
                 <input type="tel" id="phoneField" placeholder="Phone number" />
                 <label for="phoneField">Phone number (optional)</label>
-                <span class="input-icon"><i class="bi bi-phone"></i></span>
+                <span class="auth-input-icon"><i class="bi bi-phone"></i></span>
               </div>
 
               <div class="btn-row">
@@ -943,7 +890,7 @@
             <div class="form-step" id="formStep2">
               <div class="section-label">Institution Code</div>
 
-              <div class="form-group">
+              <div class="auth-form-group">
                 <input
                   type="text"
                   id="institutionCode"
@@ -962,7 +909,7 @@
                   required
                 />
                 <label for="institutionCode">Institution Code</label>
-                <span class="input-icon"><i class="bi bi-key"></i></span>
+                <span class="auth-input-icon"><i class="bi bi-key"></i></span>
               </div>
               <p class="field-hint">
                 Provided by Kavach Net after your institution is approved.
@@ -1047,10 +994,14 @@
               </div>
 
               <div class="btn-row" style="margin-top: 4px">
-                <button class="btn-secondary" onclick="prevStep(2)">
+                <button
+                  class="auth-btn auth-btn-secondary"
+                  style="width: 50px; flex: none"
+                  onclick="prevStep(2)"
+                >
                   <i class="bi bi-arrow-left"></i>
                 </button>
-                <button class="btn-primary" onclick="nextStep(2)">
+                <button class="auth-btn auth-btn-primary" onclick="nextStep(2)">
                   <span class="btn-text"
                     >Continue &nbsp;<i class="bi bi-arrow-right"></i
                   ></span>
@@ -1062,7 +1013,7 @@
             <div class="form-step" id="formStep3">
               <div class="section-label">Set Password</div>
 
-              <div class="form-group">
+              <div class="auth-form-group">
                 <input
                   type="password"
                   id="password"
@@ -1070,8 +1021,17 @@
                   required
                 />
                 <label for="password">Create password</label>
-                <span class="input-icon" id="togglePw"
-                  ><i class="bi bi-eye" id="eyePw"></i
+                <span
+                  class="auth-input-icon"
+                  id="togglePw"
+                  style="pointer-events: all"
+                  ><i
+                    class="bi bi-eye"
+                    id="eyePw"
+                    aria-label="Toggle password visibility"
+                    role="button"
+                    tabindex="0"
+                  ></i
                 ></span>
               </div>
 
@@ -1085,7 +1045,7 @@
                 >
               </div>
 
-              <div class="form-group">
+              <div class="auth-form-group">
                 <input
                   type="password"
                   id="confirmPassword"
@@ -1093,8 +1053,17 @@
                   required
                 />
                 <label for="confirmPassword">Confirm password</label>
-                <span class="input-icon" id="toggleCpw"
-                  ><i class="bi bi-eye" id="eyeCpw"></i
+                <span
+                  class="auth-input-icon"
+                  id="toggleCpw"
+                  style="pointer-events: all"
+                  ><i
+                    class="bi bi-eye"
+                    id="eyeCpw"
+                    aria-label="Toggle password visibility"
+                    role="button"
+                    tabindex="0"
+                  ></i
                 ></span>
               </div>
 
@@ -1106,26 +1075,34 @@
               <div class="terms-row">
                 <input type="checkbox" id="termsCheck" />
                 <label for="termsCheck"
-                  >I agree to the <a href="#">Terms of Use</a> and
-                  <a href="#">Security Policy</a>. I understand this account is
-                  for authorized use only.</label
+                  >I agree to the
+                  <a href="javascript:void(0)">Terms of Use</a> and
+                  <a href="javascript:void(0)">Security Policy</a>. I understand
+                  this account is for authorized use only.</label
                 >
               </div>
 
               <div class="btn-row">
-                <button class="btn-secondary" onclick="prevStep(3)">
+                <button
+                  class="auth-btn auth-btn-secondary"
+                  style="width: 50px; flex: none"
+                  onclick="prevStep(3)"
+                >
                   <i class="bi bi-arrow-left"></i>
                 </button>
                 <button
-                  class="btn-primary"
+                  class="auth-btn auth-btn-primary loading"
                   id="submitBtn"
+                  style="flex: 1"
                   onclick="submitForm()"
                 >
                   <span class="btn-text"
                     ><i class="bi bi-check2-circle me-1"></i> Create
                     Account</span
                   >
-                  <span class="btn-spinner"><span class="spinner"></span></span>
+                  <span class="btn-spinner" style="display: none"
+                    ><span class="spinner"></span
+                  ></span>
                 </button>
               </div>
             </div>
@@ -1143,26 +1120,41 @@
                 <!-- Filled by JS -->
               </div>
 
-              <a
-                href="portal.html"
-                class="btn-primary"
+              <div
                 style="
-                  display: block;
-                  text-align: center;
-                  text-decoration: none;
-                  padding: 13px;
-                  border-radius: 10px;
+                  display: flex;
+                  gap: 12px;
+                  margin-top: 12px;
+                  justify-content: center;
                 "
               >
-                <i class="bi bi-box-arrow-in-right me-1"></i> Go to Login
-              </a>
+                <a
+                  href="landing.html"
+                  class="btn-secondary"
+                  style="flex: 1; text-align: center; text-decoration: none"
+                >
+                  <i class="bi bi-house me-1"></i> Return Home
+                </a>
+                <a
+                  href="portal.html"
+                  class="auth-btn auth-btn-primary"
+                  style="
+                    flex: 1;
+                    text-align: center;
+                    text-decoration: none;
+                    margin-top: 0;
+                  "
+                >
+                  <i class="bi bi-box-arrow-in-right me-1"></i> Go to Login
+                </a>
+              </div>
             </div>
 
             <!-- Footer -->
             <div class="card-footer" id="cardFooter">
               Already have an account?
               <a href="portal.html">Sign in</a> &nbsp;·&nbsp; Need help?
-              <a href="#">Contact IT Support</a>
+              <a href="javascript:void(0)">Contact IT Support</a>
             </div>
           </div>
         </div>
@@ -1335,7 +1327,7 @@
           '<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;"></span> Validating…';
 
         try {
-          const res = await apiGet(`/api/institutions/validate/${code}`, false);
+          const res = await apiGet(`/institutions/validate/${code}`, false);
           btn.disabled = false;
           btnText.innerHTML = '<i class="bi bi-search me-1"></i> Validate Code';
           const box = document.getElementById("codeValidation");
@@ -1444,7 +1436,7 @@
           .value.trim()
           .toUpperCase();
         const endpoint =
-          role === "admin" ? "/api/register/admin" : "/api/register/staff";
+          role === "admin" ? "/auth/register/admin" : "/auth/register/staff";
 
         (async () => {
           try {

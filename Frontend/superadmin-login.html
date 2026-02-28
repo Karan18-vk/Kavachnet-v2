@@ -5,92 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kavach Net — Super Admin</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-      body {
-        font-family: "Inter", sans-serif;
-        background: #020608;
-        color: #e2e8f0;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .bg-canvas {
-        position: fixed;
-        inset: 0;
-        z-index: 0;
-        overflow: hidden;
-      }
-      .blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(120px);
-        opacity: 0.2;
-        animation: drift 18s ease-in-out infinite alternate;
-      }
-      .blob-1 {
-        width: 500px;
-        height: 500px;
-        background: #7f1d1d;
-        top: -100px;
-        left: -100px;
-      }
-      .blob-2 {
-        width: 350px;
-        height: 350px;
-        background: #1e1b4b;
-        bottom: -80px;
-        right: -80px;
-        animation-delay: -9s;
-      }
-      @keyframes drift {
-        from {
-          transform: translate(0, 0) scale(1);
-        }
-        to {
-          transform: translate(20px, 15px) scale(1.05);
-        }
-      }
-      .bg-grid {
-        position: absolute;
-        inset: 0;
-        background-image: radial-gradient(
-          circle,
-          rgba(255, 255, 255, 0.04) 1px,
-          transparent 1px
-        );
-        background-size: 36px 36px;
-      }
       .page {
         position: relative;
         z-index: 1;
         width: 100%;
         max-width: 420px;
         padding: 20px;
-      }
-      .card {
-        background: rgba(8, 10, 14, 0.92);
-        border: 1px solid rgba(239, 68, 68, 0.15);
-        border-radius: 20px;
-        padding: 40px 36px;
-        backdrop-filter: blur(24px);
-        box-shadow:
-          0 0 60px rgba(239, 68, 68, 0.05),
-          0 28px 64px rgba(0, 0, 0, 0.7);
+        margin: 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        min-height: 100vh;
       }
       .header {
         text-align: center;
@@ -131,84 +65,14 @@
         gap: 8px;
         margin-bottom: 24px;
       }
-      .form-group {
-        position: relative;
-        margin-bottom: 16px;
-      }
-      .form-group label {
-        display: block;
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #64748b;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        margin-bottom: 6px;
-      }
-      .form-group input {
-        width: 100%;
-        background: rgba(255, 255, 255, 0.04);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 10px;
-        color: #f1f5f9;
-        font-size: 0.9rem;
-        padding: 12px 42px 12px 14px;
-        outline: none;
-        font-family: "Inter", sans-serif;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
-      }
-      .form-group input:focus {
-        border-color: #ef4444;
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
-      }
-      .icon-right {
-        position: absolute;
-        right: 13px;
-        bottom: 13px;
-        color: #4b5563;
-        font-size: 1rem;
-      }
-      .alert-bar {
+      .btn-login.loading .btn-text {
         display: none;
-        border-radius: 9px;
-        font-size: 0.8rem;
-        padding: 10px 14px;
-        margin-bottom: 16px;
-        align-items: center;
-        gap: 8px;
       }
-      .alert-bar.show {
-        display: flex;
+      .btn-login.loading .btn-spinner {
+        display: inline-block;
       }
-      .alert-bar.error {
-        background: rgba(239, 68, 68, 0.1);
-        border: 1px solid rgba(239, 68, 68, 0.25);
-        color: #fca5a5;
-      }
-      .btn-login {
-        width: 100%;
-        padding: 13px;
-        background: linear-gradient(135deg, #991b1b, #7c3aed);
-        border: none;
-        border-radius: 10px;
-        color: #fff;
-        font-size: 0.93rem;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: "Inter", sans-serif;
-        transition:
-          box-shadow 0.2s,
-          transform 0.15s;
-      }
-      .btn-login:hover {
-        box-shadow: 0 6px 24px rgba(153, 27, 27, 0.4);
-        transform: translateY(-1px);
-      }
-      .btn-login:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
+      .btn-spinner {
+        display: none;
       }
       .spinner {
         display: inline-block;
@@ -231,17 +95,64 @@
         font-size: 0.72rem;
         color: #374151;
       }
+      .alert-bar {
+        display: none;
+        border-radius: 9px;
+        font-size: 0.8rem;
+        padding: 10px 14px;
+        margin-bottom: 16px;
+        align-items: center;
+        gap: 8px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.25);
+        color: #fca5a5;
+      }
+      .alert-bar.show {
+        display: flex;
+      }
     </style>
   </head>
-  <body>
-    <div class="bg-canvas">
-      <div class="blob blob-1"></div>
-      <div class="blob blob-2"></div>
-      <div class="bg-grid"></div>
-    </div>
+  <body class="landing-body">
+    <!-- PREMIUM BACKGROUND LAYERS -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow"></div>
 
     <div class="page">
-      <div class="card">
+      <div class="auth-card auth-card-superadmin">
+        <div style="display: flex; gap: 16px; margin-bottom: 22px">
+          <a
+            href="landing.html"
+            class="back-link"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 0.78rem;
+              color: #4b5563;
+              text-decoration: none;
+              transition: color 0.2s;
+              width: fit-content;
+            "
+          >
+            <i class="bi bi-house"></i> Home
+          </a>
+          <a
+            href="portal.html"
+            class="back-link"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 0.78rem;
+              color: #4b5563;
+              text-decoration: none;
+              transition: color 0.2s;
+              width: fit-content;
+            "
+          >
+            <i class="bi bi-arrow-left"></i> Back to role selection
+          </a>
+        </div>
         <div class="header">
           <div class="icon-wrap">
             <i class="bi bi-shield-fill-exclamation"></i>
@@ -260,30 +171,37 @@
           <span id="alertText"></span>
         </div>
 
-        <div class="form-group">
-          <label>Username</label>
+        <div class="auth-form-group">
           <input
             type="text"
             id="usernameInput"
             placeholder="Super admin username"
             autocomplete="off"
+            required
           />
-          <span class="icon-right"><i class="bi bi-person-fill"></i></span>
+          <label for="usernameInput">Username</label>
+          <span class="auth-input-icon"><i class="bi bi-person-fill"></i></span>
         </div>
-        <div class="form-group">
-          <label>Password</label>
+        <div class="auth-form-group">
           <input
             type="password"
             id="passwordInput"
             placeholder="Super admin password"
+            required
           />
-          <span class="icon-right"><i class="bi bi-lock-fill"></i></span>
+          <label for="passwordInput">Password</label>
+          <span class="auth-input-icon"><i class="bi bi-lock-fill"></i></span>
         </div>
 
-        <button class="btn-login" id="loginBtn" onclick="doLogin()">
-          <span id="btnText"
+        <button
+          class="auth-btn auth-btn-superadmin btn-login"
+          id="loginBtn"
+          onclick="doLogin()"
+        >
+          <span id="btnText" class="btn-text"
             ><i class="bi bi-shield-lock me-1"></i> Access Control Panel</span
           >
+          <span class="btn-spinner"><span class="spinner"></span></span>
         </button>
 
         <div class="footer">Kavach Net © 2026 · Internal Operations</div>
@@ -319,12 +237,14 @@
           '<span class="spinner"></span>';
 
         try {
-          const res = await apiPost("/api/superadmin/login", {
+          const res = await apiPost("/auth/superadmin/login", {
             username,
             password,
           });
           if (res.ok) {
-            saveToken(res.data.access_token);
+            const d = res.data.data || res.data;
+            saveToken(d.access_token);
+            saveRefreshToken(d.refresh_token);
             saveSession({
               username,
               role: "superadmin",

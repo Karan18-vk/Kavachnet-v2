@@ -1,0 +1,30 @@
+2026-02-28 12:03:18,171 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-02-28 12:03:57,030 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-02-28 12:04:16,500 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-02-28 12:08:22,509 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-02-28 15:03:12,458 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-02-28 15:03:17,191 INFO: KavachNet v4 Production initialization started. [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\app.py:146]
+2026-02-28 15:04:27,257 ERROR: Exception on /health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 870, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 889, in finalize_request
+    response = self.make_response(rv)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1197, in make_response
+    raise TypeError(
+TypeError: The view function did not return a valid response. The return type must be a string, dict, list, tuple with headers or status, Response instance, or WSGI callable, but it was a tuple.
+2026-02-28 15:04:27,262 ERROR: Internal Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\app.py:114]
+2026-02-28 15:06:30,775 ERROR: Exception on /health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 870, in full_dispatch_request
+    return self.finalize_request(rv)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 889, in finalize_request
+    response = self.make_response(rv)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1197, in make_response
+    raise TypeError(
+TypeError: The view function did not return a valid response. The return type must be a string, dict, list, tuple with headers or status, Response instance, or WSGI callable, but it was a tuple.
+2026-02-28 15:06:30,777 ERROR: Internal Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\app.py:114]

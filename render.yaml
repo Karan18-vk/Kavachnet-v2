@@ -5,23 +5,27 @@ services:
     env: python
     rootDir: Backend
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn --workers=4 --threads=2 --timeout=60 --bind=0.0.0.0:$PORT app:app
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: SECRET_KEY
         generateValue: true
       - key: JWT_SECRET_KEY
         generateValue: true
-      - key: JWT_ACCESS_TOKEN_EXPIRES
-        value: "3600"
       - key: SUPERADMIN_USERNAME
         value: kavachnet_root
       - key: SUPERADMIN_PASSWORD
-        value: KN@SuperAdmin2026!
+        generateValue: true
+      - key: DB_NAME
+        value: kavachnet.db
+      - key: REDIS_URL
+        sync: false
       - key: EMAIL_ADDRESS
         sync: false
       - key: EMAIL_PASSWORD
         sync: false
-      - key: GOOGLE_API_KEY
-        sync: false
-      - key: DB_NAME
-        value: kavachnet.db
+      - key: SMTP_SERVER
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"

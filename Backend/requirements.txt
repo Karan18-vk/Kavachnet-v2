@@ -27,3 +27,5 @@ reportlab==4.0.9
 # Environment Variables
 python-dotenv==1.0.0
 gunicorn==21.2.0
+redis==5.0.1
+hiredis==2.3.2

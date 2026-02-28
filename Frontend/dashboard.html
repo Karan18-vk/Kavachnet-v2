@@ -14,10 +14,11 @@
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
 
   <body>
@@ -64,7 +65,7 @@
           <i class="bi bi-search"></i>
         </button>
         <div class="nav-divider"></div>
-        <button class="logout-btn" onclick="logoutUser()">
+        <button class="logout-btn" onclick="logout()">
           <i class="bi bi-box-arrow-right me-1"></i> Logout
         </button>
       </div>
@@ -292,7 +293,11 @@
           <!-- Main Section -->
           <span class="sidebar-section-label">MAIN</span>
 
-          <a href="#" class="sidebar-link active" data-page="dashboard">
+          <a
+            href="javascript:void(0)"
+            class="sidebar-link active"
+            data-page="dashboard"
+          >
             <span class="sidebar-link-icon"
               ><i class="bi bi-speedometer2"></i
             ></span>
@@ -300,7 +305,11 @@
             <span class="sidebar-link-badge badge-blue">Live</span>
           </a>
 
-          <a href="#" class="sidebar-link" data-page="analytics">
+          <a
+            href="javascript:void(0)"
+            class="sidebar-link"
+            data-page="analytics"
+          >
             <span class="sidebar-link-icon"
               ><i class="bi bi-bar-chart-line"></i
             ></span>
@@ -312,7 +321,7 @@
           <!-- Security Section -->
           <span class="sidebar-section-label">SECURITY</span>
 
-          <a href="#" class="sidebar-link" data-page="threats">
+          <a href="javascript:void(0)" class="sidebar-link" data-page="threats">
             <span class="sidebar-link-icon"
               ><i class="bi bi-shield-fill-exclamation"></i
             ></span>
@@ -320,14 +329,22 @@
             <span class="sidebar-link-badge badge-red">124</span>
           </a>
 
-          <a href="#" class="sidebar-link" data-page="phishing">
+          <a
+            href="javascript:void(0)"
+            class="sidebar-link"
+            data-page="phishing"
+          >
             <span class="sidebar-link-icon"
               ><i class="bi bi-bug-fill"></i
             ></span>
             <span class="sidebar-link-text">Phishing Scanner</span>
           </a>
 
-          <a href="#" class="sidebar-link" data-page="incidents">
+          <a
+            href="javascript:void(0)"
+            class="sidebar-link"
+            data-page="incidents"
+          >
             <span class="sidebar-link-icon"
               ><i class="bi bi-exclamation-triangle-fill"></i
             ></span>
@@ -335,12 +352,16 @@
             <span class="sidebar-link-badge badge-yellow">8</span>
           </a>
 
-          <a href="#" class="sidebar-link" data-page="firewall">
+          <a
+            href="javascript:void(0)"
+            class="sidebar-link"
+            data-page="firewall"
+          >
             <span class="sidebar-link-icon"><i class="bi bi-fire"></i></span>
             <span class="sidebar-link-text">Firewall Rules</span>
           </a>
 
-          <a href="#" class="sidebar-link" data-page="ai">
+          <a href="javascript:void(0)" class="sidebar-link" data-page="ai">
             <span class="sidebar-link-icon"
               ><i class="bi bi-cpu-fill" style="color: #60a5fa"></i
             ></span>
@@ -353,14 +374,14 @@
           <!-- Network Section -->
           <span class="sidebar-section-label">NETWORK</span>
 
-          <a href="#" class="sidebar-link" data-page="monitor">
+          <a href="javascript:void(0)" class="sidebar-link" data-page="monitor">
             <span class="sidebar-link-icon"
               ><i class="bi bi-activity"></i
             ></span>
             <span class="sidebar-link-text">Network Monitor</span>
           </a>
 
-          <a href="#" class="sidebar-link" data-page="logs">
+          <a href="javascript:void(0)" class="sidebar-link" data-page="logs">
             <span class="sidebar-link-icon"
               ><i class="bi bi-file-earmark-text"></i
             ></span>
@@ -369,7 +390,7 @@
 
           <!-- Admin only: Staff Management -->
           <a
-            href="#"
+            href="javascript:void(0)"
             class="sidebar-link admin-only"
             data-page="staff"
             id="staffMgmtLink"
@@ -391,13 +412,17 @@
         <!-- Sidebar Bottom -->
         <div class="sidebar-bottom">
           <div class="sidebar-divider mb-2"></div>
-          <a href="#" class="sidebar-link" data-page="settings">
+          <a
+            href="javascript:void(0)"
+            class="sidebar-link"
+            data-page="settings"
+          >
             <span class="sidebar-link-icon"
               ><i class="bi bi-gear-fill"></i
             ></span>
             <span class="sidebar-link-text">Settings</span>
           </a>
-          <a href="#" class="sidebar-link" data-page="help">
+          <a href="javascript:void(0)" class="sidebar-link" data-page="help">
             <span class="sidebar-link-icon"
               ><i class="bi bi-question-circle"></i
             ></span>
@@ -457,18 +482,13 @@
         <!-- DASHBOARD PANEL -->
         <div id="page-dashboard" class="page-panel">
           <div class="row g-3 mt-3">
-            <div class="col-md-3">
-              <div class="card glass-card p-3">
+            <div class="col-md-3 mb-4 animate-slide-up">
+              <div class="card glass-premium p-3">
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <span class="stat-icon danger"
                     ><i class="bi bi-shield-x"></i
                   ></span>
-                  <h6
-                    class="mb-0 stat-label"
-                    style="color: #94a3b8; font-size: 0.8rem"
-                  >
-                    Total Threats
-                  </h6>
+                  <h6 class="mb-0 stat-label text-muted">Total Threats</h6>
                 </div>
                 <div class="d-flex align-items-end gap-2">
                   <h3 class="text-danger mb-0" id="statThreats">124</h3>
@@ -479,15 +499,16 @@
                 >
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="card glass-card p-3">
+            <div
+              class="col-md-3 mb-4 animate-slide-up"
+              style="animation-delay: 0.1s"
+            >
+              <div class="card glass-premium p-3">
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <span class="stat-icon warning"
                     ><i class="bi bi-exclamation-circle"></i
                   ></span>
-                  <h6 class="mb-0" style="color: #94a3b8; font-size: 0.8rem">
-                    Active Incidents
-                  </h6>
+                  <h6 class="mb-0 stat-label text-muted">Active Incidents</h6>
                 </div>
                 <div class="d-flex align-items-end gap-2">
                   <h3 class="text-warning mb-0" id="statIncidents">8</h3>
@@ -498,20 +519,19 @@
                 >
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="card glass-card p-3">
+            <div
+              class="col-md-3 mb-4 animate-slide-up"
+              style="animation-delay: 0.2s"
+            >
+              <div class="card glass-premium p-3">
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <span class="stat-icon success"
                     ><i class="bi bi-heart-pulse"></i
                   ></span>
-                  <h6 class="mb-0" style="color: #94a3b8; font-size: 0.8rem">
-                    System Health
-                  </h6>
+                  <h6 class="mb-0 stat-label text-muted">System Health</h6>
                 </div>
                 <div class="d-flex align-items-end gap-2">
-                  <h3 class="mb-0" id="statHealth" style="color: #22c55e">
-                    SAFE
-                  </h3>
+                  <h3 class="mb-0 text-success" id="statHealth">SAFE</h3>
                   <span class="stat-delta" id="deltaHealth"></span>
                 </div>
                 <span class="stat-period-label" id="periodLabelHealth"
@@ -519,15 +539,16 @@
                 >
               </div>
             </div>
-            <div class="col-md-3">
-              <div class="card glass-card p-3">
+            <div
+              class="col-md-3 mb-4 animate-slide-up"
+              style="animation-delay: 0.3s"
+            >
+              <div class="card glass-premium p-3">
                 <div class="d-flex align-items-center gap-2 mb-1">
                   <span class="stat-icon danger"
                     ><i class="bi bi-graph-up-arrow"></i
                   ></span>
-                  <h6 class="mb-0" style="color: #94a3b8; font-size: 0.8rem">
-                    Risk Score
-                  </h6>
+                  <h6 class="mb-0 stat-label text-muted">Risk Score</h6>
                 </div>
                 <div class="d-flex align-items-end gap-2">
                   <h3 class="text-danger mb-0" id="statRisk">HIGH</h3>
@@ -544,17 +565,14 @@
             <!-- LIVE THREAT ALERTS -->
 
             <div class="col-md-6">
-              <div class="card glass-card p-0 overflow-hidden">
+              <div class="card glass-premium p-0 overflow-hidden">
                 <div class="threat-card-header">
                   <div class="d-flex align-items-center gap-2">
                     <span class="pulse-ring"></span>
 
                     <span
-                      style="
-                        font-size: 0.82rem;
-                        font-weight: 700;
-                        color: #f1f5f9;
-                      "
+                      class="threat-header-title text-light fw-bold"
+                      style="font-size: 0.82rem"
                       >Live Threat Alerts</span
                     >
                   </div>
@@ -631,7 +649,10 @@
                 </div>
 
                 <div class="threat-card-footer">
-                  <a href="#" class="tca-link" onclick="event.preventDefault()"
+                  <a
+                    href="javascript:void(0)"
+                    class="tca-link"
+                    onclick="event.preventDefault()"
                     >View all threats <i class="bi bi-arrow-right ms-1"></i
                   ></a>
                 </div>
@@ -641,40 +662,25 @@
             <!-- SYSTEM STATUS -->
 
             <div class="col-md-6">
-              <div class="card glass-card p-0 overflow-hidden">
+              <div class="card glass-premium p-0 overflow-hidden">
                 <div class="threat-card-header">
                   <div class="d-flex align-items-center gap-2">
                     <i
-                      class="bi bi-activity"
-                      style="color: #22c55e; font-size: 0.9rem"
+                      class="bi bi-activity text-success"
+                      style="font-size: 0.9rem"
                     ></i>
-
                     <span
-                      style="
-                        font-size: 0.82rem;
-                        font-weight: 700;
-                        color: #f1f5f9;
-                      "
+                      class="threat-header-title text-light fw-bold"
+                      style="font-size: 0.82rem"
                       >System Status</span
                     >
                   </div>
-
-                  <span
-                    class="tca-count"
-                    style="background: rgba(34, 197, 94, 0.15); color: #4ade80"
-                    >Operational</span
-                  >
+                  <span class="tca-count-success">Operational</span>
                 </div>
 
                 <div class="status-feed">
                   <div class="sys-row">
-                    <div
-                      class="sys-icon-wrap"
-                      style="
-                        background: rgba(34, 197, 94, 0.12);
-                        color: #4ade80;
-                      "
-                    >
+                    <div class="sys-icon-wrap success">
                       <i class="bi bi-shield-fill-check"></i>
                     </div>
 
@@ -701,13 +707,7 @@
                   </div>
 
                   <div class="sys-row">
-                    <div
-                      class="sys-icon-wrap"
-                      style="
-                        background: rgba(56, 189, 248, 0.12);
-                        color: #38bdf8;
-                      "
-                    >
+                    <div class="sys-icon-wrap info">
                       <i class="bi bi-lock-fill"></i>
                     </div>
 
@@ -734,13 +734,7 @@
                   </div>
 
                   <div class="sys-row">
-                    <div
-                      class="sys-icon-wrap"
-                      style="
-                        background: rgba(251, 191, 36, 0.1);
-                        color: #fbbf24;
-                      "
-                    >
+                    <div class="sys-icon-wrap warning">
                       <i class="bi bi-speedometer2"></i>
                     </div>
 
@@ -799,7 +793,10 @@
                 </div>
 
                 <div class="threat-card-footer">
-                  <a href="#" class="tca-link" onclick="event.preventDefault()"
+                  <a
+                    href="javascript:void(0)"
+                    class="tca-link"
+                    onclick="event.preventDefault()"
                     >View network monitor <i class="bi bi-arrow-right ms-1"></i
                   ></a>
                 </div>
@@ -809,14 +806,10 @@
 
           <div class="row mt-4">
             <div class="col-12">
-              <div class="card glass-card p-4">
+              <div class="card glass-premium p-4">
                 <h5>Threat Analytics</h5>
-                <div class="graph-placeholder">
-                  <i
-                    class="bi bi-bar-chart-line me-2"
-                    style="font-size: 1.4rem; opacity: 0.4"
-                  ></i>
-                  Analytics Graph Placeholder
+                <div style="height: 300px; position: relative">
+                  <canvas id="threatAnalyticsChart"></canvas>
                 </div>
               </div>
             </div>
@@ -828,34 +821,34 @@
         <div id="page-analytics" class="page-panel" style="display: none">
           <div class="row g-3 mt-3">
             <div class="col-md-3">
-              <div class="card glass-card p-3 text-center">
+              <div class="card glass-premium p-3 text-center">
                 <div class="stat-icon danger mx-auto mb-2">
                   <i class="bi bi-shield-x"></i>
                 </div>
                 <h3 class="text-danger">2,451</h3>
-                <small style="color: #64748b">Threats This Month</small>
+                <small class="text-muted">Threats This Month</small>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3 text-center">
+              <div class="card glass-premium p-3 text-center">
                 <div class="stat-icon warning mx-auto mb-2">
                   <i class="bi bi-exclamation-triangle"></i>
                 </div>
                 <h3 class="text-warning">142</h3>
-                <small style="color: #64748b">Incidents This Month</small>
+                <small class="text-muted">Incidents This Month</small>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3 text-center">
+              <div class="card glass-premium p-3 text-center">
                 <div class="stat-icon success mx-auto mb-2">
                   <i class="bi bi-check-circle"></i>
                 </div>
-                <h3 style="color: #22c55e">98.2%</h3>
-                <small style="color: #64748b">Uptime</small>
+                <h3 class="text-success">98.2%</h3>
+                <small class="text-muted">Uptime</small>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3 text-center">
+              <div class="card glass-premium p-3 text-center">
                 <div
                   class="stat-icon"
                   style="background: rgba(139, 92, 246, 0.15); color: #a78bfa"
@@ -865,13 +858,13 @@
                   <i class="bi bi-clock-history"></i>
                 </div>
                 <h3 style="color: #a78bfa">4.2m</h3>
-                <small style="color: #64748b">Avg Response Time</small>
+                <small class="text-muted">Avg Response Time</small>
               </div>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-md-6">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <h5 class="mb-3">Threat Trends (30 days)</h5>
                 <div class="graph-placeholder">
                   <i
@@ -883,7 +876,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <h5 class="mb-3">Top Attack Vectors</h5>
                 <div class="graph-placeholder">
                   <i
@@ -902,27 +895,27 @@
         <div id="page-threats" class="page-panel" style="display: none">
           <div class="row g-3 mt-3">
             <div class="col-md-4">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Critical</small>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Critical</small>
                 <h3 class="text-danger mb-0">18</h3>
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">High</small>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">High</small>
                 <h3 class="text-warning mb-0">47</h3>
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Medium</small>
-                <h3 style="color: #38bdf8" class="mb-0">59</h3>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Medium</small>
+                <h3 class="text-info mb-0">59</h3>
               </div>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-12">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3"
                 >
@@ -931,7 +924,7 @@
                 </div>
                 <div class="table-responsive">
                   <table
-                    class="table table-dark table-hover"
+                    class="table table-cyber table-hover"
                     style="font-size: 0.85rem"
                   >
                     <thead>
@@ -992,14 +985,7 @@
                         <td>XSS Attempt</td>
                         <td>192.168.2.90</td>
                         <td>
-                          <span
-                            class="badge"
-                            style="
-                              background: rgba(56, 189, 248, 0.2);
-                              color: #38bdf8;
-                            "
-                            >Medium</span
-                          >
+                          <span class="badge bg-info text-dark">Medium</span>
                         </td>
                         <td>34 min ago</td>
                         <td><span class="badge bg-success">Resolved</span></td>
@@ -1017,7 +1003,7 @@
         <div id="page-phishing" class="page-panel" style="display: none">
           <div class="row mt-3">
             <div class="col-12">
-              <div class="card glass-card p-4 mb-4">
+              <div class="card glass-premium p-4 mb-4">
                 <h5 class="mb-3">
                   <i class="bi bi-search me-2"></i>Scan a URL
                 </h5>
@@ -1028,7 +1014,7 @@
                     id="scanUrl"
                     style="font-size: 0.9rem"
                   />
-                  <button class="btn btn-danger px-4" onclick="runPhishScan()">
+                  <button class="btn btn-premium px-4" onclick="runPhishScan()">
                     Scan
                   </button>
                 </div>
@@ -1038,11 +1024,11 @@
           </div>
           <div class="row">
             <div class="col-12">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <h5 class="mb-3">Recent Detections</h5>
                 <div class="table-responsive">
                   <table
-                    class="table table-dark table-hover"
+                    class="table table-cyber table-hover"
                     style="font-size: 0.85rem"
                   >
                     <thead>
@@ -1095,33 +1081,33 @@
         <div id="page-incidents" class="page-panel" style="display: none">
           <div class="row g-3 mt-3" id="incidentStatsRow">
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Open</small>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Open</small>
                 <h3 class="text-danger mb-0" id="inc-open">—</h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">In Progress</small>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">In Progress</small>
                 <h3 class="text-warning mb-0" id="inc-progress">—</h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Resolved</small>
-                <h3 style="color: #22c55e" class="mb-0" id="inc-resolved">—</h3>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Resolved</small>
+                <h3 class="text-success mb-0" id="inc-resolved">—</h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Total</small>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Total</small>
                 <h3 style="color: #a78bfa" class="mb-0" id="inc-total">—</h3>
               </div>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-12">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3"
                 >
@@ -1158,18 +1144,18 @@
         <div id="page-firewall" class="page-panel" style="display: none">
           <div class="row mt-3">
             <div class="col-12">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3"
                 >
                   <h5 class="mb-0">Firewall Rules</h5>
-                  <button class="btn btn-sm btn-outline-primary">
+                  <button class="btn btn-sm btn-premium">
                     <i class="bi bi-plus-lg me-1"></i>Add Rule
                   </button>
                 </div>
                 <div class="table-responsive">
                   <table
-                    class="table table-dark table-hover"
+                    class="table table-cyber table-hover"
                     style="font-size: 0.85rem"
                   >
                     <thead>
@@ -1244,37 +1230,67 @@
         <div id="page-monitor" class="page-panel" style="display: none">
           <div class="row g-3 mt-3">
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Devices Online</small>
-                <h3 style="color: #22c55e" class="mb-0">247</h3>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Devices Online</small>
+                <h3 class="text-success mb-0">247</h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Bandwidth Used</small>
-                <h3 style="color: #38bdf8" class="mb-0">6.2 GB</h3>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Bandwidth Used</small>
+                <h3 class="text-info mb-0">6.2 GB</h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Anomalies</small>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Anomalies</small>
                 <h3 class="text-warning mb-0">3</h3>
               </div>
             </div>
             <div class="col-md-3">
-              <div class="card glass-card p-3">
-                <small style="color: #94a3b8">Latency (avg)</small>
-                <h3 style="color: #a78bfa" class="mb-0">18ms</h3>
+              <div class="card glass-premium p-3">
+                <small class="text-muted">Latency (avg)</small>
+                <h3 style="color: var(--accent-purple)" class="mb-0">18ms</h3>
               </div>
             </div>
           </div>
           <div class="row mt-4">
             <div class="col-12">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3 mb-4">
+                <h5 class="mb-3">
+                  <i class="bi bi-radar me-2"></i>Active Sonar Scan
+                </h5>
+                <div class="sonar-container">
+                  <div class="text-center" style="z-index: 5">
+                    <i
+                      class="bi bi-broadcast"
+                      style="
+                        font-size: 3rem;
+                        color: var(--accent-blue);
+                        opacity: 0.6;
+                      "
+                    ></i>
+                    <p
+                      class="mt-3 mb-0"
+                      style="
+                        font-size: 0.85rem;
+                        font-weight: 600;
+                        color: var(--text-primary);
+                      "
+                    >
+                      Network Integrity Check in Progress
+                    </p>
+                    <p style="font-size: 0.75rem; color: var(--text-muted)">
+                      Monitoring 247 nodes for packet anomalies
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="card glass-premium p-3">
                 <h5 class="mb-3">Device Overview</h5>
                 <div class="table-responsive">
                   <table
-                    class="table table-dark table-hover"
+                    class="table table-cyber table-hover"
                     style="font-size: 0.85rem"
                   >
                     <thead>
@@ -1332,7 +1348,7 @@
         <div id="page-logs" class="page-panel" style="display: none">
           <div class="row g-3 mt-3">
             <div class="col-12">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <div
                   class="d-flex justify-content-between align-items-center mb-3"
                 >
@@ -1356,7 +1372,7 @@
                 </div>
                 <div class="table-responsive">
                   <table
-                    class="table table-dark table-hover"
+                    class="table table-cyber table-hover"
                     style="font-size: 0.85rem"
                   >
                     <thead>
@@ -1434,9 +1450,9 @@
             <!-- LEFT COL -->
             <div class="col-lg-8">
               <!-- PROFILE CARD -->
-              <div class="card glass-card p-0 overflow-hidden mb-4">
+              <div class="card glass-premium p-0 overflow-hidden mb-4">
                 <div class="settings-card-header">
-                  <i class="bi bi-person-fill me-2" style="color: #60a5fa"></i>
+                  <i class="bi bi-person-fill me-2 text-info"></i>
                   Profile Information
                 </div>
                 <div class="p-4">
@@ -1450,7 +1466,7 @@
                       </p>
                       <p class="settings-avatar-role">
                         SOC Analyst &nbsp;&middot;&nbsp;
-                        <span style="color: #22c55e">Active</span>
+                        <span class="text-success">Active</span>
                       </p>
                       <button
                         class="settings-link-btn mt-1"
@@ -1544,9 +1560,9 @@
               </div>
 
               <!-- PASSWORD CARD -->
-              <div class="card glass-card p-0 overflow-hidden mb-4">
+              <div class="card glass-premium p-0 overflow-hidden mb-4">
                 <div class="settings-card-header">
-                  <i class="bi bi-lock-fill me-2" style="color: #f87171"></i>
+                  <i class="bi bi-lock-fill me-2 text-danger"></i>
                   Change Password
                 </div>
                 <div class="p-4">
@@ -1562,6 +1578,7 @@
                         />
                         <button
                           class="settings-pw-eye"
+                          aria-label="Toggle password visibility"
                           onclick="togglePwField('pwCurrent', this)"
                         >
                           <i class="bi bi-eye"></i>
@@ -1580,6 +1597,7 @@
                         />
                         <button
                           class="settings-pw-eye"
+                          aria-label="Toggle password visibility"
                           onclick="togglePwField('pwNew', this)"
                         >
                           <i class="bi bi-eye"></i>
@@ -1607,6 +1625,7 @@
                         />
                         <button
                           class="settings-pw-eye"
+                          aria-label="Toggle password visibility"
                           onclick="togglePwField('pwConfirm', this)"
                         >
                           <i class="bi bi-eye"></i>
@@ -1645,9 +1664,9 @@
             <!-- RIGHT COL -->
             <div class="col-lg-4">
               <!-- NOTIFICATION PREFS -->
-              <div class="card glass-card p-0 overflow-hidden mb-4">
+              <div class="card glass-premium p-0 overflow-hidden mb-4">
                 <div class="settings-card-header">
-                  <i class="bi bi-bell-fill me-2" style="color: #fbbf24"></i>
+                  <i class="bi bi-bell-fill me-2 text-warning"></i>
                   Notifications
                 </div>
                 <div class="p-3">
@@ -1759,12 +1778,9 @@
               </div>
 
               <!-- SESSION INFO -->
-              <div class="card glass-card p-0 overflow-hidden">
+              <div class="card glass-premium p-0 overflow-hidden">
                 <div class="settings-card-header">
-                  <i
-                    class="bi bi-clock-history me-2"
-                    style="color: #94a3b8"
-                  ></i>
+                  <i class="bi bi-clock-history me-2 text-muted"></i>
                   Active Sessions
                 </div>
                 <div class="p-3">
@@ -1774,16 +1790,13 @@
                       <p class="session-label">This device</p>
                       <p class="session-sub">
                         Windows &middot; Chrome &middot;
-                        <span style="color: #22c55e">Now</span>
+                        <span class="text-success">Now</span>
                       </p>
                     </div>
                     <span class="session-current-badge">Current</span>
                   </div>
                   <div class="session-row">
-                    <i
-                      class="bi bi-phone session-icon"
-                      style="color: #94a3b8"
-                    ></i>
+                    <i class="bi bi-phone session-icon text-muted"></i>
                     <div>
                       <p class="session-label">Mobile &mdash; Android</p>
                       <p class="session-sub">2 days ago &middot; 10.0.1.12</p>
@@ -1815,7 +1828,7 @@
         <div id="page-help" class="page-panel" style="display: none">
           <div class="row g-4 mt-2">
             <div class="col-md-8">
-              <div class="card glass-card p-4">
+              <div class="card glass-premium p-4">
                 <h5 class="mb-3">
                   <i class="bi bi-question-circle me-2"></i>Frequently Asked
                   Questions
@@ -1949,7 +1962,7 @@
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card glass-card p-4 text-center">
+              <div class="card glass-premium p-4 text-center">
                 <i
                   class="bi bi-headset"
                   style="
@@ -2018,18 +2031,48 @@
                 </div>
               </div>
 
-              <div class="card glass-card p-4 mt-4">
-                <h5 class="mb-3">Neural Network Visualization</h5>
-                <div class="neural-vis-box">
-                  <div class="text-center" style="z-index: 2">
-                    <i
-                      class="bi bi-cpu-fill"
-                      style="font-size: 2.5rem; color: #3b82f6; opacity: 0.6"
-                    ></i>
-                    <p class="mt-2" style="font-size: 0.8rem; color: #94a3b8">
-                      Scanning global threat vectors...
-                    </p>
-                  </div>
+              <div class="vortex-container" id="aiVortex">
+                <!-- Particles will be injected by script for maximum fidelity -->
+                <div
+                  class="text-center"
+                  style="
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    z-index: 10;
+                  "
+                >
+                  <i
+                    class="bi bi-cpu-fill"
+                    style="
+                      font-size: 2.5rem;
+                      color: var(--accent-neon);
+                      opacity: 0.9;
+                      filter: drop-shadow(0 0 10px var(--accent-neon));
+                    "
+                  ></i>
+                  <p
+                    class="mt-2 mb-0"
+                    style="
+                      font-size: 0.85rem;
+                      color: var(--text-primary);
+                      font-weight: 700;
+                      text-transform: uppercase;
+                      letter-spacing: 1px;
+                    "
+                  >
+                    Neural Link Active
+                  </p>
+                  <p
+                    style="
+                      font-size: 0.72rem;
+                      color: var(--text-muted);
+                      opacity: 0.8;
+                    "
+                  >
+                    Analyzing global threat vectors...
+                  </p>
                 </div>
               </div>
             </div>
@@ -2039,9 +2082,14 @@
               <div class="ai-assistant-wrap">
                 <div class="ai-chat-header">
                   <div>
-                    <span class="ai-status-indicator"></span>
-                    <span style="font-weight: 700; font-size: 0.9rem"
-                      >Kavach AI Shield</span
+                    <span class="ai-status-indicator animate-neon"></span>
+                    <span
+                      style="
+                        font-weight: 800;
+                        font-size: 0.95rem;
+                        letter-spacing: 0.5px;
+                      "
+                      >KAVACH AI SHIELD</span
                     >
                   </div>
                   <button
@@ -2083,13 +2131,13 @@
         <div id="page-staff" class="page-panel" style="display: none">
           <div class="row g-3 mt-3">
             <div class="col-md-4">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <small style="color: #94a3b8">Admin</small>
                 <h3 class="text-info mb-0" id="sm-admin-count">—</h3>
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <small style="color: #94a3b8">Active Staff</small>
                 <h3 style="color: #22c55e" class="mb-0" id="sm-staff-count">
                   —
@@ -2097,7 +2145,7 @@
               </div>
             </div>
             <div class="col-md-4">
-              <div class="card glass-card p-3">
+              <div class="card glass-premium p-3">
                 <small style="color: #94a3b8">Staff Slots Left</small>
                 <h3 style="color: #a78bfa" class="mb-0" id="sm-slots">—</h3>
               </div>
@@ -2105,7 +2153,7 @@
           </div>
 
           <!-- Pending approvals -->
-          <div class="card glass-card p-3 mt-4">
+          <div class="card glass-premium p-3 mt-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
               <h5 class="mb-0">
                 <i class="bi bi-hourglass-split me-2" style="color: #fbbf24"></i
@@ -2124,7 +2172,7 @@
           </div>
 
           <!-- All members -->
-          <div class="card glass-card p-3 mt-3">
+          <div class="card glass-premium p-3 mt-3">
             <h5 class="mb-3">
               <i class="bi bi-people me-2" style="color: #60a5fa"></i>All
               Members
@@ -2190,7 +2238,7 @@
           '<div class="text-center py-4 text-secondary"><div class="spinner-border spinner-border-sm me-2"></div>Loading incidents…</div>';
 
         try {
-          const res = await apiGet("/api/incidents");
+          const res = await apiGet("/incidents/");
           if (!res.ok) {
             wrap.innerHTML = `<div class="alert alert-danger">Failed to load incidents: ${res.data.error || "unknown error"}</div>`;
             return;
@@ -2266,7 +2314,7 @@
       async function loadStaffPanel() {
         if (!_session || _session.role !== "admin") return;
         try {
-          const res = await apiGet("/api/admin/members");
+          const res = await apiGet("/institutions/members");
           if (!res.ok) return;
           const { members, admin_count, staff_count, slots_remaining } =
             res.data;
@@ -2345,7 +2393,7 @@
       async function memberAction(userId, action) {
         try {
           const res = await apiPost(
-            `/api/admin/members/${userId}/${action}`,
+            `/institutions/members/${userId}/${action}`,
             {},
             true,
           );
@@ -2500,14 +2548,14 @@
 
         results.style.display = "block";
         results.innerHTML = `
-          <div class="d-flex align-items-center gap-3 p-3 glass-card border-info" style="background: rgba(56, 189, 248, 0.05); border-radius: 12px">
+          <div class="d-flex align-items-center gap-3 p-3 glass-premium border-info" style="background: rgba(56, 189, 248, 0.05); border-radius: 12px">
             <div class="spinner-border text-info spinner-border-sm" role="status"></div>
             <span style="font-size: 0.9rem; color: #38bdf8; font-weight: 500">Neural signature analysis in progress...</span>
           </div>
         `;
 
         // Call real backend phishing check endpoint
-        apiPost("/api/phishing/check", { url }, true)
+        apiPost("/threats/phishing/check", { url }, true)
           .then((res) => {
             if (!res.ok) {
               results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ ${res.data.error || "Could not analyse URL."}</div>`;
@@ -2523,7 +2571,7 @@
 
             if (isPhish) {
               results.innerHTML = `
-                <div class="alert alert-danger glass-card border-danger anim-fade-in" style="background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2)">
+                <div class="alert alert-danger glass-premium border-danger anim-fade-in" style="background: rgba(239, 68, 68, 0.1); border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.2)">
                   <div class="d-flex align-items-center gap-2 mb-2">
                     <i class="bi bi-shield-x" style="font-size: 1.2rem; color: #f87171"></i>
                     <h6 class="mb-0 text-danger" style="font-weight: 700">⚠ Phishing Threat Detected (Score: ${score}%)</h6>
@@ -2532,7 +2580,7 @@
                 </div>`;
             } else {
               results.innerHTML = `
-                <div class="alert alert-success glass-card border-success anim-fade-in" style="background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2)">
+                <div class="alert alert-success glass-premium border-success anim-fade-in" style="background: rgba(34, 197, 94, 0.1); border-radius: 12px; border: 1px solid rgba(34, 197, 94, 0.2)">
                   <div class="d-flex align-items-center gap-2 mb-2">
                     <i class="bi bi-shield-check" style="font-size: 1.2rem; color: #4ade80"></i>
                     <h6 class="mb-0 text-success" style="font-weight: 700">✓ URL Appears Safe (Score: ${score}%)</h6>
@@ -2827,7 +2875,7 @@
               <p class="notif-item-sub">${n.sub}</p>
               <p class="notif-item-time"><i class="bi bi-clock me-1"></i>${n.time}</p>
             </div>
-            <button class="notif-dismiss" onclick="dismissNotif(this)" title="Dismiss"><i class="bi bi-x"></i></button>`;
+            <button class="notif-dismiss" onclick="dismissNotif(this)" aria-label="Dismiss Notification" title="Dismiss"><i class="bi bi-x"></i></button>`;
 
           // Animate in from top
           div.style.opacity = "0";
@@ -3003,6 +3051,122 @@
         flashMsg("notifSavedMsg", "✓ All sessions revoked");
       }
 
+      function toggleSkeletons(show) {
+        const cards = document.querySelectorAll(".glass-premium");
+        cards.forEach((card) => {
+          if (show) card.classList.add("loading-state");
+          else card.classList.remove("loading-state");
+        });
+      }
+
+      function initCharts() {
+        const ctx = document.getElementById("threatAnalyticsChart");
+        if (!ctx) return;
+
+        new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: [
+              "00:00",
+              "04:00",
+              "08:00",
+              "12:00",
+              "16:00",
+              "20:00",
+              "24:00",
+            ],
+            datasets: [
+              {
+                label: "Threat Intensity",
+                data: [12, 19, 3, 5, 2, 3, 15],
+                borderColor: "#3b82f6",
+                backgroundColor: "rgba(59, 130, 246, 0.1)",
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointBackgroundColor: "#3b82f6",
+              },
+              {
+                label: "Mitigated",
+                data: [10, 15, 2, 4, 1, 2, 12],
+                borderColor: "#10b981",
+                backgroundColor: "rgba(16, 185, 129, 0.1)",
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 0,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: true,
+                labels: {
+                  color: "#94a3b8",
+                  font: { family: "Outfit", size: 11 },
+                },
+              },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                backgroundColor: "rgba(9, 13, 31, 0.9)",
+                titleFont: { family: "Outfit", size: 12 },
+                bodyFont: { family: "Outfit", size: 12 },
+                borderColor: "rgba(255, 255, 255, 0.1)",
+                borderWidth: 1,
+              },
+            },
+            scales: {
+              y: {
+                grid: { color: "rgba(255, 255, 255, 0.05)" },
+                ticks: { color: "#64748b", font: { family: "Outfit" } },
+              },
+              x: {
+                grid: { display: false },
+                ticks: { color: "#64748b", font: { family: "Outfit" } },
+              },
+            },
+          },
+        });
+      }
+
+      (function v3VisualEngine() {
+        initCharts();
+        // --- AI Vortex Particles ---
+        const vortex = document.getElementById("aiVortex");
+        if (vortex) {
+          setInterval(() => {
+            const p = document.createElement("div");
+            p.className = "vortex-particle";
+            const size = Math.random() * 4 + 2;
+            const duration = Math.random() * 3 + 2;
+            p.style.width = `${size}px`;
+            p.style.height = `${size}px`;
+            p.style.left = "50%";
+            p.style.top = "50%";
+            p.style.animationDuration = `${duration}s`;
+            p.style.opacity = Math.random();
+            vortex.appendChild(p);
+            setTimeout(() => p.remove(), duration * 1000);
+          }, 100);
+        }
+
+        // --- Sonar Heartbeat ---
+        const sonar = document.querySelector(".sonar-container");
+        if (sonar) {
+          setInterval(() => {
+            const ping = document.createElement("div");
+            ping.className = "sonar-wave";
+            sonar.appendChild(ping);
+            setTimeout(() => ping.remove(), 4000);
+          }, 2000);
+        }
+      })();
+
       (function restoreProfile() {
         const raw = localStorage.getItem("kavach_profile");
         if (!raw) return;
@@ -3019,6 +3183,40 @@
           syncAvatar();
         } catch (e) {}
       })();
+    </script>
+    <!-- Toast Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+      // Global Toast Manager
+      function showToast(title, message, type = "info") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+        toast.className = `premium-toast`;
+
+        const icons = {
+          success: "bi-check-circle-fill",
+          error: "bi-exclamation-triangle-fill",
+          warning: "bi-exclamation-circle-fill",
+          info: "bi-info-circle-fill",
+        };
+
+        toast.innerHTML = `
+          <div class="toast-icon ${type}"><i class="bi ${icons[type]}"></i></div>
+          <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-msg">${message}</div>
+          </div>
+          <button class="toast-close" aria-label="Close Toast" onclick="this.parentElement.remove()"><i class="bi bi-x"></i></button>
+        `;
+
+        container.appendChild(toast);
+        setTimeout(() => toast.classList.add("show"), 10);
+        setTimeout(() => {
+          toast.classList.remove("show");
+          setTimeout(() => toast.remove(), 400);
+        }, 5000);
+      }
     </script>
   </body>
 </html>

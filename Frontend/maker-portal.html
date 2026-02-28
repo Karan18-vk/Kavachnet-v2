@@ -16,6 +16,7 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link rel="stylesheet" href="styles.css" />
     <style>
       *,
       *::before,
@@ -25,9 +26,7 @@
         padding: 0;
       }
       body {
-        font-family: "Inter", sans-serif;
-        background: #020617;
-        color: #f1f5f9;
+        font-family: "Outfit", sans-serif;
         min-height: 100vh;
       }
 
@@ -227,189 +226,219 @@
       }
     </style>
   </head>
-  <body>
-    <aside class="maker-sidebar">
-      <div class="brand">
-        <img src="Kavach Net logo.png" alt="Logo" />
-        <span>Maker Portal</span>
-      </div>
-      <nav>
-        <a href="superadmin.html" class="nav-item">
-          <i class="bi bi-speedometer2"></i> Operations Panel
-        </a>
-        <a href="#" class="nav-item active">
-          <i class="bi bi-cpu"></i> AI Model Insight
-        </a>
-        <a href="#" class="nav-item">
-          <i class="bi bi-database"></i> System Health
-        </a>
-        <a href="#" class="nav-item" onclick="logoutSuperAdmin()">
-          <i class="bi bi-box-arrow-right"></i> Terminal Exit
-        </a>
-      </nav>
-    </aside>
+  <body class="landing-body">
+    <!-- Premium background meshes -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow" style="top: -10%; left: -10%"></div>
+    <div
+      class="mesh-glow"
+      style="
+        bottom: -20%;
+        right: -20%;
+        background: radial-gradient(
+          circle at center,
+          rgba(14, 116, 144, 0.2) 0%,
+          transparent 60%
+        );
+      "
+    ></div>
 
-    <main class="maker-main">
-      <div class="d-flex justify-content-between align-items-center mb-5">
-        <div>
-          <h1 class="fw-800 mb-1">Architecture Overview</h1>
-          <p class="text-secondary m-0">
-            Internal telemetry for the Kavach Net security model.
-          </p>
+    <div style="position: relative; z-index: 2">
+      <aside class="maker-sidebar">
+        <div class="brand">
+          <img src="Kavach Net logo.png" alt="Logo" />
+          <span>Maker Portal</span>
         </div>
-        <div class="status-badge online">
-          <span class="spinner-grow spinner-grow-sm"></span> SYSTEM OPERATIONAL
-        </div>
-      </div>
-
-      <!-- Stats Grid -->
-      <div class="maker-grid">
-        <div class="maker-card">
-          <div class="card-label">Identified Patterns</div>
-          <div class="card-value" id="valPatterns">—</div>
-          <div class="card-footer">
-            <i class="bi bi-graph-up"></i> AI Training Set
-          </div>
-        </div>
-        <div class="maker-card">
-          <div class="card-label">Anomalies Detected</div>
-          <div class="card-value" id="valAnomalies">—</div>
-          <div class="card-footer" style="color: #f87171">
-            <i class="bi bi-exclamation-triangle"></i> Outlier Score
-          </div>
-        </div>
-        <div class="maker-card">
-          <div class="card-label">System Heartbeat</div>
-          <div class="card-value">1ms</div>
-          <div class="card-footer">
-            <i class="bi bi-activity"></i> Backend Latency
-          </div>
-        </div>
-      </div>
-
-      <!-- AI Action Panel -->
-      <div class="action-panel">
-        <div class="action-text">
-          <h2>Neural Threat Reconstruction</h2>
-          <p>
-            Manually trigger the Isolation Forest model to scan all historical
-            login logs for architectural anomalies. This process reconstructs
-            threat vectors and identifies potential zero-day patterns.
-          </p>
-        </div>
-        <button class="btn-maker-primary" id="btnScan" onclick="triggerScan()">
-          <i class="bi bi-lightning-fill"></i> Trigger Model Scan
-        </button>
-      </div>
-
-      <!-- Logs Panel -->
-      <div class="log-panel">
-        <div class="log-header">
-          <div class="card-label">Model Runtime Logs</div>
-          <button
-            class="btn btn-sm btn-link text-secondary p-0"
-            onclick="clearLogs()"
+        <nav>
+          <a href="superadmin.html" class="nav-item">
+            <i class="bi bi-speedometer2"></i> Operations Panel
+          </a>
+          <a href="javascript:void(0)" class="nav-item active">
+            <i class="bi bi-cpu"></i> AI Model Insight
+          </a>
+          <a href="javascript:void(0)" class="nav-item">
+            <i class="bi bi-database"></i> System Health
+          </a>
+          <a
+            href="javascript:void(0)"
+            class="nav-item"
+            onclick="logoutSuperAdmin()"
           >
-            Clear Terminal
+            <i class="bi bi-box-arrow-right"></i> Terminal Exit
+          </a>
+        </nav>
+      </aside>
+
+      <main class="maker-main">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+          <div>
+            <h1 class="fw-800 mb-1">Architecture Overview</h1>
+            <p class="text-secondary m-0">
+              Internal telemetry for the Kavach Net security model.
+            </p>
+          </div>
+          <div class="status-badge online">
+            <span class="spinner-grow spinner-grow-sm"></span> SYSTEM
+            OPERATIONAL
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="maker-grid">
+          <div class="maker-card">
+            <div class="card-label">Identified Patterns</div>
+            <div class="card-value" id="valPatterns">—</div>
+            <div class="card-footer">
+              <i class="bi bi-graph-up"></i> AI Training Set
+            </div>
+          </div>
+          <div class="maker-card">
+            <div class="card-label">Anomalies Detected</div>
+            <div class="card-value" id="valAnomalies">—</div>
+            <div class="card-footer" style="color: #f87171">
+              <i class="bi bi-exclamation-triangle"></i> Outlier Score
+            </div>
+          </div>
+          <div class="maker-card">
+            <div class="card-label">System Heartbeat</div>
+            <div class="card-value">1ms</div>
+            <div class="card-footer">
+              <i class="bi bi-activity"></i> Backend Latency
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Action Panel -->
+        <div class="action-panel">
+          <div class="action-text">
+            <h2>Neural Threat Reconstruction</h2>
+            <p>
+              Manually trigger the Isolation Forest model to scan all historical
+              login logs for architectural anomalies. This process reconstructs
+              threat vectors and identifies potential zero-day patterns.
+            </p>
+          </div>
+          <button
+            class="btn-maker-primary"
+            id="btnScan"
+            onclick="triggerScan()"
+          >
+            <i class="bi bi-lightning-fill"></i> Trigger Model Scan
           </button>
         </div>
-        <div class="log-container" id="logContainer">
-          <div class="log-entry">
-            <span class="log-time">[10:14:08]</span>
-            <span class="log-msg">Initializing Maker Session...</span>
-          </div>
-          <div class="log-entry">
-            <span class="log-time">[10:14:09]</span>
-            <span class="log-msg">Connecting to Isolation Forest core...</span>
-          </div>
-          <div class="log-entry">
-            <span class="log-time">[10:14:09]</span>
-            <span class="log-msg success"
-              >Handshake verified. System ready.</span
+
+        <!-- Logs Panel -->
+        <div class="log-panel">
+          <div class="log-header">
+            <div class="card-label">Model Runtime Logs</div>
+            <button
+              class="btn btn-sm btn-link text-secondary p-0"
+              onclick="clearLogs()"
             >
+              Clear Terminal
+            </button>
+          </div>
+          <div class="log-container" id="logContainer">
+            <div class="log-entry">
+              <span class="log-time">[10:14:08]</span>
+              <span class="log-msg">Initializing Maker Session...</span>
+            </div>
+            <div class="log-entry">
+              <span class="log-time">[10:14:09]</span>
+              <span class="log-msg"
+                >Connecting to Isolation Forest core...</span
+              >
+            </div>
+            <div class="log-entry">
+              <span class="log-time">[10:14:09]</span>
+              <span class="log-msg success"
+                >Handshake verified. System ready.</span
+              >
+            </div>
           </div>
         </div>
-      </div>
-    </main>
+      </main>
 
-    <script src="api.js"></script>
-    <script>
-      requireSuperAdmin();
+      <script src="api.js"></script>
+      <script>
+        requireSuperAdmin();
 
-      async function loadStats() {
-        try {
-          const res = await apiGet("/api/maker/stats", true);
-          if (res.ok) {
-            document.getElementById("valPatterns").textContent =
-              res.data.patterns_analyzed;
-            document.getElementById("valAnomalies").textContent =
-              res.data.anomalies_detected;
-            addLog(
-              `Model sync complete. Patterns: ${res.data.patterns_analyzed}, Anomalies: ${res.data.anomalies_detected}`,
-              "highlight",
-            );
-          } else {
-            addLog(
-              "Failed to fetch architecture stats: " +
-                (res.data.error || "Unknown error"),
-              "highlight",
-            );
+        async function loadStats() {
+          try {
+            const res = await apiGet("/maker/stats", true);
+            if (res.ok) {
+              document.getElementById("valPatterns").textContent =
+                res.data.patterns_analyzed;
+              document.getElementById("valAnomalies").textContent =
+                res.data.anomalies_detected;
+              addLog(
+                `Model sync complete. Patterns: ${res.data.patterns_analyzed}, Anomalies: ${res.data.anomalies_detected}`,
+                "highlight",
+              );
+            } else {
+              addLog(
+                "Failed to fetch architecture stats: " +
+                  (res.data.error || "Unknown error"),
+                "highlight",
+              );
+            }
+          } catch (err) {
+            addLog("Error: Cannot reach security core API.", "highlight");
           }
-        } catch (err) {
-          addLog("Error: Cannot reach security core API.", "highlight");
         }
-      }
 
-      async function triggerScan() {
-        const btn = document.getElementById("btnScan");
-        btn.disabled = true;
-        btn.innerHTML =
-          '<span class="spinner-border spinner-border-sm"></span> Processing...';
-
-        addLog("Initiating full architecture scan...");
-
-        try {
-          const res = await apiPost("/api/maker/scan", {}, true);
-          if (res.ok) {
-            addLog(
-              `Scan complete. Detected ${res.data.details.anomalies_detected} anomalies.`,
-              "success",
-            );
-            loadStats(); // Update counters
-          } else {
-            addLog(
-              "Scan failed: " + (res.data.error || "Internal error"),
-              "highlight",
-            );
-          }
-        } catch (err) {
-          addLog("Error: Link to security core lost during scan.");
-        } finally {
-          btn.disabled = false;
+        async function triggerScan() {
+          const btn = document.getElementById("btnScan");
+          btn.disabled = true;
           btn.innerHTML =
-            '<i class="bi bi-lightning-fill"></i> Trigger Model Scan';
+            '<span class="spinner-border spinner-border-sm"></span> Processing...';
+
+          addLog("Initiating full architecture scan...");
+
+          try {
+            const res = await apiPost("/maker/scan", {}, true);
+            if (res.ok) {
+              addLog(
+                `Scan complete. Detected ${res.data.details.anomalies_detected} anomalies.`,
+                "success",
+              );
+              loadStats(); // Update counters
+            } else {
+              addLog(
+                "Scan failed: " + (res.data.error || "Internal error"),
+                "highlight",
+              );
+            }
+          } catch (err) {
+            addLog("Error: Link to security core lost during scan.");
+          } finally {
+            btn.disabled = false;
+            btn.innerHTML =
+              '<i class="bi bi-lightning-fill"></i> Trigger Model Scan';
+          }
         }
-      }
 
-      function addLog(msg, type = "") {
-        const container = document.getElementById("logContainer");
-        const now = new Date().toLocaleTimeString();
-        const div = document.createElement("div");
-        div.className = "log-entry";
-        div.innerHTML = `<span class="log-time">[${now}]</span> <span class="log-msg ${type}">${msg}</span>`;
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-      }
+        function addLog(msg, type = "") {
+          const container = document.getElementById("logContainer");
+          const now = new Date().toLocaleTimeString();
+          const div = document.createElement("div");
+          div.className = "log-entry";
+          div.innerHTML = `<span class="log-time">[${now}]</span> <span class="log-msg ${type}">${msg}</span>`;
+          container.appendChild(div);
+          container.scrollTop = container.scrollHeight;
+        }
 
-      function clearLogs() {
-        document.getElementById("logContainer").innerHTML = "";
-        addLog("Terminal cleared.");
-      }
+        function clearLogs() {
+          document.getElementById("logContainer").innerHTML = "";
+          addLog("Terminal cleared.");
+        }
 
-      // Initial load
-      loadStats();
-      // Poll stats every 30s
-      setInterval(loadStats, 30000);
-    </script>
+        // Initial load
+        loadStats();
+        // Poll stats every 30s
+        setInterval(loadStats, 30000);
+      </script>
+    </div>
+    <!-- /End Page Wrapper -->
   </body>
 </html>

@@ -1,535 +1,147 @@
 # app.py
+# Refactored for Clean Architecture & Production-Grade Security
 
 import os
-from flask import Flask, request, jsonify, send_file
-from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from flask import Flask, jsonify, request
+from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+
 from config import Config
 from models.db import Database
-from modules import auth, encryption, phishing, threat, incident
+from utils.logger import app_logger, security_logger
+from routes.auth_routes import auth_bp
+from routes.institution_routes import institution_bp
+from routes.threat_routes import threat_bp
+from routes.incident_routes import incident_bp
+from routes.admin_routes import admin_bp
 
-app = Flask(__name__)
-app.config["SECRET_KEY"] = Config.SECRET_KEY
-app.config["JWT_SECRET_KEY"] = Config.JWT_SECRET_KEY
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = Config.JWT_ACCESS_TOKEN_EXPIRES
+def create_app():
+    app = Flask(__name__)
+    app.config.from_object(Config)
 
-# Ultra Security: Rate Limiting
-limiter = Limiter(
-    get_remote_address,
-    app=app,
-    default_limits=["200 per day", "50 per hour"],
-    storage_uri="memory://",
-)
+    # Validate email config at startup (not at import time)
+    try:
+        Config.validate_email_config()
+    except RuntimeError as e:
+        app_logger.error(f"Email config validation failed: {e}")
+        if Config.NODE_ENV == "production":
+            raise
 
-jwt = JWTManager(app)
-
-# Ultra Security: Strict CORS
-allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
-CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
-db = Database()
-
-# ── DATABASE MIGRATION & SEEDING ──────────────────
-def migrate_db():
-    import sqlite3
-    import uuid
-    import datetime
-    import bcrypt
+    # 1. CORE PLUGINS
+    jwt = JWTManager(app)
     
-    conn = sqlite3.connect(Config.DB_NAME)
-    conn.row_factory = sqlite3.Row
+    # Strict CORS
+    allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins}}, supports_credentials=True)
     
-    # 1. Migration: Add columns if missing
+    # Global Rate Limiting (Redis-backed for production multi-worker sets)
+    redis_available = False
     try:
-        conn.execute("ALTER TABLE institutions ADD COLUMN code_expires_at TEXT")
-        print("[DB] Added code_expires_at column to institutions.")
-    except sqlite3.OperationalError:
-        pass 
+        import redis
+        rc = redis.from_url(app.config.get("REDIS_URL"), socket_timeout=1)
+        rc.ping()
+        redis_available = True
+    except Exception:
+        pass
+    
+    limiter = Limiter(
+        get_remote_address,
+        app=app,
+        default_limits=["2000 per day", "100 per hour"],
+        storage_uri=app.config.get("REDIS_URL") if redis_available else "memory://",
+    )
 
-    try:
-        conn.execute("ALTER TABLE users ADD COLUMN lockout_until TEXT")
-        print("[DB] Added lockout_until column to users.")
-    except sqlite3.OperationalError:
-        pass 
+    # 2. MODELS & MIGRATIONS
+    db = Database()
+    
+    # Legacy Migration (Simplified)
+    from app_legacy_migration import run_migration
+    run_migration(db)
 
-    try:
-        conn.execute("ALTER TABLE incidents ADD COLUMN forensics TEXT")
-        print("[DB] Added forensics column to incidents.")
-    except sqlite3.OperationalError:
-        pass 
+    # 3. BLUEPRINTS (v1 Namespacing)
+    app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')
+    app.register_blueprint(institution_bp, url_prefix='/api/v1/institutions')
+    app.register_blueprint(threat_bp, url_prefix='/api/v1/threats')
+    app.register_blueprint(incident_bp, url_prefix='/api/v1/incidents')
+    app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
 
-    # 2. Seeding: Ensure at least one approved institution exists
-    # This prevents the dashboard from being empty after Render wipes the disk.
-    count = conn.execute("SELECT COUNT(*) FROM institutions").fetchone()[0]
-    if count == 0:
-        inst_id = str(uuid.uuid4())
-        code = "KAVACH2026"
-        now = datetime.datetime.now()
-        expiry = (now + datetime.timedelta(days=365)).isoformat() # Long expiry for seed
+    # 4. HEALTH CHECK & MONITORING
+    from utils.response import api_response
+    @app.route("/health", methods=["GET"])
+    def health_check():
+        try:
+            queue_status = "Active" if email_worker.thread and email_worker.thread.is_alive() else "Offline"
+        except Exception:
+            queue_status = "Unknown"
         
-        # Create Demo Institution
-        conn.execute(
-            "INSERT INTO institutions (id, name, email, contact_person, institution_code, status, created_at, approved_at, code_expires_at) VALUES (?,?,?,?,?,?,?,?,?)",
-            (inst_id, "Kavach Net Sentinel HQ", "sentinel@kavachnet.com", "Operations Lead", code, "approved", now.isoformat(), now.isoformat(), expiry)
+        status_data = {
+            "version": "v4.0.0-production",
+            "redis": "Connected" if redis_available else "Memory Fallback",
+            "email_queue_worker": queue_status
+        }
+        return api_response(message="KavachNet Operational", data=status_data), 200
+
+    # 5. ERROR HANDLING (Standardized & Non-leaking)
+    from utils.response import api_error
+    @app.errorhandler(400)
+    def bad_request(e):
+        return api_error("Bad request", code=400)
+
+    @app.errorhandler(401)
+    def unauthorized(e):
+        return api_error("Unauthorized access", code=401)
+
+    @app.errorhandler(403)
+    def forbidden(e):
+        return api_error("Forbidden activity detected", code=403)
+
+    @app.errorhandler(404)
+    def not_found(e):
+        return api_error("Resource not found", code=404)
+
+    @app.errorhandler(405)
+    def method_not_allowed(e):
+        return api_error("Method not allowed", code=405)
+
+    @app.errorhandler(429)
+    def rate_limit_exceeded(e):
+        return api_error("Rate limit exceeded. Try again later.", code=429)
+
+    @app.errorhandler(500)
+    def internal_error(e):
+        app_logger.error(f"Internal Error: {str(e)}")
+        # Production safe: Do not leak stack trace
+        return api_error("Internal system failure.", code=500)
+
+    @app.after_request
+    def apply_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+        response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+        # Strict CSP — connect-src uses ALLOWED_ORIGINS from env
+        connect_sources = " ".join(allowed_origins)
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; "
+            "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net; "
+            "img-src 'self' data: images.unsplash.com; "
+            f"connect-src 'self' {connect_sources};"
         )
-        
-        # Create Demo Admin User (Password: DemoAdmin123!)
-        hashed = bcrypt.hashpw("DemoAdmin123!".encode(), bcrypt.gensalt()).decode()
-        conn.execute(
-            "INSERT INTO users (id, username, password, email, role, institution_code, status, created_at) VALUES (?,?,?,?,?,?,?,?)",
-            (str(uuid.uuid4()), "sentinel_admin", hashed, "admin@kavachnet.com", "admin", code, "approved", now.isoformat())
-        )
-        print("[DB] Seeded Demo Institution and Admin User.")
+        return response
 
-    conn.commit()
-    conn.close()
-
-migrate_db()
-
-# ── Super Admin credentials (only for Kavach Net team) ──────────
-SUPERADMIN_USERNAME = os.getenv("SUPERADMIN_USERNAME")
-SUPERADMIN_PASSWORD = os.getenv("SUPERADMIN_PASSWORD")
-
-if not SUPERADMIN_USERNAME or not SUPERADMIN_PASSWORD:
-    print("[CRITICAL] SUPERADMIN_USERNAME or SUPERADMIN_PASSWORD not set in environment.")
-    # In a real military production env, we'd exit(1) here.
-    # For now, we'll just log it clearly.
-
-# ══════════════════════════════════════════
-# HEALTH
-# ══════════════════════════════════════════
-@app.route("/", methods=["GET"])
-def home():
-    return jsonify({"message": "KavachNet API running", "version": "2.0", "status": "active"}), 200
-
-@app.route("/api/health", methods=["GET"])
-def health_check():
-    return jsonify({"status": "healthy"}), 200
-
-
-# ══════════════════════════════════════════
-# SUPER ADMIN — only for Kavach Net team
-# ══════════════════════════════════════════
-@app.route("/api/superadmin/login", methods=["POST"])
-def superadmin_login():
-    data = request.json
-    print(f"[AUTH] SuperAdmin login: {data.get('username')}")
+    # 6. ENTERPRISE DAEMONS
+    from utils.email_queue import email_worker
+    email_worker.start()
     
-    if data.get("username") != SUPERADMIN_USERNAME or data.get("password") != SUPERADMIN_PASSWORD:
-        return jsonify({"error": "Invalid credentials."}), 401
-    
-    from flask_jwt_extended import create_access_token
-    # BE EXPLICIT: string only
-    token = create_access_token(
-        identity="kavachnet_root",
-        additional_claims={"role": "superadmin"}
-    )
-    return jsonify({"access_token": token, "role": "superadmin"}), 200
+    return app
 
-
-# ── JWT IDENTITY HELPER ────────────────────────────
-from flask_jwt_extended import get_jwt
-
-def is_superadmin(identity):
-    claims = get_jwt()
-    return claims.get("role") == "superadmin"
-
-@app.route("/api/superadmin/institutions", methods=["GET"])
-@jwt_required()
-def sa_get_institutions():
-    if not is_superadmin(get_jwt_identity()):
-        return jsonify({"error": "Forbidden. Super Admin required."}), 403
-    
-    try:
-        institutions = db.get_all_institutions()
-        import datetime
-        now = datetime.datetime.now()
-        
-        # Auto-rotate expired codes
-        for inst in institutions:
-            if inst.get('status') == 'approved' and inst.get('code_expires_at'):
-                try:
-                    expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
-                    if now > expiry:
-                        new_code, new_expiry = db.rotate_institution_code(inst['id'])
-                        inst['institution_code'] = new_code
-                        inst['code_expires_at'] = new_expiry
-                        print(f"[SYSTEM] Auto-rotated code for {inst['name']}")
-                except:
-                    pass # Ignore bad date formats
-            
-            # Attach member counts
-            if inst.get('institution_code'):
-                a, s = db.get_member_count(inst['institution_code'])
-                inst['admin_count'] = a
-                inst['staff_count'] = s
-            else:
-                inst['admin_count'] = 0
-                inst['staff_count'] = 0
-                
-        return jsonify({"institutions": institutions}), 200
-    except Exception as e:
-        print(f"[ERROR] sa_get_institutions: {e}")
-        return jsonify({"error": f"Internal Error: {str(e)}"}), 500
-
-
-@app.route("/api/superadmin/institutions/<inst_id>/approve", methods=["POST"])
-@jwt_required()
-def sa_approve_institution(inst_id):
-    identity = get_jwt_identity()
-    if not is_superadmin(identity):
-        return jsonify({"error": "Forbidden."}), 403
-    # ... rest of the code is unchanged but I'll update the whole route for safety
-    inst = db.get_institution_by_id(inst_id)
-    if not inst: return jsonify({"error": "Institution not found."}), 404
-    if inst['status'] == 'approved':
-        return jsonify({"error": "Already approved.", "institution_code": inst['institution_code']}), 400
-    
-    code, expiry = db.approve_institution(inst_id)
-    from utils.email_sender import send_institution_approval
-    send_institution_approval(inst['email'], inst['contact_person'], code, expiry)
-    return jsonify({"message": "Institution approved. Code sent via email.", "institution_code": code, "expires_at": expiry}), 200
-
-
-@app.route("/api/superadmin/institutions/<inst_id>/reject", methods=["POST"])
-@jwt_required()
-def sa_reject_institution(inst_id):
-    if not is_superadmin(get_jwt_identity()):
-        return jsonify({"error": "Forbidden."}), 403
-    data = request.json or {}
-    db.reject_institution(inst_id, data.get("reason", ""))
-    return jsonify({"message": "Institution rejected."}), 200
-
-
-# ══════════════════════════════════════════
-# MAKER PORTAL (restricted to Super Admin)
-# ══════════════════════════════════════════
-@app.route("/api/maker/stats", methods=["GET"])
-@jwt_required()
-def maker_get_stats():
-    if not is_superadmin(get_jwt_identity()):
-        return jsonify({"error": "Forbidden. Maker access required."}), 403
-    
-    # Internal system metrics
-    logs = db.get_all_login_logs()
-    total_patterns = sum(log['failed_count'] + log['success_count'] for log in logs)
-    
-    from modules.threat import run_anomaly_detection
-    # Preview anomalies without saving to incidents for "Stats"
-    # We'll just return the count from the last logs analysis for now
-    analysis = run_anomaly_detection(db)
-    
-    return jsonify({
-        "system_status": "operational",
-        "database": "connected",
-        "ml_model": "Isolation Forest (scikit-learn)",
-        "patterns_analyzed": total_patterns,
-        "anomalies_detected": analysis.get("anomalies_detected", 0),
-        "db_size_rough": len(logs) + len(db.get_all_incidents())
-    }), 200
-
-
-@app.route("/api/maker/scan", methods=["POST"])
-@jwt_required()
-def maker_trigger_scan():
-    if not is_superadmin(get_jwt_identity()):
-        return jsonify({"error": "Forbidden. Maker access required."}), 403
-    
-    from modules.threat import run_anomaly_detection
-    result = run_anomaly_detection(db)
-    return jsonify({
-        "message": "Manual threat scan completed.",
-        "details": result
-    }), 200
-
-
-# ══════════════════════════════════════════
-# INSTITUTION REGISTRATION (public)
-# ══════════════════════════════════════════
-@app.route("/api/institutions/request", methods=["POST"])
-def request_institution():
-    data = request.json
-    if not all(k in data for k in ["name", "email", "contact_person"]):
-        return jsonify({"error": "name, email, and contact_person are required."}), 400
-    ok, err = db.register_institution(
-        data['name'], data['email'], data['contact_person'], data.get('phone', '')
-    )
-    if ok:
-        return jsonify({"message": "Your institution request has been submitted. Kavach Net team will review and send you the institution code."}), 201
-    return jsonify({"error": err}), 409
-
-
-@app.route("/api/institutions/validate/<code>", methods=["GET"])
-def validate_institution_code(code):
-    inst = db.get_institution_by_code(code)
-    if not inst:
-        return jsonify({"valid": False, "error": "Invalid institution code."}), 404
-    if inst['status'] != 'approved':
-        return jsonify({"valid": False, "error": "Institution not approved."}), 403
-    admin_count, staff_count = db.get_member_count(code)
-    return jsonify({
-        "valid": True,
-        "institution_name": inst['name'],
-        "admin_count": admin_count,
-        "staff_count": staff_count,
-        "admin_slots_available": max(0, 1 - admin_count),
-        "staff_slots_available": max(0, 2 - staff_count)
-    }), 200
-
-
-# ══════════════════════════════════════════
-# USER REGISTRATION
-# ══════════════════════════════════════════
-@app.route("/api/register/admin", methods=["POST"])
-@limiter.limit("3 per minute")
-def register_admin():
-    data = request.json
-    if not all(k in data for k in ["username", "password", "email", "institution_code"]):
-        return jsonify({"error": "username, password, email, institution_code are required."}), 400
-    result, status = auth.register_institution_admin(
-        data['username'], data['password'], data['email'], data['institution_code'], db
-    )
-    return jsonify(result), status
-
-
-@app.route("/api/register/staff", methods=["POST"])
-@limiter.limit("3 per minute")
-def register_staff():
-    data = request.json
-    if not all(k in data for k in ["username", "password", "email", "institution_code"]):
-        return jsonify({"error": "username, password, email, institution_code are required."}), 400
-    result, status = auth.register_staff(
-        data['username'], data['password'], data['email'], data['institution_code'], db
-    )
-    return jsonify(result), status
-
-
-# ══════════════════════════════════════════
-# AUTH
-# ══════════════════════════════════════════
-@app.route("/api/login/step1", methods=["POST"])
-@limiter.limit("5 per minute")
-def login_step1():
-    data = request.json
-    if not all(k in data for k in ["username", "password"]):
-        return jsonify({"error": "username and password required."}), 400
-    result, status = auth.login_step1(data['username'], data['password'], db)
-    return jsonify(result), status
-
-
-@app.route("/api/login/step2", methods=["POST"])
-@limiter.limit("5 per minute")
-def login_step2():
-    data = request.json
-    if not all(k in data for k in ["username", "otp"]):
-        return jsonify({"error": "username and otp required."}), 400
-    result, status = auth.login_step2(data['username'], data['otp'], db)
-    return jsonify(result), status
-
-
-@app.route("/api/debug/otp/<username>", methods=["GET"])
-def get_debug_otp(username):
-    result, status = auth.get_otp_debug(username)
-    return jsonify(result), status
-
-
-@app.route("/api/me", methods=["GET"])
-@jwt_required()
-def get_me():
-    username = get_jwt_identity()
-    result, status = auth.get_current_user_info(username, db)
-    return jsonify(result), status
-
-
-# ══════════════════════════════════════════
-# ADMIN — manage their institution's staff
-# ══════════════════════════════════════════
-@app.route("/api/admin/members", methods=["GET"])
-@jwt_required()
-def admin_get_members():
-    claims = get_jwt()
-    if claims.get("role") not in ("admin", "superadmin"):
-        return jsonify({"error": "Forbidden."}), 403
-    inst_code = claims.get("institution_code")
-    members = db.get_users_by_institution(inst_code)
-    admin_count, staff_count = db.get_member_count(inst_code)
-    return jsonify({
-        "members": members,
-        "admin_count": admin_count,
-        "staff_count": staff_count,
-        "slots_remaining": max(0, 2 - staff_count)
-    }), 200
-
-
-@app.route("/api/admin/members/<user_id>/approve", methods=["POST"])
-@jwt_required()
-def admin_approve_member(user_id):
-    claims = get_jwt()
-    if claims.get("role") not in ("admin", "superadmin"):
-        return jsonify({"error": "Forbidden."}), 403
-    db.update_user_status(user_id, 'approved')
-    return jsonify({"message": "Member approved."}), 200
-
-
-@app.route("/api/admin/members/<user_id>/reject", methods=["POST"])
-@jwt_required()
-def admin_reject_member(user_id):
-    claims = get_jwt()
-    if claims.get("role") not in ("admin", "superadmin"):
-        return jsonify({"error": "Forbidden."}), 403
-    db.update_user_status(user_id, 'rejected')
-    return jsonify({"message": "Member rejected."}), 200
-
-
-# ══════════════════════════════════════════
-# ENCRYPTION
-# ══════════════════════════════════════════
-@app.route("/api/encryption/newkey", methods=["GET"])
-@jwt_required()
-def generate_new_key():
-    key = encryption.generate_key()
-    return jsonify({"key": key}), 200
-
-
-@app.route("/api/encryption/encrypt", methods=["POST"])
-@jwt_required()
-def encrypt():
-    data = request.json
-    if not all(k in data for k in ["text", "key"]):
-        return jsonify({"error": "text and key required."}), 400
-    result = encryption.encrypt_data(data['text'], data['key'], db=db)
-    if isinstance(result, dict) and "error" in result:
-        return jsonify(result), 400
-    return jsonify({"encrypted_text": result}), 200
-
-
-@app.route("/api/encryption/decrypt", methods=["POST"])
-@jwt_required()
-def decrypt():
-    data = request.json
-    if not all(k in data for k in ["encrypted_text", "key"]):
-        return jsonify({"error": "encrypted_text and key required."}), 400
-    result = encryption.decrypt_data(data['encrypted_text'], data['key'], db=db)
-    if isinstance(result, dict) and "error" in result:
-        return jsonify(result), 400
-    return jsonify({"decrypted_text": result}), 200
-
-
-# ══════════════════════════════════════════
-# PHISHING
-# ══════════════════════════════════════════
-@app.route("/api/phishing/check", methods=["POST"])
-@jwt_required()
-def check_phishing_url():
-    data = request.json
-    if "url" not in data:
-        return jsonify({"error": "url required."}), 400
-    result = phishing.check_phishing(data['url'])
-    return jsonify(result), 200
-
-
-# ══════════════════════════════════════════
-# THREATS
-# ══════════════════════════════════════════
-@app.route("/api/threat/status", methods=["GET"])
-@jwt_required()
-def threat_status():
-    summary = threat.get_threat_summary(db)
-    return jsonify(summary), 200
-
-
-@app.route("/api/threat/scan", methods=["POST"])
-@jwt_required()
-def threat_scan():
-    result = threat.run_anomaly_detection(db)
-    return jsonify(result), 200
-
-
-@app.route("/api/threat/check-brute-force/<username>", methods=["GET"])
-@jwt_required()
-def check_brute_force_attack(username):
-    result = threat.check_brute_force(username, db)
-    if result:
-        return jsonify(result), 200
-    return jsonify({"message": "No brute force detected."}), 200
-
-
-# ══════════════════════════════════════════
-# INCIDENTS (scoped to institution)
-# ══════════════════════════════════════════
-@app.route("/api/incidents", methods=["GET"])
-@jwt_required()
-def get_incidents():
-    claims = get_jwt()
-    inst_code = claims.get("institution_code") if claims.get("role") != "superadmin" else None
-    incidents = incident.get_incidents(db, institution_code=inst_code)
-    return jsonify({"incidents": incidents, "count": len(incidents)}), 200
-
-
-@app.route("/api/incidents/<incident_id>", methods=["GET"])
-@jwt_required()
-def get_incident(incident_id):
-    inc = incident.get_incident_by_id(incident_id, db)
-    if not inc:
-        return jsonify({"error": "Incident not found."}), 404
-    return jsonify(inc), 200
-
-
-@app.route("/api/incidents/<incident_id>", methods=["PATCH"])
-@jwt_required()
-def update_incident_status(incident_id):
-    data = request.json
-    if "status" not in data:
-        return jsonify({"error": "status required."}), 400
-    result, status = incident.update_status(incident_id, data['status'], db)
-    return jsonify(result), status
-
-
-@app.route("/api/incidents/report/pdf", methods=["GET"])
-@jwt_required()
-def download_incident_report():
-    buffer = incident.generate_pdf_report(db)
-    return send_file(buffer, as_attachment=True, download_name="kavachnet_incident_report.pdf", mimetype='application/pdf')
-
-
-@app.route("/api/incidents/statistics", methods=["GET"])
-@jwt_required()
-def get_incident_stats():
-    stats = incident.get_incident_statistics(db)
-    return jsonify(stats), 200
-
-
-# ══════════════════════════════════════════
-# ERROR HANDLERS
-# ══════════════════════════════════════════
-@app.errorhandler(404)
-def not_found(error):
-    return jsonify({"error": "Endpoint not found."}), 404
-
-@app.errorhandler(500)
-def internal_error(error):
-    return jsonify({"error": "Internal server error."}), 500
-
-
-# ── MILITARY GRADE SECURITY HEADERS ────────────────
-@app.after_request
-def add_security_headers(response):
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['X-XSS-Protection'] = '1; mode=block'
-    response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' cdn.jsdelivr.net; style-src 'self' cdn.jsdelivr.net fonts.googleapis.com; font-src fonts.gstatic.com cdn.jsdelivr.net;"
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
-    return response
-
+app = create_app()
 
 if __name__ == "__main__":
-    print("\n" + "="*55)
-    print("  KavachNet Backend v2.0 Starting...")
-    print("="*55)
-    print("  API:          http://localhost:5000")
-    print("  Health:       http://localhost:5000/api/health")
-    print(f"  SuperAdmin:   POST /api/superadmin/login")
-    print("="*55 + "\n")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app_logger.info("KavachNet v4 Production initialization started.")
+    app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))

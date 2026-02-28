@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kavach Net — Security Report</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
     <style>
       /* Base */
       *,
@@ -19,9 +24,7 @@
       }
 
       body {
-        font-family: "Inter", sans-serif;
-        background: #0d1117;
-        color: #e2e8f0;
+        font-family: "Outfit", sans-serif;
         padding: 40px 20px 80px;
       }
 
@@ -44,7 +47,7 @@
         border: none;
         border-radius: 8px;
         color: #fff;
-        font-family: "Inter", sans-serif;
+        font-family: "Outfit", sans-serif;
         font-size: 0.85rem;
         font-weight: 600;
         padding: 9px 20px;
@@ -60,10 +63,11 @@
 
       /* Report card */
       .report-card {
-        background: #161b27;
+        background: rgba(15, 23, 42, 0.75);
         border: 1px solid rgba(255, 255, 255, 0.08);
         border-radius: 16px;
         overflow: hidden;
+        backdrop-filter: blur(16px);
       }
 
       /* Header band */
@@ -461,8 +465,24 @@
     </style>
   </head>
 
-  <body>
-    <div class="report-wrap">
+  <body class="landing-body">
+    <!-- Premium background meshes -->
+    <div class="cyber-mesh"></div>
+    <div class="mesh-glow" style="top: -10%; left: -10%"></div>
+    <div
+      class="mesh-glow"
+      style="
+        bottom: -20%;
+        right: -20%;
+        background: radial-gradient(
+          circle at center,
+          rgba(14, 116, 144, 0.2) 0%,
+          transparent 60%
+        );
+      "
+    ></div>
+
+    <div class="report-wrap" style="position: relative; z-index: 2">
       <!-- Print button (screen only) -->
       <div class="print-bar">
         <button class="btn-print" onclick="window.print()">
@@ -793,16 +813,14 @@
     document.getElementById("rptId").textContent = reportId;
 
     // Set report date fields
-    document
-      .querySelectorAll(".rpt-date")
-      .forEach(
-        (el) =>
-          (el.textContent = now.toLocaleDateString("en-IN", {
-            day: "2-digit",
-            month: "long",
-            year: "numeric",
-          })),
-      );
+    document.querySelectorAll(".rpt-date").forEach(
+      (el) =>
+        (el.textContent = now.toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })),
+    );
 
     // Badge classes
     const severityClass = (s) =>
@@ -821,7 +839,7 @@
       })[s?.toLowerCase()] || "b-blue";
 
     // Load incidents
-    apiGet("/api/incidents")
+    apiGet("/incidents")
       .then((res) => {
         if (!res.ok) {
           document.getElementById("incidentsTbody").innerHTML =
