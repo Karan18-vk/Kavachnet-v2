@@ -1,0 +1,122 @@
+name: "\U0001F680 Deploy KavachNet to AWS"
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  AWS_REGION: ap-south-1
+  EB_APP_NAME: kavachnet-backend
+  EB_ENV_NAME: kavachnet-prod
+  S3_FRONTEND_BUCKET: kavachnet-frontend
+  CLOUDFRONT_DIST_ID: ${{ secrets.CLOUDFRONT_DIST_ID }}
+
+jobs:
+  # ═══════════════════════════════════════════
+  # JOB 1: Deploy Frontend to S3 + CloudFront
+  # ═══════════════════════════════════════════
+  deploy-frontend:
+    name: "\U0001F3A8 Deploy Frontend"
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.message, '[frontend]') ||
+      contains(github.event.head_commit.message, '[all]') ||
+      github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: "\U0001F4E5 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "\U0001F527 Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: "\U0001F4E4 Sync Frontend to S3"
+        run: |
+          aws s3 sync ./Frontend/ s3://${{ env.S3_FRONTEND_BUCKET }}/ \
+            --delete \
+            --cache-control "public, max-age=86400"
+
+          # Set short TTL for HTML files so updates propagate quickly
+          aws s3 cp s3://${{ env.S3_FRONTEND_BUCKET }}/ \
+            s3://${{ env.S3_FRONTEND_BUCKET }}/ \
+            --recursive \
+            --exclude "*" --include "*.html" \
+            --cache-control "public, max-age=300" \
+            --metadata-directive REPLACE
+
+      - name: "\U0001F504 Invalidate CloudFront Cache"
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.CLOUDFRONT_DIST_ID }} \
+            --paths "/*"
+
+  # ═══════════════════════════════════════════
+  # JOB 2: Deploy Backend to Elastic Beanstalk
+  # ═══════════════════════════════════════════
+  deploy-backend:
+    name: "⚙️ Deploy Backend"
+    runs-on: ubuntu-latest
+    if: |
+      contains(github.event.head_commit.message, '[backend]') ||
+      contains(github.event.head_commit.message, '[all]') ||
+      github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: "\U0001F4E5 Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "\U0001F527 Configure AWS Credentials"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: "\U0001F4E6 Create Deployment Package"
+        run: |
+          cd Backend
+          zip -r ../kavachnet-backend-${{ github.sha }}.zip . \
+            -x ".env" "*.pyc" "__pycache__/*" "kavachnet.db" \
+               "logs/*" "test_*.py" ".venv/*" ".git/*"
+
+      - name: "\U0001F4E4 Upload to S3"
+        run: |
+          aws s3 cp kavachnet-backend-${{ github.sha }}.zip \
+            s3://kavachnet-eb-deployments/kavachnet-backend-${{ github.sha }}.zip
+
+      - name: "\U0001F3D7️ Create EB Application Version"
+        run: |
+          aws elasticbeanstalk create-application-version \
+            --application-name ${{ env.EB_APP_NAME }} \
+            --version-label "deploy-${{ github.sha }}" \
+            --source-bundle S3Bucket=kavachnet-eb-deployments,S3Key=kavachnet-backend-${{ github.sha }}.zip \
+            --region ${{ env.AWS_REGION }}
+
+      - name: "\U0001F680 Deploy to Elastic Beanstalk"
+        run: |
+          aws elasticbeanstalk update-environment \
+            --application-name ${{ env.EB_APP_NAME }} \
+            --environment-name ${{ env.EB_ENV_NAME }} \
+            --version-label "deploy-${{ github.sha }}" \
+            --region ${{ env.AWS_REGION }}
+
+      - name: "⏳ Wait for Deployment"
+        run: |
+          aws elasticbeanstalk wait environment-updated \
+            --application-name ${{ env.EB_APP_NAME }} \
+            --environment-names ${{ env.EB_ENV_NAME }} \
+            --region ${{ env.AWS_REGION }}
+
+      - name: "✅ Health Check"
+        run: |
+          EB_URL=$(aws elasticbeanstalk describe-environments \
+            --application-name ${{ env.EB_APP_NAME }} \
+            --environment-names ${{ env.EB_ENV_NAME }} \
+            --query 'Environments[0].CNAME' \
+            --output text)
+          curl -f "http://$EB_URL/health" || exit 1

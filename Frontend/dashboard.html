@@ -265,6 +265,9 @@
       </div>
     </aside>
 
+    <!-- MOBILE SIDEBAR BACKDROP -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
     <!-- ============================================================
      PAGE WRAPPER
 ============================================================ -->
@@ -2403,13 +2406,55 @@
         }
       }
 
-      // Sidebar Toggle
+      // Sidebar Toggle (Desktop: collapse, Mobile: slide-in overlay)
       const toggle = document.getElementById("sidebarToggle");
       const sidebar = document.getElementById("sidebar");
       const wrapper = document.getElementById("pageWrapper");
+      const sidebarBackdrop = document.getElementById("sidebarBackdrop");
+
+      function isMobile() {
+        return window.innerWidth <= 768;
+      }
+
+      function closeMobileSidebar() {
+        sidebar.classList.remove("sidebar-mobile-open");
+        sidebarBackdrop.classList.remove("show");
+        document.body.style.overflow = "";
+      }
+
       toggle.addEventListener("click", () => {
-        sidebar.classList.toggle("sidebar-collapsed");
-        wrapper.classList.toggle("sidebar-collapsed");
+        if (isMobile()) {
+          // Mobile: toggle slide-in overlay
+          const isOpen = sidebar.classList.contains("sidebar-mobile-open");
+          if (isOpen) {
+            closeMobileSidebar();
+          } else {
+            sidebar.classList.add("sidebar-mobile-open");
+            sidebarBackdrop.classList.add("show");
+            document.body.style.overflow = "hidden";
+          }
+        } else {
+          // Desktop: toggle collapse
+          sidebar.classList.toggle("sidebar-collapsed");
+          wrapper.classList.toggle("sidebar-collapsed");
+        }
+      });
+
+      // Close mobile sidebar on backdrop click
+      sidebarBackdrop.addEventListener("click", closeMobileSidebar);
+
+      // Close mobile sidebar when navigating
+      document.querySelectorAll(".sidebar-link").forEach((link) => {
+        link.addEventListener("click", () => {
+          if (isMobile()) closeMobileSidebar();
+        });
+      });
+
+      // Handle window resize: clean up mobile state if user resizes to desktop
+      window.addEventListener("resize", () => {
+        if (!isMobile()) {
+          closeMobileSidebar();
+        }
       });
 
       // ── SPA Navigation ──────────────────────────────────────────

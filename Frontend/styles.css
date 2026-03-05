@@ -2823,13 +2823,490 @@ body {
   animation-delay: 0.6s;
 }
 
-/* Responsive tweaks */
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE DESIGN SYSTEM — ALL DEVICES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── TABLET (≤1024px) ────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  /* Auto-collapse sidebar to icons on tablets */
+  .sidebar {
+    width: var(--sidebar-collapsed-width);
+  }
+  .sidebar .sidebar-profile-info,
+  .sidebar .sidebar-link-text,
+  .sidebar .sidebar-link-badge,
+  .sidebar .sidebar-section-label,
+  .sidebar .sidebar-health-card {
+    display: none;
+  }
+  .sidebar .sidebar-profile {
+    justify-content: center;
+    padding: 14px 0;
+  }
+  .sidebar .sidebar-link {
+    justify-content: center;
+    padding: 10px 0;
+    gap: 0;
+    border-radius: 10px;
+    margin: 1px 8px;
+  }
+  .sidebar .sidebar-link-icon {
+    width: 100%;
+    text-align: center;
+    font-size: 1.1rem;
+  }
+  .sidebar .sidebar-link.active {
+    box-shadow: none;
+    background: var(--accent-blue-glow);
+  }
+  .sidebar .sidebar-divider {
+    margin: 4px 8px;
+  }
+  .sidebar .sidebar-bottom {
+    padding: 6px 0 14px;
+  }
+
+  /* Reduce main content padding */
+  .main-content {
+    padding: 16px !important;
+  }
+
+  /* Dashboard stat cards: 2 per row */
+  .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+
+  /* Landing: reduce section padding */
+  .landing-sec {
+    padding: 70px 4%;
+  }
+  .hero-sec {
+    padding: 100px 4% 60px;
+  }
+}
+
+/* ── SMALL TABLET / LARGE PHONE (≤768px) ─────────────────────── */
 @media (max-width: 768px) {
-  .hero-btns {
+  /* SIDEBAR: Full overlay on mobile */
+  .sidebar {
+    position: fixed;
+    top: var(--navbar-height);
+    left: 0;
+    bottom: 0;
+    width: 260px;
+    z-index: 1030;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 8px 0 40px rgba(0, 0, 0, 0.5);
+  }
+  /* Show sidebar when toggled */
+  .sidebar.sidebar-mobile-open {
+    transform: translateX(0);
+  }
+  /* Restore full sidebar content on mobile overlay */
+  .sidebar.sidebar-mobile-open .sidebar-profile-info,
+  .sidebar.sidebar-mobile-open .sidebar-link-text,
+  .sidebar.sidebar-mobile-open .sidebar-link-badge,
+  .sidebar.sidebar-mobile-open .sidebar-section-label,
+  .sidebar.sidebar-mobile-open .sidebar-health-card {
+    display: flex;
+  }
+  .sidebar.sidebar-mobile-open .sidebar-section-label {
+    display: block;
+  }
+  .sidebar.sidebar-mobile-open .sidebar-profile {
+    justify-content: flex-start;
+    padding: 18px 16px 14px;
+  }
+  .sidebar.sidebar-mobile-open .sidebar-link {
+    justify-content: flex-start;
+    padding: 9px 10px;
+    gap: 10px;
+    margin: 0;
+  }
+  .sidebar.sidebar-mobile-open .sidebar-link-icon {
+    width: 22px;
+    text-align: center;
+    font-size: 1rem;
+  }
+  .sidebar.sidebar-mobile-open .sidebar-bottom {
+    padding: 6px 10px 14px;
+  }
+  .sidebar.sidebar-mobile-open .sidebar-divider {
+    margin: 0 12px;
+  }
+
+  /* Backdrop for sidebar overlay */
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: var(--navbar-height);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(3px);
+    z-index: 1020;
+  }
+  .sidebar-backdrop.show {
+    display: block;
+  }
+
+  /* PAGE WRAPPER: Full width, no sidebar gap */
+  .page-wrapper {
     flex-direction: column;
   }
+
+  /* MAIN CONTENT: Full width */
+  .main-content {
+    width: 100%;
+    padding: 14px !important;
+  }
+
+  /* NAVBAR tweaks */
+  .glass-navbar {
+    padding: 0 12px;
+  }
+  .navbar-brand-text {
+    font-size: 0.95rem;
+  }
+  /* Smaller logout button */
+  .logout-btn {
+    padding: 6px 12px;
+    font-size: 0.78rem;
+  }
+
+  /* Dashboard stat cards: 2 per row */
+  .col-md-3 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+  .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Period tabs: horizontal scroll */
+  .period-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+  }
+  .period-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Page title */
+  .page-title {
+    font-size: 1.1rem;
+  }
+
+  /* AUTH CARDS: full width */
+  .auth-card {
+    max-width: 100% !important;
+    padding: 28px 22px;
+    border-radius: 16px;
+  }
+
+  /* ROLE CARDS: full width vertical stack */
+  .role-cards {
+    flex-direction: column;
+    align-items: center;
+  }
+  .role-card {
+    width: 100%;
+    max-width: 400px;
+  }
+
+  /* LANDING PAGE */
   .landing-nav-links {
     display: none;
+  }
+  .landing-auth-btns {
+    gap: 8px;
+  }
+  .landing-auth-btns .btn-landing {
+    padding: 10px 16px;
+    font-size: 0.82rem;
+  }
+  .hero-btns {
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-desc {
+    font-size: 0.95rem;
+  }
+  .hero-sec {
+    padding: 90px 5% 50px;
+  }
+  .sec-title {
+    font-size: 1.7rem;
+  }
+  .landing-sec {
+    padding: 60px 4%;
+  }
+  .feature-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* NOTIFICATION DRAWER: Full width */
+  .notif-drawer {
+    width: 100%;
+  }
+
+  /* TABLES: horizontal scrolling */
+  .table-responsive-wrapper,
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* AI INTELLIGENCE GRID */
+  .ai-intelligence-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* AI ASSISTANT */
+  .ai-assistant-wrap {
+    height: 450px;
+  }
+
+  /* Settings page */
+  .settings-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  /* Session rows */
+  .session-row {
+    flex-wrap: wrap;
+  }
+
+  /* Notification pref rows */
+  .notif-pref-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* ── MOBILE (≤480px) ─────────────────────────────────────────── */
+@media (max-width: 480px) {
+  /* Dashboard stat cards: 1 per row */
+  .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* AUTH CARDS: tight padding */
+  .auth-card {
+    padding: 20px 16px;
+    border-radius: 14px;
+  }
+
+  /* NAVBAR: compact */
+  .glass-navbar {
+    height: 58px;
+    padding: 0 10px;
+  }
+  :root {
+    --navbar-height: 58px;
+  }
+  .navbar-brand-text {
+    font-size: 0.85rem;
+  }
+  /* Hide search button on very small screens */
+  .navbar-icon-btn[title="Search"] {
+    display: none;
+  }
+  .nav-divider {
+    display: none;
+  }
+  .logout-btn {
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+
+  /* ROLE CARDS: smaller padding */
+  .role-card {
+    padding: 24px 20px;
+    border-radius: 14px;
+  }
+
+  /* LANDING */
+  .hero-title {
+    font-size: 2rem !important;
+    letter-spacing: -0.5px;
+  }
+  .hero-pre {
+    font-size: 0.7rem;
+    padding: 5px 10px;
+  }
+  .hero-desc {
+    font-size: 0.88rem;
+  }
+  .btn-landing {
+    padding: 11px 20px;
+    font-size: 0.85rem;
+    width: 100%;
+    justify-content: center;
+  }
+  .sec-title {
+    font-size: 1.4rem;
+  }
+  .landing-sec {
+    padding: 48px 4%;
+  }
+  .feature-card {
+    padding: 22px;
+    border-radius: 14px;
+  }
+  .sec-header {
+    margin-bottom: 36px;
+  }
+
+  /* CTA section responsive title */
+  .hero-title[style*="2.8rem"] {
+    font-size: 1.6rem !important;
+  }
+
+  /* GLASS CARDS */
+  .glass-card,
+  .card {
+    border-radius: 12px;
+  }
+
+  /* Period Tabs */
+  .period-tab {
+    font-size: 0.72rem;
+    padding: 4px 10px;
+  }
+
+  /* FOOTER on landing */
+  footer .d-flex {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  footer .landing-nav-links {
+    display: flex !important;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Stat delta badges */
+  .stat-delta {
+    font-size: 0.65rem;
+    padding: 3px 7px;
+  }
+
+  /* Threat feed rows */
+  .threat-row {
+    padding: 8px 10px;
+    gap: 8px;
+  }
+  .threat-title {
+    font-size: 0.75rem;
+  }
+  .threat-meta {
+    font-size: 0.64rem;
+  }
+
+  /* System status rows */
+  .sys-row {
+    padding: 9px 12px;
+    gap: 9px;
+  }
+  .sys-label {
+    font-size: 0.72rem;
+  }
+
+  /* Neural cards */
+  .neural-card {
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  /* AI Chat */
+  .ai-assistant-wrap {
+    height: 380px;
+    border-radius: 16px;
+  }
+  .chat-bubble {
+    max-width: 90%;
+    font-size: 0.84rem;
+    padding: 11px 14px;
+  }
+  .ai-chat-feed {
+    padding: 14px;
+    gap: 12px;
+  }
+  .ai-chat-input-area {
+    padding: 12px;
+  }
+
+  /* Settings */
+  .settings-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+  .settings-page-title {
+    font-size: 1rem;
+  }
+  .settings-label {
+    font-size: 0.7rem;
+  }
+  .settings-input {
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
+  .settings-save-btn {
+    font-size: 0.76rem;
+    padding: 8px 16px;
+  }
+
+  /* Sonar / Vortex containers */
+  .sonar-container {
+    height: 140px;
+  }
+  .vortex-container {
+    height: 180px;
+  }
+
+  /* Graph placeholder */
+  .graph-placeholder {
+    height: 150px;
+  }
+}
+
+/* ── PRINT-SAFE: Don't apply hover transforms on touch ─────── */
+@media (hover: none) {
+  .glass-card:hover {
+    transform: none;
+  }
+  .feature-card:hover {
+    transform: none;
+  }
+  .role-card:hover {
+    transform: none;
+  }
+  .btn-premium:hover {
+    transform: none;
+  }
+  .neural-card:hover {
+    transform: none;
+  }
+  .btn-landing-primary:hover {
+    transform: none;
+  }
+  .logout-btn:hover {
+    transform: none;
   }
 }
 
@@ -2859,6 +3336,7 @@ body {
   transform: translate(-50%, -50%);
   background: radial-gradient(circle at center, transparent 0%, #030712 90%);
   z-index: 1;
+  pointer-events: none;
 }
 
 /* Float Animation */
