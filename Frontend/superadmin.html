@@ -615,6 +615,7 @@
       <span id="toastMsg"></span>
     </div>
 
+    <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
       requireSuperAdmin();
@@ -641,12 +642,12 @@
         try {
           const res = await apiGet("/institutions/all");
           if (!res.ok) {
-            const errorMsg =
-              res.data.error || `Error ${res.status}: Failed to load.`;
+            const errorMsg = extractMessage(res);
             showToast("❌ " + errorMsg);
             throw new Error(errorMsg);
           }
-          allInstitutions = res.data.institutions || [];
+          const d = extractData(res);
+          allInstitutions = (Array.isArray(d) ? d : d.institutions) || [];
           updateStats();
           renderCards(currentFilter);
         } catch (err) {
@@ -822,12 +823,13 @@
             true,
           );
           if (res.ok) {
+            const ad = extractData(res);
             showToast(
-              `✅ Institution approved! Code: ${res.data.institution_code}`,
+              `✅ Institution approved! Code: ${ad.institution_code || 'Generated'}`,
             );
             await loadInstitutions();
           } else {
-            showToast("❌ " + (res.data.error || "Approval failed."));
+            showToast("❌ " + extractMessage(res));
           }
         } catch {
           showToast("❌ Cannot reach backend.");
@@ -859,7 +861,7 @@
             closeModal();
             await loadInstitutions();
           } else {
-            showToast("❌ " + (res.data.error || "Failed."));
+            showToast("❌ " + extractMessage(res));
           }
         } catch {
           showToast("❌ Cannot reach backend.");

@@ -493,6 +493,7 @@
 
     </div>
 
+    <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
         // Show/hide password
@@ -573,7 +574,7 @@
                             showAlert('Credentials verified. Enter the OTP sent to your email.', 'success');
                             btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-key me-1"></i> Verify OTP';
                         } else {
-                            showAlert(res.data.error || 'Invalid Staff ID or password.');
+                            showAlert(extractMessage(res));
                         }
                     } else {
                         const otp = document.getElementById('otpInput')?.value.trim();
@@ -583,16 +584,17 @@
                         btn.classList.remove('loading');
                         btn.disabled = false;
 
-                        if (res.ok && res.data.access_token) {
-                            saveToken(res.data.access_token);
-                            saveRefreshToken(res.data.refresh_token);
-                            saveSession({ username: staffUsername, role: res.data.role || 'staff', institution_code: res.data.institution_code || null });
+                        if (res.ok) {
+                            const d = extractData(res);
+                            saveToken(d.access_token);
+                            saveRefreshToken(d.refresh_token);
+                            saveSession({ username: staffUsername, role: d.role || 'staff', institution_code: d.institution_code || null });
                             showAlert('Login successful! Redirecting…', 'success');
                             btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';
                             btn.style.background = 'linear-gradient(135deg,#15803d,#166534)';
                             setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
                         } else {
-                            showAlert(res.data.error || 'Invalid OTP. Please try again.');
+                            showAlert(extractMessage(res));
                         }
                     }
                 } catch (err) {

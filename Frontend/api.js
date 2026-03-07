@@ -1,18 +1,25 @@
 // ═══════════════════════════════════════════════════════
-//  KavachNet — API Helper v4.0 (Production Hardened)
+//  KavachNet — API Helper v4.1 (Production Hardened)
 //  Clean Architecture & Dual-Token Rotation
 // ═══════════════════════════════════════════════════════
 
 const API_BASE = (() => {
+    // Priority 1: Explicit backend URL set via config.js or inline script
     if (window.BACKEND_URL) return window.BACKEND_URL + '/api/v1';
-    // Production safety: Disable localhost if not in dev mode
+    
+    // Priority 2: Local development
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    if (!isLocal && !window.BACKEND_URL) {
-        console.error("[CRITICAL] Production Backend URL not configured. Security fallback engaged.");
-        return 'https://api.kavachnet.io/api/v1'; // System fallback
+    if (isLocal) {
+        return 'http://localhost:5000/api/v1';
     }
-    return 'http://localhost:5000/api/v1';
+    
+    // Priority 3: Production — Backend URL MUST be configured
+    console.error("[CRITICAL] BACKEND_URL not configured. Set window.BACKEND_URL in config.js before deploying.");
+    // Attempt same-origin fallback (useful if behind a reverse proxy)
+    return window.location.origin + '/api/v1';
 })();
+
+console.log("[KavachNet] API Base:", API_BASE);
 
 /**
  * Global Security Interceptor
@@ -55,7 +62,6 @@ function startSessionHeartbeat() {
     heartbeatInterval = setInterval(async () => {
         if (!getToken()) return;
         try {
-            // FIX: Use relative path — API_BASE already includes /api/v1
             const res = await apiGet('/auth/me');
             if (!res.ok) throw new Error("HEARTBEAT_FAILURE");
         } catch (err) {
@@ -85,7 +91,6 @@ async function refreshToken() {
     const rf = getRefreshToken();
     if (!rf) return false;
     try {
-        // FIX: Use relative path — API_BASE already includes /api/v1
         const res = await fetch(API_BASE + '/auth/refresh', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + rf }
@@ -136,6 +141,26 @@ function requireAuth(allowedRoles) {
     if (allowedRoles && !allowedRoles.includes(session.role)) {
         window.location.href = 'portal.html';
     }
+}
+
+// ── Response Helper ──────────────────────────────────────
+/**
+ * Extracts data from standardized backend response format {status, message, data}
+ * Usage: const payload = extractData(res); // gets res.data.data
+ */
+function extractData(res) {
+    if (res.data && res.data.data !== undefined) return res.data.data;
+    return res.data || {};
+}
+
+/**
+ * Extracts error/message from standardized backend response
+ * Usage: const msg = extractMessage(res); // gets res.data.message
+ */
+function extractMessage(res) {
+    if (res.data && res.data.message) return res.data.message;
+    if (res.data && res.data.error) return res.data.error; // Legacy fallback
+    return "An unknown error occurred.";
 }
 
 // ── Fetch wrappers with Automatic Refresh ────────────────

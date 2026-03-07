@@ -2210,6 +2210,7 @@
     </div>
     <!-- /page-wrapper -->
 
+    <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
       // 🔐 Auth guard — only admin and staff can access
@@ -2243,11 +2244,12 @@
         try {
           const res = await apiGet("/incidents/");
           if (!res.ok) {
-            wrap.innerHTML = `<div class="alert alert-danger">Failed to load incidents: ${res.data.error || "unknown error"}</div>`;
+            wrap.innerHTML = `<div class="alert alert-danger">Failed to load incidents: ${extractMessage(res)}</div>`;
             return;
           }
 
-          const incidents = res.data.incidents || [];
+          const d = extractData(res);
+          const incidents = d.incidents || (Array.isArray(d) ? d : []);
 
           // Update stat cards
           const open = incidents.filter((i) => i.status === "open").length;
@@ -2319,15 +2321,24 @@
         try {
           const res = await apiGet("/institutions/members");
           if (!res.ok) return;
-          const { members, admin_count, staff_count, slots_remaining } =
-            res.data;
+          const members = extractData(res);
+          const allMembers = Array.isArray(members)
+            ? members
+            : members.members || [];
+          const admin_count = allMembers.filter(
+            (m) => m.role === "admin",
+          ).length;
+          const staff_count = allMembers.filter(
+            (m) => m.role === "staff" && m.status === "approved",
+          ).length;
+          const slots_remaining = Math.max(0, 2 - staff_count);
 
           document.getElementById("sm-admin-count").textContent = admin_count;
           document.getElementById("sm-staff-count").textContent = staff_count;
           document.getElementById("sm-slots").textContent = slots_remaining;
 
           // Pending
-          const pending = members.filter((m) => m.status === "pending");
+          const pending = allMembers.filter((m) => m.status === "pending");
           const badge = document.getElementById("pendingStaffBadge");
           if (badge) {
             badge.textContent = pending.length;
@@ -2375,7 +2386,7 @@
               ? '<span class="badge" style="background:rgba(96,165,250,.15);color:#60a5fa">Admin</span>'
               : '<span class="badge" style="background:rgba(45,212,191,.12);color:#2dd4bf">Staff</span>';
 
-          document.getElementById("allMembersTable").innerHTML = members
+          document.getElementById("allMembersTable").innerHTML = allMembers
             .map(
               (m) => `
             <tr>
@@ -2603,13 +2614,14 @@
         apiPost("/threats/phishing/check", { url }, true)
           .then((res) => {
             if (!res.ok) {
-              results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ ${res.data.error || "Could not analyse URL."}</div>`;
+              results.innerHTML = `<div class="alert alert-warning" style="border-radius:12px">⚠️ ${extractMessage(res)}</div>`;
               return;
             }
-            const d = res.data;
-            const isPhish = d.is_phishing || d.phishing || d.threat || false;
-            const score = d.score ?? d.confidence ?? (isPhish ? 92 : 4);
-            const reasons = d.reasons || d.indicators || [];
+            const d = extractData(res);
+            const isPhish =
+              d.verdict === "HIGH_RISK" || d.verdict === "SUSPICIOUS";
+            const score = d.risk_score ?? (isPhish ? 92 : 4);
+            const reasons = d.checks || [];
             const reasonHtml = reasons.length
               ? `<ul class="mb-0 small mt-2">${reasons.map((r) => `<li>${r}</li>`).join("")}</ul>`
               : "";

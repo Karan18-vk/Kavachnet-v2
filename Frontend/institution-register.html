@@ -163,6 +163,7 @@
       </div>
     </div>
 
+    <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
       async function submitRequest() {
@@ -205,7 +206,7 @@
             document.getElementById("formArea").style.display = "none";
             document.getElementById("successScreen").classList.add("show");
           } else {
-            showAlert(res.data.error || "Submission failed. Please try again.");
+            showAlert(extractMessage(res));
             btn.disabled = false;
             document.getElementById("btnText").innerHTML =
               '<i class="bi bi-send me-1"></i> Submit Registration Request';

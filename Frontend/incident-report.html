@@ -799,6 +799,7 @@
     </div>
   </body>
 
+  <script src="config.js"></script>
   <script src="api.js"></script>
   <script>
     // Auth guard
@@ -843,10 +844,11 @@
       .then((res) => {
         if (!res.ok) {
           document.getElementById("incidentsTbody").innerHTML =
-            `<tr><td colspan="6" style="color:#f87171;text-align:center;padding:20px">Error loading incidents: ${res.data.error || "backend error"}</td></tr>`;
+            `<tr><td colspan="6" style="color:#f87171;text-align:center;padding:20px">Error loading incidents: ${extractMessage(res)}</td></tr>`;
           return;
         }
-        const incidents = res.data.incidents || [];
+        const d = extractData(res);
+        const incidents = d.incidents || (Array.isArray(d) ? d : []);
         const open = incidents.filter((i) => i.status === "open").length;
         const resolved = incidents.filter(
           (i) => i.status === "resolved" || i.status === "closed",

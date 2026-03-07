@@ -208,6 +208,7 @@
       </div>
     </div>
 
+    <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
       // Nuclear Fix: Force clear any old tokens on the login page to ensure
@@ -242,7 +243,7 @@
             password,
           });
           if (res.ok) {
-            const d = res.data.data || res.data;
+            const d = extractData(res);
             saveToken(d.access_token);
             saveRefreshToken(d.refresh_token);
             saveSession({
@@ -252,7 +253,7 @@
             });
             window.location.href = "superadmin.html";
           } else {
-            showAlert(res.data.error || "Login failed.");
+            showAlert(extractMessage(res));
             btn.disabled = false;
             document.getElementById("btnText").innerHTML =
               '<i class="bi bi-shield-lock me-1"></i> Access Control Panel';

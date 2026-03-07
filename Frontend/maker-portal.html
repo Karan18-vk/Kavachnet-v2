@@ -359,6 +359,7 @@
         </div>
       </main>
 
+      <script src="config.js"></script>
       <script src="api.js"></script>
       <script>
         requireSuperAdmin();
@@ -367,18 +368,18 @@
           try {
             const res = await apiGet("/maker/stats", true);
             if (res.ok) {
+              const d = extractData(res);
               document.getElementById("valPatterns").textContent =
-                res.data.patterns_analyzed;
+                d.patterns_analyzed || 0;
               document.getElementById("valAnomalies").textContent =
-                res.data.anomalies_detected;
+                d.anomalies_detected || 0;
               addLog(
-                `Model sync complete. Patterns: ${res.data.patterns_analyzed}, Anomalies: ${res.data.anomalies_detected}`,
+                `Model sync complete. Patterns: ${d.patterns_analyzed || 0}, Anomalies: ${d.anomalies_detected || 0}`,
                 "highlight",
               );
             } else {
               addLog(
-                "Failed to fetch architecture stats: " +
-                  (res.data.error || "Unknown error"),
+                "Failed to fetch architecture stats: " + extractMessage(res),
                 "highlight",
               );
             }
@@ -398,16 +399,14 @@
           try {
             const res = await apiPost("/maker/scan", {}, true);
             if (res.ok) {
+              const d = extractData(res);
               addLog(
-                `Scan complete. Detected ${res.data.details.anomalies_detected} anomalies.`,
+                `Scan complete. Detected ${(d.details || d).anomalies_detected || 0} anomalies.`,
                 "success",
               );
               loadStats(); // Update counters
             } else {
-              addLog(
-                "Scan failed: " + (res.data.error || "Internal error"),
-                "highlight",
-              );
+              addLog("Scan failed: " + extractMessage(res), "highlight");
             }
           } catch (err) {
             addLog("Error: Link to security core lost during scan.");

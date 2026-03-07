@@ -29,3 +29,13 @@ python-dotenv==1.0.0
 gunicorn==21.2.0
 redis==5.0.1
 hiredis==2.3.2
+
+# Email Threat Detection (lightweight deps)
+tldextract>=5.0.0
+validators>=0.22.0
+dnspython>=2.4.0
+python-whois>=0.8.0
+pyyaml>=6.0.1
+tqdm>=4.66.0
+colorama>=0.4.6
+aiohttp>=3.9.0

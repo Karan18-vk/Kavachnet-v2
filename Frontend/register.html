@@ -1161,6 +1161,7 @@
       </div>
     </div>
 
+    <script src="config.js"></script>
     <script src="api.js"></script>
     <script>
       let currentStep = 1;
@@ -1333,46 +1334,56 @@
           const box = document.getElementById("codeValidation");
           box.style.display = "flex";
 
-          if (res.ok && res.data.valid) {
-            validatedInstitution = res.data;
-            box.style.background = "rgba(34,197,94,0.08)";
-            box.style.border = "1px solid rgba(34,197,94,0.2)";
-            box.style.color = "#86efac";
-            box.innerHTML = `<i class="bi bi-check-circle-fill"></i> <span><strong>${res.data.institution_name}</strong> — ${res.data.admin_slots_available} admin slot · ${res.data.staff_slots_available} staff slot(s) remaining</span>`;
+          if (res.ok) {
+            const d = extractData(res);
+            if (d.valid) {
+              validatedInstitution = d;
+              box.style.background = "rgba(34,197,94,0.08)";
+              box.style.border = "1px solid rgba(34,197,94,0.2)";
+              box.style.color = "#86efac";
+              box.innerHTML = `<i class="bi bi-check-circle-fill"></i> <span><strong>${d.institution_name}</strong> — ${d.admin_slots_available} admin slot · ${d.staff_slots_available} staff slot(s) remaining</span>`;
 
-            // Show role section and disable unavailable roles
-            document.getElementById("roleSection").style.display = "block";
-            const adminRadio = document.getElementById("roleAdmin");
-            const staffRadio = document.getElementById("roleStaff");
-            if (res.data.admin_slots_available === 0) {
-              adminRadio.disabled = true;
-              adminRadio
-                .closest(".role-option")
-                .querySelector("label").style.opacity = "0.4";
-              staffRadio.checked = true;
+              // Show role section and disable unavailable roles
+              document.getElementById("roleSection").style.display = "block";
+              const adminRadio = document.getElementById("roleAdmin");
+              const staffRadio = document.getElementById("roleStaff");
+              if (d.admin_slots_available === 0) {
+                adminRadio.disabled = true;
+                adminRadio
+                  .closest(".role-option")
+                  .querySelector("label").style.opacity = "0.4";
+                staffRadio.checked = true;
+              } else {
+                adminRadio.disabled = false;
+                adminRadio
+                  .closest(".role-option")
+                  .querySelector("label").style.opacity = "1";
+              }
+              if (d.staff_slots_available === 0) {
+                staffRadio.disabled = true;
+                staffRadio
+                  .closest(".role-option")
+                  .querySelector("label").style.opacity = "0.4";
+              } else {
+                staffRadio.disabled = false;
+                staffRadio
+                  .closest(".role-option")
+                  .querySelector("label").style.opacity = "1";
+              }
             } else {
-              adminRadio.disabled = false;
-              adminRadio
-                .closest(".role-option")
-                .querySelector("label").style.opacity = "1";
-            }
-            if (res.data.staff_slots_available === 0) {
-              staffRadio.disabled = true;
-              staffRadio
-                .closest(".role-option")
-                .querySelector("label").style.opacity = "0.4";
-            } else {
-              staffRadio.disabled = false;
-              staffRadio
-                .closest(".role-option")
-                .querySelector("label").style.opacity = "1";
+              validatedInstitution = null;
+              box.style.background = "rgba(239,68,68,0.08)";
+              box.style.border = "1px solid rgba(239,68,68,0.2)";
+              box.style.color = "#fca5a5";
+              box.innerHTML = `<i class="bi bi-x-circle-fill"></i> <span>Invalid institution code.</span>`;
+              document.getElementById("roleSection").style.display = "none";
             }
           } else {
             validatedInstitution = null;
             box.style.background = "rgba(239,68,68,0.08)";
             box.style.border = "1px solid rgba(239,68,68,0.2)";
             box.style.color = "#fca5a5";
-            box.innerHTML = `<i class="bi bi-x-circle-fill"></i> <span>${res.data.error || "Invalid institution code."}</span>`;
+            box.innerHTML = `<i class="bi bi-x-circle-fill"></i> <span>${extractMessage(res)}</span>`;
             document.getElementById("roleSection").style.display = "none";
           }
         } catch {
@@ -1470,9 +1481,7 @@
               document.getElementById("cardFooter").style.display = "none";
               document.getElementById("successScreen").classList.add("show");
             } else {
-              showAlert(
-                res.data.error || "Registration failed. Please try again.",
-              );
+              showAlert(extractMessage(res));
             }
           } catch (err) {
             btn.classList.remove("loading");

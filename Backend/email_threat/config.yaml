@@ -1,0 +1,68 @@
+# ╔══════════════════════════════════════════════════════════╗
+# ║      Email Threat Detector — Configuration File          ║
+# ╚══════════════════════════════════════════════════════════╝
+# Copy this file and fill in your API keys.
+# Alternatively, export API keys as environment variables.
+
+# ── Threat Intelligence APIs ───────────────────────────────
+# VirusTotal: https://www.virustotal.com/gui/my-apikey
+virustotal_api_key: ""
+
+# AbuseIPDB: https://www.abuseipdb.com/account/api
+abuseipdb_api_key: ""
+
+# PhishTank: https://www.phishtank.com/api_info.php
+phishtank_api_key: ""
+
+
+# ── Gmail (OAuth 2.0) ──────────────────────────────────────
+# 1. Go to console.cloud.google.com
+# 2. Create project → Enable Gmail API
+# 3. Create OAuth2 credentials → Desktop App
+# 4. Download JSON → save as credentials/gmail_credentials.json
+gmail_credentials_path: "credentials/gmail_credentials.json"
+gmail_token_path: "credentials/gmail_token.json"
+
+
+# ── Microsoft Outlook (MSAL / Graph API) ──────────────────
+# 1. portal.azure.com → Azure AD → App Registrations → New
+# 2. Add permission: Microsoft Graph → Delegated → Mail.Read
+# 3. Copy Client ID and Tenant ID below
+ms_client_id: ""
+ms_tenant_id: "common"     # Use "common" for personal accounts
+ms_client_secret: ""       # Optional (for confidential clients)
+
+
+# ── IMAP / POP3 ───────────────────────────────────────────
+imap_host: ""              # e.g., imap.gmail.com, mail.example.com
+imap_port: 993
+imap_use_ssl: true
+pop3_host: ""
+pop3_port: 995
+
+
+# ── Detection Thresholds ───────────────────────────────────
+threshold: 0.6             # Minimum score to report as threat (0.0–1.0)
+limit: 50                  # Max emails to fetch per run
+
+
+# ── NLP Settings ──────────────────────────────────────────
+use_nlp: true
+nlp_model: "distilbert-base-uncased-finetuned-sst-2-english"
+use_gpu: false             # Set true if CUDA GPU is available
+
+
+# ── Attachment Scanning ────────────────────────────────────
+scan_attachments: true
+max_attachment_size_mb: 25
+
+
+# ── ClamAV (optional) ─────────────────────────────────────
+# Install: sudo apt install clamav clamav-daemon && sudo freshclam
+clamav_host: "127.0.0.1"
+clamav_port: 3310
+
+
+# ── Cache ─────────────────────────────────────────────────
+cache_ttl_seconds: 3600    # Cache API responses for 1 hour
+cache_dir: ".cache"

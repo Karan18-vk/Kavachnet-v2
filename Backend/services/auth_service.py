@@ -10,6 +10,7 @@ from models.db import Database
 from config import Config
 from utils.logger import security_logger, app_logger
 from utils.state import state_store
+from utils.response import api_response, api_error
 
 # ── Constants ────────────────────────────────────────────
 MIN_PASSWORD_LENGTH = 8
@@ -56,37 +57,37 @@ class AuthService:
         institution_code = data.get('institution_code')
 
         if not all([username, password, email, institution_code]):
-            return {"error": "All fields are required."}, 400
+            return api_error("All fields are required.", code=400)
 
         ok, error = self.validate_password_complexity(password)
         if not ok:
-            return {"error": error}, 400
+            return api_error(error, code=400)
 
         inst = self.db.get_institution_by_code(institution_code)
         if not inst:
-            return {"error": "Invalid institution code."}, 400
+            return api_error("Invalid institution code.", code=400)
         
         if inst['status'] != 'approved':
-            return {"error": "Institution not yet approved."}, 403
+            return api_error("Institution not yet approved.", code=403)
 
         if inst.get('code_expires_at'):
             expiry = datetime.datetime.fromisoformat(inst['code_expires_at'])
             if datetime.datetime.now() > expiry:
-                return {"error": "Code expired."}, 403
+                return api_error("Code expired.", code=403)
 
         admin_count, _ = self.db.get_member_count(institution_code)
         if admin_count >= MAX_ADMIN_PER_INSTITUTION:
-            return {"error": "Admin already exists."}, 409
+            return api_error("Admin already exists.", code=409)
 
         if self.db.get_user(username):
-            return {"error": "Username taken."}, 409
+            return api_error("Username taken.", code=409)
 
         hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         if self.db.save_user(username, hashed, email, role='admin', institution_code=institution_code, status='approved'):
             self.db.save_audit_log(username, "REGISTER_ADMIN_SUCCESS", "institution", institution_code)
             app_logger.info(f"New administrator registered: {username}")
-            return {"message": "Admin registered successfully."}, 201
-        return {"error": "Registration failed."}, 500
+            return api_response(message="Admin registered successfully.", code=201)
+        return api_error("Registration failed.", code=500)
 
     def login_step1(self, data):
         username = data.get('username')
@@ -96,7 +97,7 @@ class AuthService:
         if not user:
             self.db.log_failed_attempt(username)
             self.db.log_login(username, "FAILED")
-            return {"error": "Invalid credentials."}, 401
+            return api_error("Invalid credentials.", code=401)
 
         # Check lockout
         if user.get('lockout_until'):
@@ -104,7 +105,7 @@ class AuthService:
                 lockout_time = datetime.datetime.fromisoformat(user['lockout_until'])
                 if datetime.datetime.now() < lockout_time:
                     security_logger.warning(f"Login attempt on locked account: {username}")
-                    return {"error": "Account locked. Try again later."}, 403
+                    return api_error("Account locked. Try again later.", code=403)
                 self.db.clear_lockout(username)
             except ValueError:
                 pass
@@ -119,11 +120,11 @@ class AuthService:
                 lock_until = (datetime.datetime.now() + datetime.timedelta(hours=1)).isoformat()
                 self.db.lock_user(username, lock_until)
                 security_logger.critical(f"Account locked due to brute force: {username}")
-                return {"error": "Too many attempts. Locked for 1 hour."}, 403
-            return {"error": "Invalid credentials."}, 401
+                return api_error("Too many attempts. Locked for 1 hour.", code=403)
+            return api_error("Invalid credentials.", code=401)
 
         if user['status'] != 'approved':
-            return {"error": f"Account {user['status']}."}, 403
+            return api_error(f"Account {user['status']}.", code=403)
 
         otp = self._generate_otp()
         self._store_otp(username, otp)
@@ -131,8 +132,8 @@ class AuthService:
         if send_otp_task(username, user['email'], otp):
             self.db.save_audit_log(username, "LOGIN_STEP1_OTP_DISPATCHED", "user", username)
             app_logger.info(f"OTP for {username} dispatched successfully.")
-            return {"message": "OTP sent."}, 200
-        return {"error": "Failed to send OTP. Please try again later."}, 500
+            return api_response(message="OTP sent.", code=200)
+        return api_error("Failed to send OTP. Please try again later.", code=500)
 
     def login_step2(self, data):
         username = data.get('username')
@@ -140,7 +141,7 @@ class AuthService:
 
         ok, err = self._verify_otp(username, otp_input)
         if not ok:
-            return {"error": err}, 401 if "Wrong" in err else 400
+            return api_error(err, code=401 if "Wrong" in err else 400)
 
         user = self.db.get_user(username)
         ua = request.headers.get('User-Agent', 'unknown')[:100]
@@ -160,13 +161,12 @@ class AuthService:
         self.db.clear_lockout(username)
         security_logger.info(f"User login verified: {username}")
 
-        return {
-            "message": "Login successful",
+        return api_response(message="Login successful", data={
             "access_token": access_token,
             "refresh_token": refresh_token,
             "role": user['role'],
             "institution_code": user.get('institution_code')
-        }, 200
+        }, code=200)
 
     def register_staff(self, data):
         username = data.get('username')
@@ -175,31 +175,32 @@ class AuthService:
         institution_code = data.get('institution_code')
 
         if not all([username, password, email, institution_code]):
-            return {"error": "All fields are required."}, 400
+            return api_error("All fields are required.", code=400)
 
         ok, error = self.validate_password_complexity(password)
         if not ok:
-            return {"error": error}, 400
+            return api_error(error, code=400)
 
         if self.db.get_user(username):
-            return {"error": "Username taken."}, 409
+            return api_error("Username taken.", code=409)
 
         hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         # Staff always starts as 'pending'
         if self.db.save_user(username, hashed, email, role='staff', institution_code=institution_code, status='pending'):
             self.db.save_audit_log(username, "REGISTER_STAFF_REQUEST", "user", username)
             app_logger.info(f"New staff registration request: {username}")
-            return {"message": "Staff registration request submitted successfully. Awaiting approval."}, 201
-        return {"error": "Registration failed."}, 500
+            return api_response(message="Staff registration request submitted successfully. Awaiting approval.", code=201)
+        return api_error("Registration failed.", code=500)
 
     def get_current_user_info(self, username, db):
         user = db.get_user(username)
         if not user:
-            return {"error": "User not found."}, 404
-        return {
+            return api_error("User not found.", code=404)
+        return api_response(data={
             "username": user['username'],
             "email": user['email'],
             "role": user['role'],
             "institution_code": user.get('institution_code'),
             "status": user.get('status')
-        }, 200
+        }, code=200)
+
