@@ -81,7 +81,7 @@ def create_app():
             "redis": "Connected" if redis_available else "Memory Fallback",
             "email_queue_worker": queue_status
         }
-        return api_response(message="KavachNet Operational", data=status_data), 200
+        return api_response(message="KavachNet Operational", data=status_data)
 
     # 5. ERROR HANDLING (Standardized & Non-leaking)
     from utils.response import api_error
