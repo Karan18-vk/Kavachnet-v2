@@ -21,6 +21,7 @@ class Config:
 
     # ── DATABASE ──────────────────────────────
     DB_NAME = os.getenv("DB_NAME", "kavachnet.db")
+    DATABASE_URL = os.getenv("DATABASE_URL")
 
     # ── REDIS (Production State) ──────────────
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")

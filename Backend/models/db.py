@@ -8,6 +8,66 @@ import string
 from collections import defaultdict
 from config import Config
 
+try:
+    import psycopg2
+    from psycopg2.extras import RealDictCursor
+    PSYCOPG2_AVAILABLE = True
+    DBIntegrityError = (sqlite3.IntegrityError, psycopg2.IntegrityError)
+except ImportError:
+    PSYCOPG2_AVAILABLE = False
+    DBIntegrityError = sqlite3.IntegrityError
+
+class PostgresCursorWrapper:
+    def __init__(self, cursor):
+        self.cursor = cursor
+        
+    def execute(self, sql, params=None):
+        sql = sql.replace('?', '%s')
+        if params is not None:
+            self.cursor.execute(sql, params)
+        else:
+            self.cursor.execute(sql)
+        return self
+
+    def executescript(self, sql):
+        self.cursor.execute(sql)
+        return self
+
+    def fetchone(self):
+        res = self.cursor.fetchone()
+        return dict(res) if res else None
+
+    def fetchall(self):
+        res = self.cursor.fetchall()
+        return [dict(r) for r in res] if res else []
+
+class PostgresWrapper:
+    def __init__(self, conn):
+        self.conn = conn
+        self.row_factory = None
+        self.is_postgres = True
+
+    def cursor(self):
+        c = self.conn.cursor(cursor_factory=RealDictCursor)
+        return PostgresCursorWrapper(c)
+
+    def execute(self, sql, params=None):
+        c = self.cursor()
+        return c.execute(sql, params)
+        
+    def executescript(self, sql):
+        c = self.cursor()
+        c.execute(sql)
+        return c
+
+    def commit(self):
+        self.conn.commit()
+
+    def rollback(self):
+        self.conn.rollback()
+
+    def close(self):
+        self.conn.close()
 
 def _generate_institution_code():
     chars = string.ascii_uppercase + string.digits
@@ -20,6 +80,10 @@ class Database:
         self._create_tables()
 
     def _connect(self):
+        if getattr(Config, 'DATABASE_URL', None) and PSYCOPG2_AVAILABLE:
+            conn = psycopg2.connect(Config.DATABASE_URL)
+            return PostgresWrapper(conn)
+            
         # Increased timeout for enterprise concurrency
         conn = sqlite3.connect(self.db_name, timeout=20.0) 
         conn.row_factory = sqlite3.Row
@@ -141,7 +205,7 @@ class Database:
         # Gracefully upgrade existing DBs without recreating
         try:
             cursor.execute("ALTER TABLE email_queue ADD COLUMN next_retry_at TEXT DEFAULT '2000-01-01T00:00:00'")
-        except sqlite3.OperationalError:
+        except Exception:
             pass # Column already exists
             
         conn.commit()
@@ -158,7 +222,7 @@ class Database:
             )
             conn.commit()
             return True, None
-        except sqlite3.IntegrityError:
+        except DBIntegrityError:
             return False, "This institution email is already registered."
         finally:
             conn.close()
@@ -264,8 +328,8 @@ class Database:
             )
             conn.commit()
             return True
-        except sqlite3.IntegrityError:
-            return False
+        except DBIntegrityError:
+            return False, "Username already exists."
         finally:
             conn.close()
 
@@ -505,19 +569,27 @@ class Database:
         conn = self._connect()
         conn.row_factory = sqlite3.Row
         try:
-            conn.execute("BEGIN EXCLUSIVE")
-            
             # Find eligible emails: PENDING (and time allows it), or PROCESSING that have been stuck for > 5 mins (crash recovery)
             five_mins_ago = (datetime.datetime.now() - datetime.timedelta(minutes=5)).isoformat()
             now = datetime.datetime.now().isoformat()
             
-            # Select IDs to claim
-            rows = conn.execute(
-                '''SELECT id FROM email_queue 
-                   WHERE (status = 'PENDING' AND next_retry_at <= ?) OR (status = 'PROCESSING' AND updated_at < ?) 
-                   ORDER BY created_at ASC LIMIT ?''',
-                (now, five_mins_ago, batch_size)
-            ).fetchall()
+            if hasattr(conn, 'is_postgres') and conn.is_postgres:
+                rows = conn.execute(
+                    '''SELECT id FROM email_queue 
+                       WHERE (status = 'PENDING' AND next_retry_at <= ?) OR (status = 'PROCESSING' AND updated_at < ?) 
+                       ORDER BY created_at ASC LIMIT ?
+                       FOR UPDATE SKIP LOCKED''',
+                    (now, five_mins_ago, batch_size)
+                ).fetchall()
+            else:
+                conn.execute("BEGIN EXCLUSIVE")
+                # Select IDs to claim
+                rows = conn.execute(
+                    '''SELECT id FROM email_queue 
+                       WHERE (status = 'PENDING' AND next_retry_at <= ?) OR (status = 'PROCESSING' AND updated_at < ?) 
+                       ORDER BY created_at ASC LIMIT ?''',
+                    (now, five_mins_ago, batch_size)
+                ).fetchall()
             
             claimed_ids = [r['id'] for r in rows]
             
