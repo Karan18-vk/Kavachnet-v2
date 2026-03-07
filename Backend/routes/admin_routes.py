@@ -22,3 +22,12 @@ def get_email_logs():
         return api_response(data=logs)
     except Exception as e:
         return api_error("An internal error occurred", code=500)
+
+@admin_bp.route("/debug", methods=["GET"])
+def debug_queue():
+    try:
+        q = db.execute("SELECT * FROM email_queue ORDER BY created_at DESC LIMIT 5").fetchall()
+        l = db.execute("SELECT * FROM email_logs ORDER BY created_at DESC LIMIT 5").fetchall()
+        return api_response(data={"queue": q, "logs": l})
+    except Exception as e:
+        return api_error(str(e))
