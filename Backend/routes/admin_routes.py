@@ -26,8 +26,9 @@ def get_email_logs():
 @admin_bp.route("/debug", methods=["GET"])
 def debug_queue():
     try:
-        q = db.execute("SELECT * FROM email_queue ORDER BY created_at DESC LIMIT 5").fetchall()
-        l = db.execute("SELECT * FROM email_logs ORDER BY created_at DESC LIMIT 5").fetchall()
+        conn = db._connect()
+        q = conn.execute("SELECT * FROM email_queue ORDER BY created_at DESC LIMIT 5").fetchall()
+        l = conn.execute("SELECT * FROM email_logs ORDER BY created_at DESC LIMIT 5").fetchall()
         return api_response(data={"queue": q, "logs": l})
     except Exception as e:
         return api_error(str(e))
