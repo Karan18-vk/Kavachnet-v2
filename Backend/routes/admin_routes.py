@@ -29,6 +29,8 @@ def debug_queue():
         conn = db._connect()
         q = conn.execute("SELECT * FROM email_queue ORDER BY created_at DESC LIMIT 5").fetchall()
         l = conn.execute("SELECT * FROM email_logs ORDER BY created_at DESC LIMIT 5").fetchall()
-        return api_response(data={"queue": q, "logs": l})
+        i = conn.execute("SELECT id, name, status FROM institutions").fetchall()
+        u = conn.execute("SELECT id, username FROM users").fetchall()
+        return api_response(data={"queue": q, "logs": l, "institutions": i, "users": u})
     except Exception as e:
         return api_error(str(e))
