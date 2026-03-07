@@ -2826,6 +2826,9 @@ body {
 /* ═══════════════════════════════════════════════════════════════
    RESPONSIVE DESIGN SYSTEM — ALL DEVICES
    ═══════════════════════════════════════════════════════════════ */
+.mobile-menu-btn {
+  display: none;
+}
 
 /* ── TABLET (≤1024px) ────────────────────────────────────────── */
 @media (max-width: 1024px) {
@@ -2992,6 +2995,7 @@ body {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     flex-wrap: nowrap;
+    width: 100%;
   }
   .period-tabs::-webkit-scrollbar {
     display: none;
@@ -2999,7 +3003,16 @@ body {
 
   /* Page title */
   .page-title {
-    font-size: 1.1rem;
+    font-size: 1rem;
+  }
+
+  /* Modal content padding */
+  .modal-content {
+    padding: 16px;
+  }
+
+  .auth-form-group label {
+    font-size: 0.75rem;
   }
 
   /* AUTH CARDS: full width */
@@ -3007,6 +3020,24 @@ body {
     max-width: 100% !important;
     padding: 28px 22px;
     border-radius: 16px;
+  }
+
+  .page-content-wrapper {
+    flex-direction: column !important;
+    gap: 40px !important;
+    padding: 20px 10px !important;
+  }
+  .brand-panel {
+    align-items: center !important;
+    text-align: center !important;
+  }
+  .login-panel {
+    width: 100% !important;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .brand-tagline p {
+    margin: 0 auto;
   }
 
   /* ROLE CARDS: full width vertical stack */
@@ -3019,9 +3050,48 @@ body {
     max-width: 400px;
   }
 
+  /* FORMS: stack form rows */
+  .form-row,
+  .role-selector {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .auth-form-group input,
+  .form-group input,
+  .form-group select {
+    padding: 12px 40px 12px 12px;
+    font-size: 0.85rem;
+  }
+
   /* LANDING PAGE */
   .landing-nav-links {
     display: none;
+    width: 100%;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px;
+    background: rgba(15, 23, 42, 0.95);
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .landing-nav-links.show {
+    display: flex !important;
+  }
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .hide-mobile {
+    display: none !important;
   }
   .landing-auth-btns {
     gap: 8px;
@@ -3046,7 +3116,8 @@ body {
   .landing-sec {
     padding: 60px 4%;
   }
-  .feature-grid {
+  .feature-grid,
+  .ai-intelligence-grid {
     grid-template-columns: 1fr;
     gap: 16px;
   }
@@ -3057,21 +3128,30 @@ body {
   }
 
   /* TABLES: horizontal scrolling */
+  .table-responsive,
   .table-responsive-wrapper,
   table {
     display: block;
+    width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
   }
 
-  /* AI INTELLIGENCE GRID */
-  .ai-intelligence-grid {
-    grid-template-columns: 1fr;
+  .table-cyber th,
+  .table-cyber td {
+    padding: 12px 16px;
   }
 
   /* AI ASSISTANT */
   .ai-assistant-wrap {
     height: 450px;
+  }
+
+  /* NAVBAR Hamburger handling */
+  .landing-nav {
+    flex-wrap: wrap;
+    justify-content: space-between;
   }
 
   /* Settings page */
@@ -3082,15 +3162,17 @@ body {
   }
 
   /* Session rows */
-  .session-row {
-    flex-wrap: wrap;
-  }
-
-  /* Notification pref rows */
+  .session-row,
   .notif-pref-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
+  }
+
+  /* Modal / Overlays */
+  .modal-dialog {
+    margin: 10px;
+    max-width: calc(100% - 20px) !important;
   }
 }
 

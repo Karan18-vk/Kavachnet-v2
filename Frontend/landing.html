@@ -30,20 +30,29 @@
           <img src="Kavach Net logo.png" alt="Kavach Net" />
           <span>Kavach Net</span>
         </a>
-        <div class="landing-nav-links">
+        <div class="landing-nav-links" id="mobile-nav-links">
           <a href="#features">Features</a>
           <a href="#about">About</a>
           <a href="https://github.com" target="_blank">Documentation</a>
         </div>
         <div class="landing-auth-btns">
-          <a href="portal.html" class="btn-landing btn-landing-secondary"
+          <a
+            href="portal.html"
+            class="btn-landing btn-landing-secondary hide-mobile"
             >Log In</a
           >
           <a
             href="institution-register.html"
-            class="btn-landing btn-landing-primary"
+            class="btn-landing btn-landing-primary hide-mobile"
             >Register Institution</a
           >
+          <button
+            class="mobile-menu-btn"
+            id="mobileMenuBtn"
+            aria-label="Toggle Navigation"
+          >
+            <i class="bi bi-list"></i>
+          </button>
         </div>
       </nav>
 
@@ -417,6 +426,15 @@
           }
         });
       });
+
+      // 5. MOBILE MENU TOGGLE
+      const mobileBtn = document.getElementById("mobileMenuBtn");
+      const mobileNav = document.getElementById("mobile-nav-links");
+      if (mobileBtn && mobileNav) {
+        mobileBtn.addEventListener("click", () => {
+          mobileNav.classList.toggle("show");
+        });
+      }
     </script>
   </body>
 </html>
