@@ -160,7 +160,16 @@ function extractData(res) {
 function extractMessage(res) {
     if (res.data && res.data.message) return res.data.message;
     if (res.data && res.data.error) return res.data.error; // Legacy fallback
-    return "An unknown error occurred.";
+    
+    // Handle cases where the backend returned HTML (e.g. 502 Bad Gateway) and JSON parsing failed
+    if (res.status === 502) return "Backend is currently waking up (502). Please wait 30 seconds and try again.";
+    if (res.status === 503) return "Service temporarily unavailable (503).";
+    if (res.status === 504) return "Gateway timeout (504). The server took too long to respond.";
+    if (res.status === 500) return "Internal Server Error (500).";
+    if (res.status === 404) return "API Endpoint not found (404). Check backend URL.";
+    if (res.status === 0)   return "Network Error or CORS issue block.";
+    
+    return `An unknown error occurred (Status: ${res.status || 'unknown'}).`;
 }
 
 // ── Fetch wrappers with Automatic Refresh ────────────────
