@@ -20,7 +20,8 @@ class Config:
     NODE_ENV = os.getenv("NODE_ENV", "development")
 
     # ── DATABASE ──────────────────────────────
-    DB_NAME = os.getenv("DB_NAME", "kavachnet.db")
+    _raw_db = os.getenv("DB_NAME", "kavachnet.db")
+    DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), _raw_db)) if not os.path.isabs(_raw_db) else _raw_db
     DATABASE_URL = os.getenv("DATABASE_URL")
 
     # ── REDIS (Production State) ──────────────
