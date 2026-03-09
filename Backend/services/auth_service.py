@@ -30,9 +30,10 @@ class AuthService:
     def _verify_otp(self, username, otp_input):
         key = f"otp:{username}"
         stored_otp = state_store.get(key)
+        print(f"[DEBUG OTP] Username: {username} | Stored: {repr(stored_otp)} | Input: {repr(otp_input)}", flush=True)
         if not stored_otp:
             return False, "OTP invalid or expired."
-        if stored_otp != otp_input:
+        if str(stored_otp).strip() != str(otp_input).strip():
             return False, "Wrong OTP."
         state_store.delete(key)
         return True, None
