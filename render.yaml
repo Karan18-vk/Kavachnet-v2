@@ -29,3 +29,12 @@ services:
         value: smtp.gmail.com
       - key: SMTP_PORT
         value: "587"
+      - key: ALLOWED_ORIGINS
+        value: "https://kavachnet-frontend.onrender.com" # **REPLACE THIS WITH YOUR ACTUAL RENDER FRONTEND URL**
+
+  - type: web
+    name: kavachnet-frontend
+    env: static
+    rootDir: Frontend
+    buildCommand: ""
+    publishPath: .
