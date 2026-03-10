@@ -33,9 +33,17 @@ def create_app():
     # 1. CORE PLUGINS
     jwt = JWTManager(app)
     
-    # Strict CORS
+    # Permissive CORS for Debugging/Local Access
     allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
-    CORS(app, resources={r"/api/*": {"origins": allowed_origins}}, supports_credentials=True)
+    app_logger.info(f"[BOOT] Allowed Origins: {allowed_origins}")
+    app_logger.info(f"[BOOT] Node Env: {Config.NODE_ENV}")
+    
+    CORS(app, resources={r"/api/*": {
+        "origins": allowed_origins,
+        "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
+        "supports_credentials": True
+    }})
     
     # Global Rate Limiting (Redis-backed for production multi-worker sets)
     redis_available = False
@@ -124,15 +132,15 @@ def create_app():
         response.headers['X-XSS-Protection'] = '1; mode=block'
         response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
         response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
-        # Strict CSP — connect-src uses ALLOWED_ORIGINS from env
-        connect_sources = " ".join(allowed_origins)
+        # Relaxed CSP for debugging connection issues
+        # connect-src allows 'self' and * to bypass mysterious S3 overrides
         response.headers['Content-Security-Policy'] = (
             "default-src 'self'; "
             "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; "
             "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net fonts.googleapis.com; "
             "font-src 'self' fonts.gstatic.com cdn.jsdelivr.net; "
             "img-src 'self' data: images.unsplash.com; "
-            f"connect-src 'self' {connect_sources};"
+            "connect-src 'self' *;"
         )
         return response
 
