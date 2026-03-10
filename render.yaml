@@ -34,7 +34,7 @@ services:
       - key: SMTP_PORT
         value: "587"
       - key: ALLOWED_ORIGINS
-        value: "https://kavachnet-frontend.onrender.com" # **REPLACE THIS WITH YOUR ACTUAL RENDER FRONTEND URL**
+        value: "https://kavachnet-frontend.onrender.com"
 
   - type: web
     name: kavachnet-frontend
