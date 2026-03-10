@@ -25,6 +25,8 @@ services:
         sync: false
       - key: EMAIL_PASSWORD
         sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
       - key: SMTP_SERVER
         value: smtp.gmail.com
       - key: SMTP_PORT
