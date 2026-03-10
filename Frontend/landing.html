@@ -362,7 +362,41 @@
       </footer>
     </div>
 
+    <!-- CHATBOT WIDGET -->
+    <div class="chatbot-toggle" id="chatbotToggle">
+      <i class="bi bi-chat-dots-fill"></i>
+    </div>
+
+    <div class="chatbot-window" id="chatbotWindow">
+      <div class="chatbot-header">
+        <div class="chatbot-title">
+          <i class="bi bi-robot"></i> KavachNet AI
+        </div>
+        <div class="chatbot-close" id="chatbotClose">
+          <i class="bi bi-x-lg"></i>
+        </div>
+      </div>
+      <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chat-msg ai">
+          Hello! I am the KavachNet Assistant. How can I help you secure your
+          enterprise today?
+        </div>
+      </div>
+      <div class="chatbot-input-area">
+        <input
+          type="text"
+          id="chatbotInput"
+          class="chatbot-input"
+          placeholder="Ask me anything..."
+        />
+        <button id="chatbotSend" class="chatbot-send">
+          <i class="bi bi-send-fill"></i>
+        </button>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="config.js"></script>
 
     <!-- PREMIUM INTERACTIVITY SCRIPTS -->
     <script>
@@ -435,6 +469,98 @@
           mobileNav.classList.toggle("show");
         });
       }
+
+      // 6. CHATBOT LOGIC
+      const chatbotToggle = document.getElementById("chatbotToggle");
+      const chatbotWindow = document.getElementById("chatbotWindow");
+      const chatbotClose = document.getElementById("chatbotClose");
+      const chatbotInput = document.getElementById("chatbotInput");
+      const chatbotSend = document.getElementById("chatbotSend");
+      const chatbotMessages = document.getElementById("chatbotMessages");
+
+      let chatHistory = [];
+
+      chatbotToggle.addEventListener("click", () => {
+        chatbotWindow.classList.add("active");
+        chatbotInput.focus();
+      });
+
+      chatbotClose.addEventListener("click", () => {
+        chatbotWindow.classList.remove("active");
+      });
+
+      function addMessageToUI(sender, text) {
+        const msgDiv = document.createElement("div");
+        msgDiv.className = `chat-msg ${sender}`;
+        msgDiv.textContent = text;
+        chatbotMessages.appendChild(msgDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      }
+
+      function showTyping() {
+        const typingDiv = document.createElement("div");
+        typingDiv.className = "typing-indicator";
+        typingDiv.id = "typingIndicator";
+        typingDiv.innerHTML =
+          '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+        chatbotMessages.appendChild(typingDiv);
+        chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+      }
+
+      function hideTyping() {
+        const indicator = document.getElementById("typingIndicator");
+        if (indicator) indicator.remove();
+      }
+
+      async function sendMessage() {
+        const text = chatbotInput.value.trim();
+        if (!text) return;
+
+        addMessageToUI("user", text);
+        chatbotInput.value = "";
+
+        showTyping();
+
+        try {
+          const baseUrl = window.BACKEND_URL || "http://localhost:5000";
+          const res = await fetch(baseUrl + "/api/v1/chat/ask", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text, history: chatHistory }),
+          });
+
+          hideTyping();
+
+          if (!res.ok) {
+            throw new Error("API Error");
+          }
+
+          const data = await res.json();
+          const reply =
+            data.data && data.data.reply
+              ? data.data.reply
+              : "Sorry, I am experiencing an issue processing that response.";
+
+          chatHistory.push({ role: "user", content: text });
+          chatHistory.push({ role: "assistant", content: reply });
+
+          if (chatHistory.length > 10)
+            chatHistory = chatHistory.slice(chatHistory.length - 10);
+
+          addMessageToUI("ai", reply);
+        } catch (error) {
+          hideTyping();
+          addMessageToUI(
+            "ai",
+            "I am currently not connected to the secure network. Please try again later.",
+          );
+        }
+      }
+
+      chatbotSend.addEventListener("click", sendMessage);
+      chatbotInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+      });
     </script>
   </body>
 </html>
