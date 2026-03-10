@@ -17,7 +17,6 @@ from routes.threat_routes import threat_bp
 from routes.incident_routes import incident_bp
 from routes.admin_routes import admin_bp
 from routes.chat_routes import chat_bp
-from routes.chat_routes import chat_bp
 
 def create_app():
     app = Flask(__name__)
@@ -68,7 +67,6 @@ def create_app():
     app.register_blueprint(threat_bp, url_prefix='/api/v1/threats')
     app.register_blueprint(incident_bp, url_prefix='/api/v1/incidents')
     app.register_blueprint(admin_bp, url_prefix='/api/v1/admin')
-    app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
     app.register_blueprint(chat_bp, url_prefix='/api/v1/chat')
 
     # 4. HEALTH CHECK & MONITORING
