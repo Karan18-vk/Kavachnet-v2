@@ -27,6 +27,8 @@ services:
         sync: false
       - key: GOOGLE_API_KEY
         sync: false
+      - key: EMAIL_DRY_RUN
+        value: "True"
       - key: SMTP_SERVER
         value: smtp.gmail.com
       - key: SMTP_PORT
