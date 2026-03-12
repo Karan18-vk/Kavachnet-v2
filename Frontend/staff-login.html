@@ -562,40 +562,21 @@
 
             (async () => {
                 try {
-                    if (loginStep === 1) {
-                        const res = await apiPost('/auth/login/step1', { username: id, password: pass });
-                        btn.classList.remove('loading');
-                        btn.disabled = false;
+                    const res = await apiPost('/auth/login/step1', { username: id, password: pass });
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
 
-                        if (res.ok) {
-                            staffUsername = id;
-                            loginStep = 2;
-                            showOtpField();
-                            showAlert('Credentials verified. Enter the OTP sent to your email.', 'success');
-                            btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-key me-1"></i> Verify OTP';
-                        } else {
-                            showAlert(extractMessage(res));
-                        }
+                    if (res.ok) {
+                        const d = extractData(res);
+                        saveToken(d.access_token);
+                        saveRefreshToken(d.refresh_token);
+                        saveSession({ username: id, role: d.role || 'staff', institution_code: d.institution_code || null });
+                        showAlert('Login successful! Redirecting…', 'success');
+                        btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';
+                        btn.style.background = 'linear-gradient(135deg,#15803d,#166534)';
+                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
                     } else {
-                        const otp = document.getElementById('otpInput')?.value.trim();
-                        if (!otp) { showAlert('Please enter the OTP.'); btn.classList.remove('loading'); btn.disabled = false; return; }
-
-                        const res = await apiPost('/auth/login/step2', { username: staffUsername, otp });
-                        btn.classList.remove('loading');
-                        btn.disabled = false;
-
-                        if (res.ok) {
-                            const d = extractData(res);
-                            saveToken(d.access_token);
-                            saveRefreshToken(d.refresh_token);
-                            saveSession({ username: staffUsername, role: d.role || 'staff', institution_code: d.institution_code || null });
-                            showAlert('Login successful! Redirecting…', 'success');
-                            btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';
-                            btn.style.background = 'linear-gradient(135deg,#15803d,#166534)';
-                            setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
-                        } else {
-                            showAlert(extractMessage(res));
-                        }
+                        showAlert(extractMessage(res));
                     }
                 } catch (err) {
                     btn.classList.remove('loading');

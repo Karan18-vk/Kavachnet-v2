@@ -79,7 +79,7 @@ def create_app():
 
     # 4. HEALTH CHECK & MONITORING
     from utils.response import api_response
-    @app.route("/health", methods=["GET"])
+    @app.route("/api/v1/health", methods=["GET"])
     def health_check():
         try:
             queue_status = "Active" if email_worker.thread and email_worker.thread.is_alive() else "Offline"

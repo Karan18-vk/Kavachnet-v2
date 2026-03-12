@@ -593,38 +593,22 @@
 
         (async () => {
           try {
-            if (step === 1) {
-              // Step 1 — verify username + password
-              const res = await apiPost('/auth/login/step1', { username, password: pass });
-              btn.classList.remove("loading");
-              btn.disabled = false;
+            // Step 1 — verify username + password
+            const res = await apiPost('/auth/login/step1', { username, password: pass });
+            btn.classList.remove("loading");
+            btn.disabled = false;
 
-              if (res.ok) {
-                step = 2;
-                mfaSec.classList.add("show");
-                showAlert("Credentials verified. Enter your OTP to continue.", "success");
-                btn.querySelector(".btn-text").innerHTML = '<i class="bi bi-key me-1"></i> Verify OTP';
-              } else {
-                showAlert(extractMessage(res));
-              }
+            if (res.ok) {
+              const d = extractData(res);
+              saveToken(d.access_token);
+              saveRefreshToken(d.refresh_token);
+              saveSession({ username, role: d.role || 'admin', institution_code: d.institution_code || null });
+              showAlert("Login successful! Redirecting…", "success");
+              btn.querySelector(".btn-text").innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';
+              btn.style.background = "linear-gradient(135deg,#15803d,#166534)";
+              setTimeout(() => { window.location.href = "dashboard.html"; }, 900);
             } else {
-              // Step 2 — verify OTP
-              const res = await apiPost('/auth/login/step2', { username, otp });
-              btn.classList.remove("loading");
-              btn.disabled = false;
-
-              if (res.ok) {
-                const d = extractData(res);
-                saveToken(d.access_token);
-                saveRefreshToken(d.refresh_token);
-                saveSession({ username, role: d.role || 'admin', institution_code: d.institution_code || null });
-                showAlert("Authentication successful! Redirecting…", "success");
-                btn.querySelector(".btn-text").innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';
-                btn.style.background = "linear-gradient(135deg,#15803d,#166534)";
-                setTimeout(() => { window.location.href = "dashboard.html"; }, 900);
-              } else {
-                showAlert(extractMessage(res));
-              }
+              showAlert(extractMessage(res));
             }
           } catch (err) {
             btn.classList.remove("loading");

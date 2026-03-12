@@ -127,14 +127,29 @@ class AuthService:
         if user['status'] != 'approved':
             return api_error(f"Account {user['status']}.", code=403)
 
-        otp = self._generate_otp()
-        self._store_otp(username, otp)
-        
-        if send_otp_task(username, user['email'], otp):
-            self.db.save_audit_log(username, "LOGIN_STEP1_OTP_DISPATCHED", "user", username)
-            app_logger.info(f"OTP for {username} dispatched successfully.")
-            return api_response(message="OTP sent.", code=200)
-        return api_error("Failed to send OTP. Please try again later.", code=500)
+        # OTP Removal: Generate tokens directly
+        ua = request.headers.get('User-Agent', 'unknown')[:100]
+        access_token = create_access_token(
+            identity=username,
+            additional_claims={
+                "role": user['role'],
+                "institution_code": user.get('institution_code'),
+                "fingerprint": ua
+            }
+        )
+        refresh_token = create_refresh_token(identity=username)
+
+        self.db.save_audit_log(username, "LOGIN_SUCCESS_BYPASS_OTP", "user", username)
+        self.db.log_login(username, "SUCCESS")
+        self.db.clear_lockout(username)
+        security_logger.info(f"User login successful (OTP bypassed): {username}")
+
+        return api_response(message="Login successful", data={
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "role": user['role'],
+            "institution_code": user.get('institution_code')
+        }, code=200)
 
     def login_step2(self, data):
         username = data.get('username')

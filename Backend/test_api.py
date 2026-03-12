@@ -3,7 +3,7 @@
 import requests
 import json
 
-BASE_URL = "http://localhost:5000"
+BASE_URL = "http://localhost:5000/api/v1"
 
 # Color codes for terminal
 GREEN = "\033[92m"
@@ -13,7 +13,7 @@ RESET = "\033[0m"
 
 def test_health():
     print(f"\n{BLUE}TEST 1: Health Check{RESET}")
-    response = requests.get(f"{BASE_URL}")
+    response = requests.get(f"{BASE_URL}/health")
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
     return response.status_code == 200
@@ -26,7 +26,7 @@ def test_register():
         "email": "thankssubscribe385@gmail.com",
         "institution_code": "KAVACH2026"
     }
-    response = requests.post(f"{BASE_URL}/api/register/staff", json=data)
+    response = requests.post(f"{BASE_URL}/auth/register/staff", json=data)
     print(f"Status: {response.status_code}")
     print(f"Response: {response.json()}")
     return response.status_code in [201, 409]
@@ -140,26 +140,26 @@ def main():
     # Test 2: Register
     test_register()
     
-    # Test 3: Login Step 1
-    if not test_login_step1():
-        print(f"{RED}[ERROR] Login failed{RESET}")
-        return
+    # Test 3: Login (OTP Bypassed)
+    print(f"\n{BLUE}TEST 3: Login (OTP Bypassed){RESET}")
+    data = {
+        "username": "sentinel_admin",
+        "password": "DemoAdmin123!"
+    }
+    response = requests.post(f"{BASE_URL}/auth/login/step1", json=data)
+    print(f"Status: {response.status_code}")
+    result = response.json()
+    print(f"Response: {result}")
     
-    # Wait for user to enter OTP
-    # Attempt to fetch OTP automatically
-    print(f"\n{BLUE}DEBUG: Fetching OTP automatically...{RESET}")
-    otp_response = requests.get(f"{BASE_URL}/api/debug/otp/sentinel_admin")
-    if otp_response.status_code == 200:
-        otp = otp_response.json().get("otp")
-        print(f"{GREEN}[OK] OTP Fetched: {otp}{RESET}")
+    if response.status_code == 200:
+        token = result.get("data", {}).get("access_token")
+        if token:
+            print(f"\n{GREEN}[OK] TOKEN RECEIVED!{RESET}")
+        else:
+            print(f"{RED}[ERROR] Token not found in response{RESET}")
+            return
     else:
-        # Fallback to manual input
-        otp = input(f"\n{GREEN}Enter the OTP from your email: {RESET}")
-    
-    # Test 4: Login Step 2
-    token = test_login_step2(otp)
-    if not token:
-        print(f"{RED}[ERROR] OTP verification failed{RESET}")
+        print(f"{RED}[ERROR] Login failed{RESET}")
         return
     
     # Test 5-7: Encryption
