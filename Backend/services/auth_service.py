@@ -84,11 +84,12 @@ class AuthService:
             return api_error("Username taken.", code=409)
 
         hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
-        if self.db.save_user(username, hashed, email, role='admin', institution_code=institution_code, status='approved'):
+        ok, err = self.db.save_user(username, hashed, email, role='admin', institution_code=institution_code, status='approved')
+        if ok:
             self.db.save_audit_log(username, "REGISTER_ADMIN_SUCCESS", "institution", institution_code)
             app_logger.info(f"New administrator registered: {username}")
             return api_response(message="Admin registered successfully.", code=201)
-        return api_error("Registration failed.", code=500)
+        return api_error(err or "Registration failed.", code=500)
 
     def login_step1(self, data):
         username = data.get('username')
@@ -202,11 +203,12 @@ class AuthService:
 
         hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
         # Staff always starts as 'pending'
-        if self.db.save_user(username, hashed, email, role='staff', institution_code=institution_code, status='pending'):
+        ok, err = self.db.save_user(username, hashed, email, role='staff', institution_code=institution_code, status='pending')
+        if ok:
             self.db.save_audit_log(username, "REGISTER_STAFF_REQUEST", "user", username)
             app_logger.info(f"New staff registration request: {username}")
             return api_response(message="Staff registration request submitted successfully. Awaiting approval.", code=201)
-        return api_error("Registration failed.", code=500)
+        return api_error(err or "Registration failed.", code=500)
 
     def get_current_user_info(self, username, db):
         user = db.get_user(username)

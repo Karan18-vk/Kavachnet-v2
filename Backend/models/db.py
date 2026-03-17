@@ -214,6 +214,9 @@ class Database:
 
     # ── INSTITUTIONS ──────────────────────────
     def register_institution(self, name, email, contact_person, phone=""):
+        if not all([name, email, contact_person]):
+            return False, "Required fields missing."
+            
         conn = self._connect()
         try:
             conn.execute(
@@ -224,6 +227,10 @@ class Database:
             return True, None
         except DBIntegrityError:
             return False, "This institution email is already registered."
+        except Exception as e:
+            from utils.logger import app_logger
+            app_logger.error(f"[DB] Institution registration failed: {str(e)}")
+            return False, f"Internal database error: {str(e)}"
         finally:
             conn.close()
 
@@ -327,9 +334,11 @@ class Database:
                 (str(uuid.uuid4()), username, hashed_password, email, role, institution_code, status, datetime.datetime.now().isoformat())
             )
             conn.commit()
-            return True
+            return True, None
         except DBIntegrityError:
             return False, "Username already exists."
+        except Exception as e:
+            return False, str(e)
         finally:
             conn.close()
 
@@ -423,7 +432,17 @@ class Database:
     def save_incident(self, incident: dict, institution_code=None):
         import datetime
         from flask import request
+        from utils.logger import security_logger
         
+        # Validation
+        itype = incident.get("type", "UNKNOWN")
+        severity = incident.get("severity", "LOW")
+        message = incident.get("message", "No message provided")
+        
+        if not any([itype, severity, message]):
+             security_logger.error("[DB] Attempted to save empty incident.")
+             return False
+             
         # Ultra Security: Capture IP and UA if in request context
         ip = "system"
         ua = "system"
@@ -436,13 +455,18 @@ class Database:
         forensics = f"IP: {ip} | UA: {ua}"
         
         conn = self._connect()
-        conn.execute(
-            "INSERT INTO incidents (id, type, severity, message, status, timestamp, institution_code, forensics) VALUES (?,?,?,?,?,?,?,?)",
-            (str(uuid.uuid4()), incident.get("type","UNKNOWN"), incident.get("severity","LOW"),
-             incident.get("message",""), "OPEN", datetime.datetime.now().isoformat(), institution_code, forensics)
-        )
-        conn.commit()
-        conn.close()
+        try:
+            conn.execute(
+                "INSERT INTO incidents (id, type, severity, message, status, timestamp, institution_code, forensics) VALUES (?,?,?,?,?,?,?,?)",
+                (str(uuid.uuid4()), itype, severity, message, "OPEN", datetime.datetime.now().isoformat(), institution_code, forensics)
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            security_logger.error(f"[DB] Incident storage failed: {str(e)}")
+            return False
+        finally:
+            conn.close()
 
     def get_all_incidents(self, institution_code=None):
         conn = self._connect()
