@@ -5,7 +5,7 @@
 
 const API_BASE = (() => {
     // Priority 1: Explicit backend URL set via config.js or inline script
-    if (window.BACKEND_URL) return window.BACKEND_URL + '/api/v1';
+   return 'https://kavachnet-backend.onrender.com/api';
     
     // Priority 2: Local development
     const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
@@ -16,7 +16,7 @@ const API_BASE = (() => {
     // Priority 3: Production — Backend URL MUST be configured
     console.error("[CRITICAL] BACKEND_URL not configured. Set window.BACKEND_URL in config.js before deploying.");
     // Attempt same-origin fallback (useful if behind a reverse proxy)
-    return window.location.origin + '/api/v1';
+    return window.location.origin + '/api';
 })();
 
 console.log("[KavachNet] API Base:", API_BASE);
