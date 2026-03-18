@@ -26,7 +26,7 @@ def _save(scan_type, input_data, result, user):
 @token_required
 def scan_url():
     data = request.get_json() or {}
-    url  = data.get("url","").strip()
+    url = (data.get("url") or data.get("target") or data.get("link") or data.get("query") or "").strip()
     if not url: return jsonify({"error":"URL required"}), 400
     result = analyze_url(url); _save("url", url, result, request.current_user)
     return jsonify({"result":result.to_dict()}), 200
