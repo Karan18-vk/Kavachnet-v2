@@ -461,17 +461,17 @@
           </div>
 
           <form id="loginForm" novalidate>
-            <!-- Email -->
+            <!-- Username -->
             <div class="auth-form-group">
               <input
-                type="email"
-                id="emailInput"
-                placeholder="Admin email"
-                autocomplete="email"
+                type="text"
+                id="usernameInput"
+                placeholder="Admin username"
+                autocomplete="username"
                 required
               />
-              <label for="emailInput">Admin email</label>
-              <span class="auth-input-icon"><i class="bi bi-envelope"></i></span>
+              <label for="usernameInput">Admin username</label>
+              <span class="auth-input-icon"><i class="bi bi-person-fill"></i></span>
             </div>
 
             <!-- Password -->
@@ -587,7 +587,7 @@
         btn.classList.add("loading");
         btn.disabled = true;
 
-        const username = document.getElementById("emailInput").value.trim();
+        const username = document.getElementById("usernameInput").value.trim();
         const pass = document.getElementById("passwordInput").value;
         const otp = document.getElementById("mfaInput")?.value.trim();
 

@@ -433,11 +433,11 @@
 
                 <form id="loginForm" novalidate>
 
-                    <!-- Staff ID -->
+                    <!-- Staff Username -->
                     <div class="auth-form-group">
-                        <input type="text" id="staffIdInput" placeholder="Staff ID" autocomplete="username" required>
-                        <label for="staffIdInput">Staff ID</label>
-                        <span class="auth-input-icon"><i class="bi bi-person-badge"></i></span>
+                        <input type="text" id="usernameInput" placeholder="Staff username" autocomplete="username" required>
+                        <label for="usernameInput">Staff username</label>
+                        <span class="auth-input-icon"><i class="bi bi-person-fill"></i></span>
                     </div>
 
                     <!-- Department -->
@@ -546,7 +546,7 @@
             e.preventDefault();
             alertBar.className = 'alert-bar';
 
-            const id = document.getElementById('staffIdInput').value.trim();
+            const id = document.getElementById('usernameInput').value.trim();
             const pass = document.getElementById('passwordInput').value;
             const dep = dept.value;
 
