@@ -1,42 +1,8 @@
-
-# requirements.txt
-
-# Core Flask
-Flask==3.0.0
-flask-cors==4.0.0
-flask-jwt-extended==4.6.0
-
-# Security & Authentication
-bcrypt==4.1.2
-cryptography==42.0.0
-Flask-Limiter==3.7.0
-
-# Database
+flask==3.0.3
+flask-cors==4.0.1
+flask-sqlalchemy==3.1.1
+PyJWT==2.8.0
 psycopg2-binary==2.9.9
-# SQLite is built into Python, no package needed
+gunicorn==22.0.0
 
-# Machine Learning
-scikit-learn==1.4.0
-numpy==1.26.3
 
-# HTTP Requests
-requests==2.31.0
-
-# PDF Generation
-reportlab==4.0.9
-
-# Environment Variables
-python-dotenv==1.0.0
-gunicorn==21.2.0
-redis==5.0.1
-hiredis==2.3.2
-
-# Email Threat Detection (lightweight deps)
-tldextract>=5.0.0
-validators>=0.22.0
-dnspython>=2.4.0
-python-whois>=0.8.0
-pyyaml>=6.0.1
-tqdm>=4.66.0
-colorama>=0.4.6
-aiohttp>=3.9.0
