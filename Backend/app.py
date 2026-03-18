@@ -33,8 +33,8 @@ def create_app():
     # 1. CORE PLUGINS
     jwt = JWTManager(app)
     
-    # Permissive CORS for Debugging/Local Access
-    allowed_origins = os.getenv("ALLOWED_ORIGINS", "*").split(",")
+    # CORS Configuration
+    allowed_origins = Config.ALLOWED_ORIGINS
     app_logger.info(f"[BOOT] Allowed Origins: {allowed_origins}")
     app_logger.info(f"[BOOT] Node Env: {Config.NODE_ENV}")
     
@@ -44,6 +44,7 @@ def create_app():
         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
         "supports_credentials": True
     }})
+
     
     # Global Rate Limiting (Redis-backed for production multi-worker sets)
     redis_available = False
@@ -62,12 +63,11 @@ def create_app():
         storage_uri=app.config.get("REDIS_URL") if redis_available else "memory://",
     )
 
-    # 2. MODELS & MIGRATIONS
+    # 2. MODELS & INITIALIZATION
     db = Database()
     
-    # Legacy Migration (Simplified)
-    from app_legacy_migration import run_migration
-    run_migration(db)
+    # (Migration logic previously here is now handled by Database auto-initialization)
+
 
     # 3. BLUEPRINTS (v1 Namespacing)
     app.register_blueprint(auth_bp, url_prefix='/api/v1/auth')

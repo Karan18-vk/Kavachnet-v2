@@ -1,12 +1,9 @@
 // ═══════════════════════════════════════════════════════
-//  KavachNet — Frontend Configuration
-//  Update this file before deploying to AWS S3
+//  KavachNet — Frontend Configuration (PRODUCTION ONLY)
 // ═══════════════════════════════════════════════════════
 
 // ── BACKEND URL Configuration ──────────────────────────
-// For local development, this can be left empty (api.js defaults to localhost:5000)
-// For production (AWS Elastic Beanstalk), set to your EB environment URL:
-//   Example: "https://kavachnet-backend.ap-south-1.elasticbeanstalk.com"
+// Hardcoded production URL for proper deployment on AWS S3 / Render.
+window.BACKEND_URL = "https://kavachnet-backend.onrender.com";
 
-window.BACKEND_URL = "http://localhost:5000";
 window.KAVACHNET_ENV = "production";

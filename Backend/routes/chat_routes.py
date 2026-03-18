@@ -6,7 +6,8 @@ from utils.logger import app_logger
 
 chat_bp = Blueprint('chat', __name__)
 
-OPENROUTER_API_KEY = os.getenv("GOOGLE_API_KEY") # User put it here in .env
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") # Renamed from GOOGLE_API_KEY for clarity
+
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 SYSTEM_PROMPT = """You are KavachNet Assistant, an AI expert focused on the KavachNet Security Operations Platform. 

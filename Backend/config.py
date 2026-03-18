@@ -28,6 +28,7 @@ class Config:
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
     # ── JWT SECURITY ──────────────────────────
+
     JWT_SECRET_KEY = get_env_or_fail("JWT_SECRET_KEY") or "jwt-super-secret-production-key"
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(os.getenv("JWT_ACCESS_EXPIRES_MIN", 15)))
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv("JWT_REFRESH_EXPIRES_DAYS", 7)))
@@ -60,7 +61,13 @@ class Config:
 
 
     # ── SECURITY HEADERS ──────────────────────
-    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
+    # In production, this should be set to your S3 bucket URL via environment variables
+    _raw_origins = os.getenv("ALLOWED_ORIGINS", "")
+    ALLOWED_ORIGINS = [o.strip() for o in _raw_origins.split(",") if o.strip()]
+
+
+
+
 
     # ── THREAT DETECTION ──────────────────────
     ANOMALY_CONTAMINATION = float(os.getenv("ANOMALY_CONTAMINATION", 0.1))

@@ -92,8 +92,9 @@ class Database:
     def _create_tables(self):
         conn = self._connect()
         cursor = conn.cursor()
-        cursor.executescript("""
-            CREATE TABLE IF NOT EXISTS institutions (
+        
+        tables = [
+            """CREATE TABLE IF NOT EXISTS institutions (
                 id TEXT PRIMARY KEY,
                 name TEXT NOT NULL,
                 email TEXT UNIQUE NOT NULL,
@@ -105,9 +106,8 @@ class Database:
                 created_at TEXT NOT NULL,
                 approved_at TEXT,
                 code_expires_at TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS users (
+            )""",
+            """CREATE TABLE IF NOT EXISTS users (
                 id TEXT PRIMARY KEY,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
@@ -117,23 +117,20 @@ class Database:
                 status TEXT DEFAULT 'pending',
                 created_at TEXT NOT NULL,
                 lockout_until TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS failed_attempts (
+            )""",
+            """CREATE TABLE IF NOT EXISTS failed_attempts (
                 id TEXT PRIMARY KEY,
                 username TEXT NOT NULL,
                 timestamp TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS login_logs (
+            )""",
+            """CREATE TABLE IF NOT EXISTS login_logs (
                 id TEXT PRIMARY KEY,
                 username TEXT NOT NULL,
                 status TEXT NOT NULL,
                 timestamp TEXT NOT NULL,
                 hour INTEGER NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS incidents (
+            )""",
+            """CREATE TABLE IF NOT EXISTS incidents (
                 id TEXT PRIMARY KEY,
                 type TEXT NOT NULL,
                 severity TEXT NOT NULL,
@@ -141,10 +138,9 @@ class Database:
                 status TEXT DEFAULT 'OPEN',
                 timestamp TEXT NOT NULL,
                 institution_code TEXT,
-                forensics TEXT -- Column for IP/UA
-            );
-
-            CREATE TABLE IF NOT EXISTS audit_logs (
+                forensics TEXT
+            )""",
+            """CREATE TABLE IF NOT EXISTS audit_logs (
                 id TEXT PRIMARY KEY,
                 username TEXT NOT NULL,
                 action TEXT NOT NULL,
@@ -152,20 +148,17 @@ class Database:
                 object_id TEXT,
                 timestamp TEXT NOT NULL,
                 forensics TEXT
-            );
-
-            CREATE TABLE IF NOT EXISTS institution_codes (
+            )""",
+            """CREATE TABLE IF NOT EXISTS institution_codes (
                 id TEXT PRIMARY KEY,
                 institution_id TEXT NOT NULL,
                 code_value TEXT NOT NULL UNIQUE,
                 generated_at TEXT NOT NULL,
                 expires_at TEXT NOT NULL,
                 status TEXT DEFAULT 'ACTIVE',
-                generated_by TEXT,
-                FOREIGN KEY(institution_id) REFERENCES institutions(id)
-            );
-
-            CREATE TABLE IF NOT EXISTS email_logs (
+                generated_by TEXT
+            )""",
+            """CREATE TABLE IF NOT EXISTS email_logs (
                 id TEXT PRIMARY KEY,
                 recipient TEXT NOT NULL,
                 type TEXT NOT NULL,
@@ -173,9 +166,8 @@ class Database:
                 attempts INTEGER DEFAULT 1,
                 last_error TEXT,
                 created_at TEXT NOT NULL
-            );
-
-            CREATE TABLE IF NOT EXISTS email_queue (
+            )""",
+            """CREATE TABLE IF NOT EXISTS email_queue (
                 id TEXT PRIMARY KEY,
                 recipient TEXT NOT NULL,
                 subject TEXT NOT NULL,
@@ -190,17 +182,28 @@ class Database:
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL,
                 next_retry_at TEXT NOT NULL
-            );
+            )"""
+        ]
+        
+        for table_sql in tables:
+            cursor.execute(table_sql)
             
-            -- Production Performance: Indexes
-            CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
-            CREATE INDEX IF NOT EXISTS idx_users_inst ON users(institution_code);
-            CREATE INDEX IF NOT EXISTS idx_incidents_inst ON incidents(institution_code);
-            CREATE INDEX IF NOT EXISTS idx_incidents_ts ON incidents(timestamp DESC);
-            CREATE INDEX IF NOT EXISTS idx_logs_username ON login_logs(username);
-            CREATE INDEX IF NOT EXISTS idx_audit_username ON audit_logs(username);
-            CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_logs(timestamp DESC);
-        """)
+        indexes = [
+            "CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)",
+            "CREATE INDEX IF NOT EXISTS idx_users_inst ON users(institution_code)",
+            "CREATE INDEX IF NOT EXISTS idx_incidents_inst ON incidents(institution_code)",
+            "CREATE INDEX IF NOT EXISTS idx_incidents_ts ON incidents(timestamp DESC)",
+            "CREATE INDEX IF NOT EXISTS idx_logs_username ON login_logs(username)",
+            "CREATE INDEX IF NOT EXISTS idx_audit_username ON audit_logs(username)",
+            "CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_logs(timestamp DESC)"
+        ]
+        
+        for index_sql in indexes:
+            try:
+                cursor.execute(index_sql)
+            except Exception:
+                pass # PostgreSQL might handle IF NOT EXISTS differently or index already exists
+
         
         # Gracefully upgrade existing DBs without recreating
         try:
@@ -528,7 +531,9 @@ class Database:
     def get_email_logs(self, limit: int = 100, log_type: str = None, status: str = None):
         """Fetches email logs for SuperAdmin observation with strict PII masking."""
         conn = self._connect()
-        conn.row_factory = sqlite3.Row
+        if not hasattr(conn, 'is_postgres'):
+            conn.row_factory = sqlite3.Row
+
         
         query = "SELECT * FROM email_logs"
         params = []
