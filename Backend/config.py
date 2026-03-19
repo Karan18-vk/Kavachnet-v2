@@ -23,6 +23,9 @@ class Config:
     _raw_db = os.getenv("DB_NAME", "kavachnet.db")
     DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), _raw_db)) if not os.path.isabs(_raw_db) else _raw_db
     DATABASE_URL = os.getenv("DATABASE_URL")
+    # Flask-SQLAlchemy requires SQLALCHEMY_DATABASE_URI
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or f"sqlite:///{os.path.abspath(os.path.join(os.path.dirname(__file__), _raw_db))}"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── REDIS (Production State) ──────────────
     REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
@@ -32,6 +35,7 @@ class Config:
     JWT_SECRET_KEY = get_env_or_fail("JWT_SECRET_KEY") or "jwt-super-secret-production-key"
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=int(os.getenv("JWT_ACCESS_EXPIRES_MIN", 15)))
     JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=int(os.getenv("JWT_REFRESH_EXPIRES_DAYS", 7)))
+    JWT_EXPIRY_HOURS = int(os.getenv("JWT_EXPIRY_HOURS", 24))  # For jwt_helper.py
     
     JWT_TOKEN_LOCATION = ["headers", "cookies"]
     JWT_COOKIE_SECURE = NODE_ENV == "production"
