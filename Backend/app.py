@@ -7,8 +7,8 @@ Deploy: push to GitHub, then connect to Render.com
 from flask import Flask
 from flask_cors import CORS
 from config import Config
-from routes.auth import auth_bp
-from routes.institution import institution_bp
+from routes.auth_routes import auth_bp
+from routes.institution_routes import institution_bp
 from routes.scanner import scanner_bp
 from routes.dashboard import dashboard_bp
 from routes.logs import logs_bp
