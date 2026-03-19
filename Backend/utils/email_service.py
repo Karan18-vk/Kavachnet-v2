@@ -1,73 +1,51 @@
-# Backend/utils/email_service.py
-
-import smtplib
-from email.mime.multipart import MIMEMultipart
+import smtplib, random, string
 from email.mime.text import MIMEText
-import time
-import os
-from config import Config
-from utils.logger import app_logger
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
+from flask import current_app
 
-# Determine if we should actually dispatch emails
-EMAIL_DRY_RUN = os.getenv("EMAIL_DRY_RUN", "False").lower() == "true"
+def generate_otp(length=6):
+    return "".join(random.choices(string.digits, k=length))
 
-def send_email_with_retry(to_email: str, subject: str, html_content: str, text_content: str = None, max_attempts: int = 3, backoff_base: int = 2):
-    """
-    Core resilient email dispatcher.
-    Handles SMTP connections, exponential backoff retries, and dry-run safety.
-    """
-    
-    if EMAIL_DRY_RUN:
-        app_logger.info(f"[[DRY RUN]] Email to {to_email} | Subject: {subject}")
-        app_logger.debug(f"[[DRY RUN]] Body snippet: {html_content[:100]}...")
-        # Simulate success for dry runs
-        return True, 1, None
-        
-    msg = MIMEMultipart('alternative')
-    msg['From'] = Config.EMAIL_ADDRESS
-    msg['To'] = to_email
-    msg['Subject'] = subject
-    
-    if text_content:
-        msg.attach(MIMEText(text_content, 'plain'))
-    if html_content:
-        msg.attach(MIMEText(html_content, 'html'))
-        
-    attempts = 0
-    last_error = None
-    
-    while attempts < max_attempts:
-        attempts += 1
-        try:
-            server = smtplib.SMTP(Config.SMTP_SERVER, Config.SMTP_PORT, timeout=10)
-            server.starttls()
-            server.login(Config.EMAIL_ADDRESS, Config.EMAIL_PASSWORD)
-            server.sendmail(Config.EMAIL_ADDRESS, to_email, msg.as_string())
-            server.quit()
-            
-            app_logger.info(f"Successfully dispatched email to {to_email} (Attempt {attempts})")
-            return True, attempts, None
-            
-        except smtplib.SMTPAuthenticationError as e:
-            # Permanent failure: Do not retry
-            last_error = f"AuthError: {str(e)}"
-            app_logger.error(f"Permanent SMTP Auth Failure for {to_email}: {last_error}")
-            break
-            
-        except smtplib.SMTPRecipientsRefused as e:
-            # Permanent failure: Invalid recipient
-            last_error = f"RecipientRefused: {str(e)}"
-            app_logger.error(f"Recipient Refused for {to_email}: {last_error}")
-            break
-            
-        except Exception as e:
-            # Transient failure: Timeout, connection drop, etc.
-            last_error = str(e)
-            app_logger.warning(f"Transient SMTP failure for {to_email} (Attempt {attempts}/{max_attempts}): {last_error}")
-            
-            if attempts < max_attempts:
-                sleep_time = backoff_base ** attempts
-                time.sleep(sleep_time)
-                
-    app_logger.error(f"Final email dispatch failure to {to_email} after {attempts} attempts. Last Error: {last_error}")
-    return False, attempts, last_error
+def send_otp_email(to_email, otp_code, user_name=""):
+    username = current_app.config.get("MAIL_USERNAME","")
+    password = current_app.config.get("MAIL_PASSWORD","")
+    if not username or not password:
+        print(f"\n[DEV MODE] OTP for {to_email}: {otp_code}\n")
+        return True
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = "KavachNet — Your Login OTP"
+    msg["From"]    = current_app.config.get("MAIL_FROM", username)
+    msg["To"]      = to_email
+    body = f"""<html><body style="font-family:sans-serif;background:#0a0f1e;color:#e2e8f0;padding:40px;">
+    <div style="max-width:480px;margin:auto;background:#0d1628;border:1px solid #1e3a5f;border-radius:12px;padding:32px;">
+    <h2 style="color:#38bdf8;">KavachNet Security</h2>
+    <p>Hello {user_name}, your OTP:</p>
+    <div style="background:#1e293b;border:2px solid #3b82f6;border-radius:8px;text-align:center;
+                padding:20px;letter-spacing:12px;font-size:32px;font-weight:bold;color:#38bdf8;margin:24px 0;">
+    {otp_code}</div>
+    <p style="color:#64748b;font-size:13px;">Expires in {current_app.config.get("OTP_EXPIRY_MINUTES",10)} minutes.</p>
+    </div></body></html>"""
+    msg.attach(MIMEText(body,"html"))
+    try:
+        with smtplib.SMTP(current_app.config["MAIL_SERVER"], current_app.config["MAIL_PORT"]) as s:
+            s.ehlo(); s.starttls(); s.login(username, password)
+            s.sendmail(username, to_email, msg.as_string())
+        return True
+    except Exception as e:
+        print(f"[Email Error] {e}"); return False
+
+def store_otp(email, otp):
+    from database import db
+    from models.user import OTPRecord
+    OTPRecord.query.filter_by(email=email, used=False).delete()
+    expiry = datetime.utcnow() + timedelta(minutes=current_app.config.get("OTP_EXPIRY_MINUTES",10))
+    db.session.add(OTPRecord(email=email, otp_code=otp, expires_at=expiry))
+    db.session.commit()
+
+def verify_otp(email, otp):
+    from database import db
+    from models.user import OTPRecord
+    record = OTPRecord.query.filter_by(email=email, otp_code=otp, used=False)                            .order_by(OTPRecord.created_at.desc()).first()
+    if not record or datetime.utcnow() > record.expires_at: return False
+    record.used = True; db.session.commit(); return True

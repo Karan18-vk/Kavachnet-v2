@@ -4,12 +4,20 @@
 // ═══════════════════════════════════════════════════════
 
 const API_BASE = (() => {
-    // Backend URL MUST be configured in config.js
-    if (window.BACKEND_URL) return window.BACKEND_URL + '/api/v1';
+    // Priority 1: Explicit backend URL set via config.js or inline script
+    if (window.BACKEND_URL) return window.BACKEND_URL + (window.BACKEND_URL.endsWith('/api/v1') ? '' : '/api/v1');
     
-    console.error("[CRITICAL] BACKEND_URL not configured. Set window.BACKEND_URL in config.js.");
-    // No fallback to localhost for production-hardened builds
-    return '/api/v1'; 
+    // Priority 2: Remote production fallback (from remote branch)
+    const RENDER_URL = 'https://kavachnet-backend.onrender.com/api';
+    
+    // Priority 3: Local development fallback
+    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (isLocal) {
+        return 'http://localhost:5000/api/v1';
+    }
+
+    console.warn("[KavachNet] Using fallback Render URL. Ensure BACKEND_URL is set in config.js for custom instances.");
+    return RENDER_URL;
 })();
 
 
