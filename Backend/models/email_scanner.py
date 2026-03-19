@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import List
 from models.phishing_detector import analyze_url
 
-URL_REGEX = re.compile(r"https?://[^\s<>"')+\]]+", re.IGNORECASE)
+URL_REGEX = re.compile(r'https?://[^\s<>"\')+\]]+', re.IGNORECASE)
 SUSPICIOUS_SUBJECTS = ["urgent","action required","verify your","confirm your","suspended",
     "locked","unusual activity","immediate","final notice","winner","congratulations",
     "limited time","claim your","free gift","click below","reset your password"]
