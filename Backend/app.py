@@ -18,16 +18,18 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    print("[BOOT] Starting KavachNet Backend...")
     # Validate email config at startup
     try:
-        from config import Config
         Config.validate_email_config()
+        print("[BOOT] Email config validated.")
     except Exception as e:
         print(f"[BOOT] Email config validation: {e}")
 
     # 1. CORE PLUGINS
     from flask_jwt_extended import JWTManager
     jwt = JWTManager(app)
+    print("[BOOT] JWT Manager initialized.")
     
     # CORS Configuration - Merged
     CORS(app, resources={r"/api/*": {
@@ -41,6 +43,7 @@ def create_app():
         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
         "supports_credentials": True
     }})
+    print("[BOOT] CORS configured.")
 
     # 2. RATE LIMITING (from local v4.1)
     try:
@@ -52,6 +55,7 @@ def create_app():
             default_limits=["2000 per day", "100 per hour"],
             storage_uri=app.config.get("REDIS_URL") or "memory://",
         )
+        print("[BOOT] Rate Limiter initialized.")
     except ImportError:
         print("[BOOT] Flask-Limiter not installed, skipping rate limiting.")
 
@@ -65,8 +69,9 @@ def create_app():
         app.register_blueprint(scanner_bp,     url_prefix='/api/v1/scan')
         app.register_blueprint(dashboard_bp,   url_prefix='/api/v1/dashboard')
         app.register_blueprint(logs_bp,        url_prefix='/api/v1/logs')
-    except NameError:
-        print("[BOOT] Some remote blueprints not found in local imports.")
+        print("[BOOT] Standard blueprints registered.")
+    except NameError as e:
+        print(f"[BOOT] Blueprint registration error: {e}")
 
     # Local advanced features
     try:
@@ -78,8 +83,9 @@ def create_app():
         app.register_blueprint(incident_bp,    url_prefix='/api/v1/incidents')
         app.register_blueprint(admin_bp,       url_prefix='/api/v1/admin')
         app.register_blueprint(chat_bp,        url_prefix='/api/v1/chat')
-    except ImportError:
-        pass
+        print("[BOOT] Advanced blueprints registered.")
+    except ImportError as e:
+        print(f"[BOOT] Advanced blueprints skipped: {e}")
 
     # 4. HEALTH CHECK
     @app.route("/api/v1/health")
@@ -90,11 +96,18 @@ def create_app():
             "mode": app.config.get("NODE_ENV", "development")
         }, 200
 
+    print("[BOOT] Initializing Database...")
     db.init_app(app)
     with app.app_context():
-        db.create_all()
-        _seed_demo_data()
+        try:
+            db.create_all()
+            print("[BOOT] Database tables created/verified.")
+            _seed_demo_data()
+            print("[BOOT] Demo data seeded.")
+        except Exception as e:
+            print(f"[BOOT] Database initialization error: {e}")
 
+    print("[BOOT] Application Ready.")
     return app
 
     return app
