@@ -11,12 +11,18 @@ def setup_logger(name, log_file, level=logging.INFO):
         
     formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
     
-    handler = RotatingFileHandler(f'logs/{log_file}', maxBytes=10000000, backupCount=5)
-    handler.setFormatter(formatter)
+    # File Handler
+    file_handler = RotatingFileHandler(f'logs/{log_file}', maxBytes=10000000, backupCount=5)
+    file_handler.setFormatter(formatter)
+    
+    # Console Handler (Required for Render logs)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
 
     logger = logging.getLogger(name)
     logger.setLevel(level)
-    logger.addHandler(handler)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
     return logger
 

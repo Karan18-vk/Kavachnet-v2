@@ -4,7 +4,7 @@ services:
     name: kavachnet-backend
     env: python
     rootDir: Backend
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install --no-cache-dir --prefer-binary -r requirements.txt
     # FIX (Bug 3): Use the app factory pattern consistently.
     # render.yaml previously used 'app:app' which doesn't exist as a module-level object.
     # The correct form calls create_app() via gunicorn's app factory syntax.
