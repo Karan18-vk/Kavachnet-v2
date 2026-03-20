@@ -140,6 +140,14 @@ def create_app():
         _boot_log.warning("Advanced blueprints skipped or misnamed: %s", e)
 
     # ── 5. Health Check ──────────────────────────────────────
+    @app.route("/")
+    def root_health():
+        return jsonify({
+            "status": "online",
+            "message": "KavachNet Backend API is running",
+            "documentation": "/api/v1/health"
+        }), 200
+
     @app.route("/api/v1/health")
     def health():
         return jsonify({

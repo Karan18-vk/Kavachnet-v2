@@ -1,8 +1,12 @@
 # Backend/services/threat_service.py
 
 from models.db import Database
-from sklearn.ensemble import IsolationForest
-import numpy as np
+try:
+    from sklearn.ensemble import IsolationForest
+    import numpy as np
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
 
 class ThreatService:
     def __init__(self, db: Database):
@@ -26,6 +30,13 @@ class ThreatService:
         }
 
     def run_scan(self):
+        if not SKLEARN_AVAILABLE:
+            return {
+                "message": "Anomaly detection is currently unavailable (missing dependencies)",
+                "anomalies_detected": 0,
+                "status": "partial"
+            }
+
         logs = self.db.get_all_login_logs()
         if len(logs) < 10:
             return {"message": "Insufficient data", "anomalies_detected": 0}
