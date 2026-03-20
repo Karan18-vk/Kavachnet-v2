@@ -88,9 +88,10 @@ def create_app():
     _boot_log.info("JWT Manager initialized.")
 
     # ── 2. CORS  ─────────────────────────────────────────────
-    # FIX (Bug 1 & 4): Dynamic origin list read from env var.
-    # NEVER use wildcard '*' with supports_credentials=True.
-    CORS(app, resources={r"/api/*": {
+    # FIX (Bug 1, 4 & 7): Corrected origin list and resource regex.
+    # Pattern r"/api/*" matches /api followed by slashes ONLY. 
+    # Use r"/api/v1/.*" to correctly cover all versioned endpoints.
+    CORS(app, resources={r"/api/v1/.*": {
         "origins": _build_cors_origins(),
         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
@@ -126,17 +127,17 @@ def create_app():
         _boot_log.error("Blueprint registration error: %s", e)
 
     try:
-        from routes.threat import threat_bp
-        from routes.incident import incident_bp
-        from routes.admin import admin_bp
-        from routes.chat import chat_bp
+        from routes.threat_routes import threat_bp
+        from routes.incident_routes import incident_bp
+        from routes.admin_routes import admin_bp
+        from routes.chat_routes import chat_bp
         app.register_blueprint(threat_bp,   url_prefix='/api/v1/threats')
         app.register_blueprint(incident_bp, url_prefix='/api/v1/incidents')
         app.register_blueprint(admin_bp,    url_prefix='/api/v1/admin')
         app.register_blueprint(chat_bp,     url_prefix='/api/v1/chat')
         _boot_log.info("Advanced blueprints registered.")
     except ImportError as e:
-        _boot_log.warning("Advanced blueprints skipped: %s", e)
+        _boot_log.warning("Advanced blueprints skipped or misnamed: %s", e)
 
     # ── 5. Health Check ──────────────────────────────────────
     @app.route("/api/v1/health")
