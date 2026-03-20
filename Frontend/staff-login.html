@@ -574,7 +574,10 @@
                         showAlert('Login successful! Redirecting…', 'success');
                         btn.querySelector('.btn-text').innerHTML = '<i class="bi bi-check-circle me-1"></i> Authenticated!';
                         btn.style.background = 'linear-gradient(135deg,#15803d,#166534)';
-                        setTimeout(() => { window.location.href = 'dashboard.html'; }, 900);
+                        
+                        // Role-based redirection
+                        const target = d.role === 'superadmin' ? 'superadmin.html' : 'dashboard.html';
+                        setTimeout(() => { window.location.href = target; }, 900);
                     } else {
                         showAlert(extractMessage(res));
                     }

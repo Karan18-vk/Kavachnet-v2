@@ -74,6 +74,7 @@ def create_app():
     app.config.from_object(Config)
 
     _boot_log.info("Starting KavachNet Backend...")
+    _boot_log.info("Database URL: %s", Config.DATABASE_URL)
 
     # ── Validate email config at startup ────────────────────
     try:
@@ -196,37 +197,44 @@ def create_app():
 def _seed_demo_data():
     """Creates one demo institution + admin so you can test login immediately."""
     from models.user import Institution, User
-    import hashlib
+    import uuid
+    import datetime
+    import bcrypt
 
-    if Institution.query.first():
-        return  # already seeded
+    # Check if demo admin already exists
+    if User.query.filter_by(username="admin_kavach").first():
+        return
 
+    now_iso = datetime.datetime.now().isoformat()
+    
+    inst_id = str(uuid.uuid4())
     inst = Institution(
-        name="Demo University",
-        code="DEMO2025",
-        contact_person="Admin User",
-        email="admin@demo.edu",
-        phone="",
-        status="approved"
+        id=inst_id,
+        name="KavachNet Demo Institution",
+        institution_code="KAVACH2026",
+        contact_person="System Administrator",
+        email="admin@kavach.net",
+        phone="555-0199",
+        status="approved",
+        created_at=now_iso
     )
     db.session.add(inst)
-    db.session.flush()
-
+    
     # Password: Admin@123
-    pwd_hash = hashlib.sha256("Admin@123".encode()).hexdigest()
+    pwd_hash = bcrypt.hashpw("Admin@123".encode(), bcrypt.gensalt()).decode()
     admin = User(
-        first_name="Admin",
-        last_name="User",
-        email="admin@demo.edu",
-        password_hash=pwd_hash,
-        role="admin",
-        department="SOC — Security Operations",
-        institution_id=inst.id,
-        status="active"
+        id=str(uuid.uuid4()),
+        username="admin_kavach",
+        password=pwd_hash,
+        email="admin@kavach.net",
+        role="superadmin",
+        institution_code="KAVACH2026",
+        status="approved",
+        created_at=now_iso
     )
     db.session.add(admin)
     db.session.commit()
-    _boot_log.info("Demo seeded — login: admin@demo.edu | password: Admin@123")
+    _boot_log.info("Demo seeded — login: admin_kavach | password: Admin@123")
 
 
 if __name__ == "__main__":

@@ -2214,7 +2214,7 @@
     <script src="api.js"></script>
     <script>
       // 🔐 Auth guard — only admin and staff can access
-      requireAuth(["admin", "staff"]);
+      requireAuth(["admin", "staff", "superadmin"]);
 
       // Populate sidebar with logged-in user info and show admin features
       const _session = getSession();

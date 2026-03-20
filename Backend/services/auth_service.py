@@ -109,10 +109,15 @@ class AuthService:
                     security_logger.warning(f"Login attempt on locked account: {username}")
                     return api_error("Account locked. Try again later.", code=403)
                 self.db.clear_lockout(username)
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
 
-        if not bcrypt.checkpw(password.encode(), user['password'].encode()):
+        # schema.sql uses 'password'
+        db_pwd = user.get('password') or user.get('password_hash')
+        if not db_pwd:
+             return api_error("User record missing password field.", code=500)
+
+        if not bcrypt.checkpw(password.encode(), db_pwd.encode()):
             self.db.log_failed_attempt(username)
             self.db.log_login(username, "FAILED")
             
@@ -128,7 +133,7 @@ class AuthService:
         if user['status'] != 'approved':
             return api_error(f"Account {user['status']}.", code=403)
 
-        # OTP Removal: Generate tokens directly
+        # Token generation
         ua = request.headers.get('User-Agent', 'unknown')[:100]
         access_token = create_access_token(
             identity=username,
@@ -140,10 +145,10 @@ class AuthService:
         )
         refresh_token = create_refresh_token(identity=username)
 
-        self.db.save_audit_log(username, "LOGIN_SUCCESS_BYPASS_OTP", "user", username)
+        self.db.save_audit_log(username, "LOGIN_SUCCESS", "user", username)
         self.db.log_login(username, "SUCCESS")
         self.db.clear_lockout(username)
-        security_logger.info(f"User login successful (OTP bypassed): {username}")
+        security_logger.info(f"User login successful: {username}")
 
         return api_response(message="Login successful", data={
             "access_token": access_token,

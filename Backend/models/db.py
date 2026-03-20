@@ -34,31 +34,41 @@ class GenericCursorWrapper:
         self.is_mysql = is_mysql
         
     def execute(self, sql, params=None):
-        if params is not None:
-            # Convert ? to %s for Postgres and MySQL
-            sql = sql.replace('?', '%s')
-            self.cursor.execute(sql, params)
-        else:
-            self.cursor.execute(sql)
-        return self
-
-    def executescript(self, sql):
-        # MySQL/Postgres don't have executescript in the same way, we run as execute
-        self.cursor.execute(sql)
-        return self
+        try:
+            if params is not None:
+                # Convert ? to %s for Postgres and MySQL
+                if self.is_mysql:
+                    sql = sql.replace('?', '%s')
+                self.cursor.execute(sql, params)
+            else:
+                self.cursor.execute(sql)
+            return self
+        except Exception as e:
+            print(f"[DB ERROR] Query: {sql} | Params: {params} | Error: {e}")
+            raise
 
     def fetchone(self):
-        res = self.cursor.fetchone()
-        if res and not isinstance(res, dict):
-            # Fallback for drivers that don't return dicts
-            return dict(res)
-        return res
+        try:
+            res = self.cursor.fetchone()
+            if res and not isinstance(res, dict):
+                try:
+                    return dict(res)
+                except (TypeError, ValueError):
+                    return res
+            return res
+        except Exception as e:
+            print(f"[DB ERROR] fetchone failed: {e}")
+            raise
 
     def fetchall(self):
-        res = self.cursor.fetchall()
-        if res and len(res) > 0 and not isinstance(res[0], dict):
-            return [dict(r) for r in res]
-        return res if res else []
+        try:
+            res = self.cursor.fetchall()
+            if res and len(res) > 0 and not isinstance(res[0], dict):
+                return [dict(r) for r in res]
+            return res if res else []
+        except Exception as e:
+            print(f"[DB ERROR] fetchall failed: {e}")
+            raise
 
 class DBWrapper:
     def __init__(self, conn, is_mysql=False, is_postgres=False):
