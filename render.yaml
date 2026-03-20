@@ -5,7 +5,10 @@ services:
     env: python
     rootDir: Backend
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --workers=4 --threads=2 --timeout=60 --bind=0.0.0.0:$PORT app:app
+    # FIX (Bug 3): Use the app factory pattern consistently.
+    # render.yaml previously used 'app:app' which doesn't exist as a module-level object.
+    # The correct form calls create_app() via gunicorn's app factory syntax.
+    startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile - --error-logfile -
     envVars:
       - key: NODE_ENV
         value: production
@@ -27,16 +30,16 @@ services:
         sync: false
       - key: OPENROUTER_API_KEY
         sync: false
-
       - key: EMAIL_DRY_RUN
         value: "True"
       - key: SMTP_SERVER
         value: smtp.gmail.com
       - key: SMTP_PORT
         value: "587"
+      # FIX (Bug 4): ALLOWED_ORIGINS is now consumed by app.py's _build_cors_origins().
+      # This must include every domain that the frontend will be served from.
       - key: ALLOWED_ORIGINS
-        value: "https://kavachnet-frontend.onrender.com,http://kavachnet-bucket.s3-website.amazonaws.com"
-
+        value: "https://kavachnet-frontend.onrender.com,https://kavachnet-front.onrender.com,https://kavach-front.s3.us-east-1.amazonaws.com,http://kavachnet-bucket.s3-website.amazonaws.com"
 
   - type: web
     name: kavachnet-frontend

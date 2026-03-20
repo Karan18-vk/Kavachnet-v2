@@ -5,18 +5,26 @@
 
 const API_BASE = (() => {
     // Priority 1: Explicit backend URL set via config.js or inline script
-    if (window.BACKEND_URL) return window.BACKEND_URL + (window.BACKEND_URL.endsWith('/api/v1') ? '' : '/api/v1');
-    
-    // Priority 2: Remote production fallback (from remote branch)
-    const RENDER_URL = 'https://kavachnet-backend.onrender.com/api';
-    
-    // Priority 3: Local development fallback
-    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    if (window.BACKEND_URL) {
+        // Strip trailing slash, ensure /api/v1 suffix is present exactly once
+        const base = window.BACKEND_URL.replace(/\/+$/, '');
+        return base.endsWith('/api/v1') ? base : base + '/api/v1';
+    }
+
+    // Priority 2: Local development fallback
+    const isLocal = (
+        window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1' ||
+        window.location.hostname === ''
+    );
     if (isLocal) {
         return 'http://localhost:5000/api/v1';
     }
 
-    console.warn("[KavachNet] Using fallback Render URL. Ensure BACKEND_URL is set in config.js for custom instances.");
+    // Priority 3: Production fallback — MUST include /v1 segment
+    // FIX (Bug 5): was '/api' — missing /v1 caused all production API calls to 404
+    const RENDER_URL = 'https://kavachnet-backend.onrender.com/api/v1';
+    console.warn("[KavachNet] BACKEND_URL not set. Using default Render URL:", RENDER_URL);
     return RENDER_URL;
 })();
 
@@ -175,78 +183,60 @@ function extractMessage(res) {
 }
 
 // ── Fetch wrappers with Automatic Refresh ────────────────
-async function apiPost(endpoint, body, auth = false) {
-    const headers = { 'Content-Type': 'application/json' };
+async function _apiFetch(method, endpoint, body, auth) {
+    const url = API_BASE + endpoint;
+    const headers = {};
+    if (body !== undefined) headers['Content-Type'] = 'application/json';
     if (auth) headers['Authorization'] = 'Bearer ' + getToken();
 
-    let res = await fetch(API_BASE + endpoint, {
-        method: 'POST', 
-        headers, 
-        body: JSON.stringify(body)
-    });
+    const opts = { method, headers };
+    if (body !== undefined) opts.body = JSON.stringify(body);
+
+    let res;
+    try {
+        res = await fetch(url, opts);
+    } catch (networkErr) {
+        // Network-level failure (no connection, CORS preflight blocked, DNS failure)
+        console.error(`[KavachNet] Network error on ${method} ${url}:`, networkErr);
+        return { ok: false, status: 0, data: { error: 'Network error — cannot reach backend.', detail: networkErr.message } };
+    }
 
     if (auth && res.status === 401) {
         if (await refreshToken()) {
             headers['Authorization'] = 'Bearer ' + getToken();
-            res = await fetch(API_BASE + endpoint, {
-                method: 'POST', 
-                headers, 
-                body: JSON.stringify(body)
-            });
+            try {
+                res = await fetch(url, { ...opts, headers });
+            } catch (retryErr) {
+                console.error(`[KavachNet] Retry network error on ${method} ${url}:`, retryErr);
+                return { ok: false, status: 0, data: { error: 'Network error on retry.' } };
+            }
         } else {
             logout();
-            throw new Error("AUTH_SESSION_INVALID");
+            throw new Error('AUTH_SESSION_INVALID');
         }
     }
 
+    // Attempt JSON parse; fall through to empty object on non-JSON responses (e.g. 502 HTML page)
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };
+}
+
+async function apiPost(endpoint, body, auth = false) {
+    return _apiFetch('POST', endpoint, body, auth);
 }
 
 async function apiGet(endpoint, auth = true) {
-    const headers = {};
-    if (auth) headers['Authorization'] = 'Bearer ' + getToken();
-
-    let res = await fetch(API_BASE + endpoint, { headers });
-
-    if (auth && res.status === 401) {
-        if (await refreshToken()) {
-            headers['Authorization'] = 'Bearer ' + getToken();
-            res = await fetch(API_BASE + endpoint, { headers });
-        } else {
-            logout();
-            throw new Error("AUTH_SESSION_INVALID");
-        }
-    }
-
-    const data = await res.json().catch(() => ({}));
-    return { ok: res.ok, status: res.status, data };
+    return _apiFetch('GET', endpoint, undefined, auth);
 }
 
 async function apiPatch(endpoint, body, auth = true) {
-    const headers = { 'Content-Type': 'application/json' };
-    if (auth) headers['Authorization'] = 'Bearer ' + getToken();
+    return _apiFetch('PATCH', endpoint, body, auth);
+}
 
-    let res = await fetch(API_BASE + endpoint, {
-        method: 'PATCH', 
-        headers, 
-        body: JSON.stringify(body)
-    });
+async function apiPut(endpoint, body, auth = true) {
+    return _apiFetch('PUT', endpoint, body, auth);
+}
 
-    if (auth && res.status === 401) {
-        if (await refreshToken()) {
-            headers['Authorization'] = 'Bearer ' + getToken();
-            res = await fetch(API_BASE + endpoint, {
-                method: 'PATCH', 
-                headers, 
-                body: JSON.stringify(body)
-            });
-        } else {
-            logout();
-            throw new Error("AUTH_SESSION_INVALID");
-        }
-    }
-
-    const data = await res.json().catch(() => ({}));
-    return { ok: res.ok, status: res.status, data };
+async function apiDelete(endpoint, auth = true) {
+    return _apiFetch('DELETE', endpoint, undefined, auth);
 }
