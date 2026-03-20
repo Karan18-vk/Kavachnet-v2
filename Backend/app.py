@@ -167,7 +167,11 @@ def create_app():
     @app.errorhandler(500)
     def server_error(e):
         _boot_log.error("Unhandled 500: %s", e, exc_info=True)
-        return jsonify({"error": "Internal server error", "status": 500}), 500
+        return jsonify({
+            "error": "Internal server error", 
+            "detail": str(e),
+            "status": 500
+        }), 500
 
     # ── 6. Database Init ─────────────────────────────────────
     # FIX (Bug 2): Removed duplicate 'return app' that was placed BEFORE
