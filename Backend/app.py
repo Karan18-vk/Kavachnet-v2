@@ -73,7 +73,22 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    _boot_log.info("Starting KavachNet Backend...")
+    _boot_log.info("Starting KavachNet Backend (Stable v4.2)...")
+    
+    # ── Error Handlers (Early Registration) ──────────────────
+    @app.errorhandler(404)
+    def not_found(e):
+        return jsonify({"error": "Endpoint not found", "status": 404}), 404
+
+    @app.errorhandler(500)
+    def server_error(e):
+        _boot_log.error("Unhandled Runtime Exception: %s", e, exc_info=True)
+        return jsonify({
+            "error": "Internal server error",
+            "detail": str(e) or "Check server logs for traceback",
+            "status": 500
+        }), 500
+
     _boot_log.info("Database URL: %s", Config.DATABASE_URL)
 
     # ── Validate email config at startup ────────────────────
@@ -166,20 +181,6 @@ def create_app():
             "env": app.config.get("NODE_ENV", "development"),
         }), 200
 
-    # Generic 404 handler (returns JSON instead of HTML)
-    @app.errorhandler(404)
-    def not_found(e):
-        return jsonify({"error": "Endpoint not found", "status": 404}), 404
-
-    # Generic 500 handler
-    @app.errorhandler(500)
-    def server_error(e):
-        _boot_log.error("Unhandled 500: %s", e, exc_info=True)
-        return jsonify({
-            "error": "Internal server error", 
-            "detail": str(e),
-            "status": 500
-        }), 500
 
     # ── 6. Database Init ─────────────────────────────────────
     # FIX (Bug 2): Removed duplicate 'return app' that was placed BEFORE
