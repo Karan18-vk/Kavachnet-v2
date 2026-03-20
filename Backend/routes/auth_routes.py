@@ -11,8 +11,12 @@ from config import Config
 import os
 
 auth_bp = Blueprint('auth', __name__)
-db = Database()
-auth_service = AuthService(db)
+
+# Lazy loader for services to prevent import-time DB connection attempts
+def get_auth_service():
+    from models.db import Database
+    from services.auth_service import AuthService
+    return AuthService(Database())
 
 @auth_bp.route("/register/admin", methods=["POST"])
 @validate_payload({
@@ -20,7 +24,7 @@ auth_service = AuthService(db)
 })
 def register_admin():
     data = {k: sanitize_input(v) for k, v in request.json.items()}
-    return auth_service.register_admin(data)
+    return get_auth_service().register_admin(data)
 
 @auth_bp.route("/register/staff", methods=["POST"])
 @validate_payload({
@@ -28,19 +32,19 @@ def register_admin():
 })
 def register_staff():
     data = {k: sanitize_input(v) for k, v in request.json.items()}
-    return auth_service.register_staff(data)
+    return get_auth_service().register_staff(data)
 
 @auth_bp.route("/login/step1", methods=["POST"])
 @validate_payload({"username": str, "password": str})
 def login_step1():
     data = {k: sanitize_input(v) for k, v in request.json.items()}
-    return auth_service.login_step1(data)
+    return get_auth_service().login_step1(data)
 
 @auth_bp.route("/login/step2", methods=["POST"])
 @validate_payload({"username": str, "otp": str})
 def login_step2():
     data = {k: sanitize_input(v) for k, v in request.json.items()}
-    return auth_service.login_step2(data)
+    return get_auth_service().login_step2(data)
 
 @auth_bp.route("/superadmin/login", methods=["POST"])
 @validate_payload({"username": str, "password": str})
@@ -70,6 +74,8 @@ def superadmin_login():
 @jwt_required(refresh=True)
 def refresh():
     current_user = get_jwt_identity()
+    from models.db import Database
+    db = Database()
     user = db.get_user(current_user)
     
     if not user:
@@ -88,4 +94,4 @@ def refresh():
 @jwt_required()
 def get_me():
     current_user = get_jwt_identity()
-    return auth_service.get_current_user_info(current_user, db)
+    return get_auth_service().get_current_user_info(current_user)

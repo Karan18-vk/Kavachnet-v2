@@ -215,8 +215,8 @@ class AuthService:
             return api_response(message="Staff registration request submitted successfully. Awaiting approval.", code=201)
         return api_error(err or "Registration failed.", code=500)
 
-    def get_current_user_info(self, username, db):
-        user = db.get_user(username)
+    def get_current_user_info(self, username):
+        user = self.db.get_user(username)
         if not user:
             return api_error("User not found.", code=404)
         return api_response(data={
