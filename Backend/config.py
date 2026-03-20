@@ -22,9 +22,10 @@ class Config:
     # ── DATABASE ──────────────────────────────
     _raw_db = os.getenv("DB_NAME", "kavachnet.db")
     DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), _raw_db)) if not os.path.isabs(_raw_db) else _raw_db
-    DATABASE_URL = os.getenv("DATABASE_URL")
+    # Default to MySQL for XAMPP users if no DATABASE_URL is set
+    DATABASE_URL = os.getenv("DATABASE_URL") or "mysql+pymysql://root@localhost/kavachnet"
     # Flask-SQLAlchemy requires SQLALCHEMY_DATABASE_URI
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or f"sqlite:///{os.path.abspath(os.path.join(os.path.dirname(__file__), _raw_db))}"
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── REDIS (Production State) ──────────────

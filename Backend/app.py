@@ -176,7 +176,14 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
-            _boot_log.info("Database tables created/verified.")
+            _boot_log.info("SQLAlchemy tables created/verified.")
+            
+            # Initialize custom Database tables
+            from models.db import Database
+            custom_db = Database()
+            custom_db._create_tables()
+            _boot_log.info("Custom Database tables ready.")
+            
             _seed_demo_data()
             _boot_log.info("Demo data seeded.")
         except Exception as e:

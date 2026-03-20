@@ -12,44 +12,68 @@ try:
     import psycopg2
     from psycopg2.extras import RealDictCursor
     PSYCOPG2_AVAILABLE = True
-    DBIntegrityError = (sqlite3.IntegrityError, psycopg2.IntegrityError)
 except ImportError:
     PSYCOPG2_AVAILABLE = False
-    DBIntegrityError = sqlite3.IntegrityError
 
-class PostgresCursorWrapper:
-    def __init__(self, cursor):
+try:
+    import pymysql
+    import pymysql.cursors
+    PYMYSQL_AVAILABLE = True
+except ImportError:
+    PYMYSQL_AVAILABLE = False
+
+DBIntegrityError = (sqlite3.IntegrityError,)
+if PSYCOPG2_AVAILABLE:
+    DBIntegrityError += (psycopg2.IntegrityError,)
+if PYMYSQL_AVAILABLE:
+    DBIntegrityError += (pymysql.err.IntegrityError,)
+
+class GenericCursorWrapper:
+    def __init__(self, cursor, is_mysql=False):
         self.cursor = cursor
+        self.is_mysql = is_mysql
         
     def execute(self, sql, params=None):
-        sql = sql.replace('?', '%s')
         if params is not None:
+            # Convert ? to %s for Postgres and MySQL
+            sql = sql.replace('?', '%s')
             self.cursor.execute(sql, params)
         else:
             self.cursor.execute(sql)
         return self
 
     def executescript(self, sql):
+        # MySQL/Postgres don't have executescript in the same way, we run as execute
         self.cursor.execute(sql)
         return self
 
     def fetchone(self):
         res = self.cursor.fetchone()
-        return dict(res) if res else None
+        if res and not isinstance(res, dict):
+            # Fallback for drivers that don't return dicts
+            return dict(res)
+        return res
 
     def fetchall(self):
         res = self.cursor.fetchall()
-        return [dict(r) for r in res] if res else []
+        if res and len(res) > 0 and not isinstance(res[0], dict):
+            return [dict(r) for r in res]
+        return res if res else []
 
-class PostgresWrapper:
-    def __init__(self, conn):
+class DBWrapper:
+    def __init__(self, conn, is_mysql=False, is_postgres=False):
         self.conn = conn
-        self.row_factory = None
-        self.is_postgres = True
+        self.is_mysql = is_mysql
+        self.is_postgres = is_postgres
 
     def cursor(self):
-        c = self.conn.cursor(cursor_factory=RealDictCursor)
-        return PostgresCursorWrapper(c)
+        if self.is_postgres:
+            c = self.conn.cursor(cursor_factory=RealDictCursor)
+        elif self.is_mysql:
+            c = self.conn.cursor(pymysql.cursors.DictCursor)
+        else:
+            c = self.conn.cursor()
+        return GenericCursorWrapper(c, is_mysql=self.is_mysql)
 
     def execute(self, sql, params=None):
         c = self.cursor()
@@ -57,8 +81,7 @@ class PostgresWrapper:
         
     def executescript(self, sql):
         c = self.cursor()
-        c.execute(sql)
-        return c
+        return c.executescript(sql)
 
     def commit(self):
         self.conn.commit()
@@ -77,132 +100,162 @@ def _generate_institution_code():
 class Database:
     def __init__(self):
         self.db_name = Config.DB_NAME
-        self._create_tables()
+        # self._create_tables() # Removed from init to prevent import-time crashes if DB is missing
 
     def _connect(self):
-        if getattr(Config, 'DATABASE_URL', None) and PSYCOPG2_AVAILABLE:
-            conn = psycopg2.connect(Config.DATABASE_URL)
-            return PostgresWrapper(conn)
+        url = getattr(Config, 'DATABASE_URL', '')
+        
+        if url.startswith('mysql') and PYMYSQL_AVAILABLE:
+            # Parse mysql+pymysql://root@localhost/kavachnet
+            import urllib.parse
+            result = urllib.parse.urlparse(url)
+            db_name = result.path.lstrip('/')
+            user = result.username or 'root'
+            password = result.password or ''
+            host = result.hostname or 'localhost'
+            port = result.port or 3306
             
-        # Increased timeout for enterprise concurrency
+            conn = pymysql.connect(
+                host=host,
+                port=port,
+                user=user,
+                password=password,
+                database=db_name,
+                autocommit=False
+            )
+            return DBWrapper(conn, is_mysql=True)
+            
+        if (url.startswith('postgres') or url.startswith('postgresql')) and PSYCOPG2_AVAILABLE:
+            conn = psycopg2.connect(url)
+            return DBWrapper(conn, is_postgres=True)
+            
+        # SQLite fallback
         conn = sqlite3.connect(self.db_name, timeout=20.0) 
         conn.row_factory = sqlite3.Row
-        return conn
+        return DBWrapper(conn)
 
     def _create_tables(self):
         conn = self._connect()
         cursor = conn.cursor()
         
+        # MySQL compatibility: use VARCHAR(255) for indexed/primary key columns
+        # SQLite and Postgres handle VARCHAR(255) perfectly fine as well.
         tables = [
             """CREATE TABLE IF NOT EXISTS institutions (
-                id TEXT PRIMARY KEY,
-                name TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                contact_person TEXT NOT NULL,
-                phone TEXT,
-                institution_code TEXT UNIQUE,
-                status TEXT DEFAULT 'pending',
+                id VARCHAR(255) PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                contact_person VARCHAR(255) NOT NULL,
+                phone VARCHAR(50),
+                institution_code VARCHAR(50) UNIQUE,
+                status VARCHAR(20) DEFAULT 'pending',
                 rejection_reason TEXT,
-                created_at TEXT NOT NULL,
-                approved_at TEXT,
-                code_expires_at TEXT
+                created_at VARCHAR(50) NOT NULL,
+                approved_at VARCHAR(50),
+                code_expires_at VARCHAR(50)
             )""",
             """CREATE TABLE IF NOT EXISTS users (
-                id TEXT PRIMARY KEY,
-                username TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL,
-                email TEXT NOT NULL,
-                role TEXT DEFAULT 'staff',
-                institution_code TEXT,
-                status TEXT DEFAULT 'pending',
-                created_at TEXT NOT NULL,
-                lockout_until TEXT
+                id VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                role VARCHAR(20) DEFAULT 'staff',
+                institution_code VARCHAR(50),
+                status VARCHAR(20) DEFAULT 'pending',
+                created_at VARCHAR(50) NOT NULL,
+                lockout_until VARCHAR(50)
             )""",
             """CREATE TABLE IF NOT EXISTS failed_attempts (
-                id TEXT PRIMARY KEY,
-                username TEXT NOT NULL,
-                timestamp TEXT NOT NULL
+                id VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                timestamp VARCHAR(50) NOT NULL
             )""",
             """CREATE TABLE IF NOT EXISTS login_logs (
-                id TEXT PRIMARY KEY,
-                username TEXT NOT NULL,
-                status TEXT NOT NULL,
-                timestamp TEXT NOT NULL,
+                id VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                status VARCHAR(20) NOT NULL,
+                timestamp VARCHAR(50) NOT NULL,
                 hour INTEGER NOT NULL
             )""",
             """CREATE TABLE IF NOT EXISTS incidents (
-                id TEXT PRIMARY KEY,
-                type TEXT NOT NULL,
-                severity TEXT NOT NULL,
+                id VARCHAR(255) PRIMARY KEY,
+                type VARCHAR(50) NOT NULL,
+                severity VARCHAR(20) NOT NULL,
                 message TEXT NOT NULL,
-                status TEXT DEFAULT 'OPEN',
-                timestamp TEXT NOT NULL,
-                institution_code TEXT,
+                status VARCHAR(20) DEFAULT 'OPEN',
+                timestamp VARCHAR(50) NOT NULL,
+                institution_code VARCHAR(50),
                 forensics TEXT
             )""",
             """CREATE TABLE IF NOT EXISTS audit_logs (
-                id TEXT PRIMARY KEY,
-                username TEXT NOT NULL,
-                action TEXT NOT NULL,
-                object_type TEXT NOT NULL,
-                object_id TEXT,
-                timestamp TEXT NOT NULL,
+                id VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                action VARCHAR(100) NOT NULL,
+                object_type VARCHAR(50) NOT NULL,
+                object_id VARCHAR(255),
+                timestamp VARCHAR(50) NOT NULL,
                 forensics TEXT
             )""",
             """CREATE TABLE IF NOT EXISTS institution_codes (
-                id TEXT PRIMARY KEY,
-                institution_id TEXT NOT NULL,
-                code_value TEXT NOT NULL UNIQUE,
-                generated_at TEXT NOT NULL,
-                expires_at TEXT NOT NULL,
-                status TEXT DEFAULT 'ACTIVE',
-                generated_by TEXT
+                id VARCHAR(255) PRIMARY KEY,
+                institution_id VARCHAR(255) NOT NULL,
+                code_value VARCHAR(50) NOT NULL UNIQUE,
+                generated_at VARCHAR(50) NOT NULL,
+                expires_at VARCHAR(50) NOT NULL,
+                status VARCHAR(20) DEFAULT 'ACTIVE',
+                generated_by VARCHAR(255)
             )""",
             """CREATE TABLE IF NOT EXISTS email_logs (
-                id TEXT PRIMARY KEY,
-                recipient TEXT NOT NULL,
-                type TEXT NOT NULL,
-                status TEXT NOT NULL,
+                id VARCHAR(255) PRIMARY KEY,
+                recipient VARCHAR(255) NOT NULL,
+                type VARCHAR(50) NOT NULL,
+                status VARCHAR(20) NOT NULL,
                 attempts INTEGER DEFAULT 1,
                 last_error TEXT,
-                created_at TEXT NOT NULL
+                created_at VARCHAR(50) NOT NULL
             )""",
             """CREATE TABLE IF NOT EXISTS email_queue (
-                id TEXT PRIMARY KEY,
-                recipient TEXT NOT NULL,
-                subject TEXT NOT NULL,
+                id VARCHAR(255) PRIMARY KEY,
+                recipient VARCHAR(255) NOT NULL,
+                subject VARCHAR(255) NOT NULL,
                 html_body TEXT NOT NULL,
                 text_body TEXT,
-                type TEXT NOT NULL,
-                institution_id TEXT,
-                status TEXT DEFAULT 'PENDING',
+                type VARCHAR(50) NOT NULL,
+                institution_id VARCHAR(255),
+                status VARCHAR(20) DEFAULT 'PENDING',
                 attempts INTEGER DEFAULT 0,
                 max_attempts INTEGER DEFAULT 3,
                 last_error TEXT,
-                created_at TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                next_retry_at TEXT NOT NULL
+                created_at VARCHAR(50) NOT NULL,
+                updated_at VARCHAR(50) NOT NULL,
+                next_retry_at VARCHAR(50) NOT NULL
             )"""
         ]
         
         for table_sql in tables:
-            cursor.execute(table_sql)
+            try:
+                cursor.execute(table_sql)
+            except Exception as e:
+                print(f"[DB] Table creation error: {e}")
             
+        # SQLite needs IF NOT EXISTS, Postgres handles it, MySQL handles it.
+        # However, some drivers are picky about CREATE INDEX IF NOT EXISTS.
+        # We use try/except for maximum compatibility.
         indexes = [
-            "CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)",
-            "CREATE INDEX IF NOT EXISTS idx_users_inst ON users(institution_code)",
-            "CREATE INDEX IF NOT EXISTS idx_incidents_inst ON incidents(institution_code)",
-            "CREATE INDEX IF NOT EXISTS idx_incidents_ts ON incidents(timestamp DESC)",
-            "CREATE INDEX IF NOT EXISTS idx_logs_username ON login_logs(username)",
-            "CREATE INDEX IF NOT EXISTS idx_audit_username ON audit_logs(username)",
-            "CREATE INDEX IF NOT EXISTS idx_audit_ts ON audit_logs(timestamp DESC)"
+            "CREATE INDEX idx_users_username ON users(username)",
+            "CREATE INDEX idx_users_inst ON users(institution_code)",
+            "CREATE INDEX idx_incidents_inst ON incidents(institution_code)",
+            "CREATE INDEX idx_incidents_ts ON incidents(timestamp)",
+            "CREATE INDEX idx_logs_username ON login_logs(username)",
+            "CREATE INDEX idx_audit_username ON audit_logs(username)",
+            "CREATE INDEX idx_audit_ts ON audit_logs(timestamp)"
         ]
         
         for index_sql in indexes:
             try:
                 cursor.execute(index_sql)
             except Exception:
-                pass # PostgreSQL might handle IF NOT EXISTS differently or index already exists
+                pass 
 
         
         # Gracefully upgrade existing DBs without recreating
