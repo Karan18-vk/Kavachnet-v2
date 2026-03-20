@@ -140,6 +140,14 @@ def create_app():
     except ImportError as e:
         _boot_log.warning("Advanced blueprints skipped or misnamed: %s", e)
 
+    # ── 4.5 Static Files (Development) ──────────────────────
+    @app.route("/<path:filename>")
+    def serve_frontend(filename):
+        # Look in the sibling 'Frontend' directory
+        frontend_dir = os.path.abspath(os.path.join(app.root_path, "..", "Frontend"))
+        from flask import send_from_directory
+        return send_from_directory(frontend_dir, filename)
+
     # ── 5. Health Check ──────────────────────────────────────
     @app.route("/")
     def root_health():
