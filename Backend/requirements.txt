@@ -12,8 +12,8 @@ redis==5.2.1
 python-dotenv==1.0.1
 requests==2.32.3
 gunicorn==22.0.0
-scikit-learn==1.7.0
-numpy==2.3.0
+scikit-learn==1.7.2
+numpy==2.3.3
 joblib==1.5.1
 cryptography==44.0.3
 urllib3==2.4.0
