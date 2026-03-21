@@ -10,6 +10,8 @@ services:
     # The correct form calls create_app() via gunicorn's app factory syntax.
     startCommand: gunicorn "app:create_app()" --bind 0.0.0.0:$PORT --workers 2 --timeout 120 --access-logfile - --error-logfile -
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
       - key: NODE_ENV
         value: production
       - key: SECRET_KEY
