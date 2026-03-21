@@ -102,8 +102,8 @@ body {
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid var(--border-color);
   color: #94a3b8;
-  width: 38px;
-  height: 38px;
+  width: 52px;
+    height: 52px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -2537,8 +2537,8 @@ body {
 }
 
 .landing-nav .brand img {
-  width: 38px;
-  height: 38px;
+  width: 52px;
+    height: 52px;
   border-radius: 8px;
 }
 
@@ -3778,3 +3778,4 @@ body {
 .typing-dot { width: 6px; height: 6px; background: #64748b; border-radius: 50%; animation: typing 1.4s infinite ease-in-out both; }
 .typing-dot:nth-child(1) { animation-delay: -0.32s; } .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes typing { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
