@@ -2656,52 +2656,9 @@
         if (e.key === "Enter") sendAIMessage();
       });
 
-      // ── Period Filter ──────────────────────────────────────────
-      const periodData = {
-        daily: {
-          label: "Today",
-          threats: { val: "124", delta: "+12", up: true },
-          incidents: { val: "8", delta: "+3", up: true },
-          health: { val: "SAFE", delta: "", up: null },
-          risk: { val: "HIGH", delta: "↑", up: true },
-        },
-        yesterday: {
-          label: "Yesterday",
-          threats: { val: "98", delta: "-26", up: false },
-          incidents: { val: "5", delta: "-3", up: false },
-          health: { val: "SAFE", delta: "", up: null },
-          risk: { val: "MED", delta: "↓", up: false },
-        },
-        weekly: {
-          label: "This Week",
-          threats: { val: "613", delta: "+89", up: true },
-          incidents: { val: "34", delta: "+11", up: true },
-          health: { val: "WARN", delta: "", up: null },
-          risk: { val: "HIGH", delta: "↑", up: true },
-        },
-        monthly: {
-          label: "This Month",
-          threats: { val: "2,451", delta: "+320", up: true },
-          incidents: { val: "142", delta: "+56", up: true },
-          health: { val: "SAFE", delta: "", up: null },
-          risk: { val: "CRIT", delta: "↑↑", up: true },
-        },
-      };
-
-      // Health color map
-      const healthColors = {
-        SAFE: "#22c55e",
-        WARN: "#f59e0b",
-        CRIT: "#ef4444",
-      };
-
-      // Risk color map
-      const riskColors = {
-        LOW: "#22c55e",
-        MED: "#f59e0b",
-        HIGH: "#ef4444",
-        CRIT: "#ef4444",
-      };
+      // ── Dynamic Dashboard Stats ──────────────────────────────────
+      const healthColors = { SAFE: "#22c55e", WARN: "#f59e0b", CRIT: "#ef4444" };
+      const riskColors = { LOW: "#22c55e", MED: "#f59e0b", HIGH: "#ef4444", CRIT: "#ef4444" };
 
       function animateValue(el, newVal) {
         el.style.opacity = "0";
@@ -2715,70 +2672,74 @@
       }
 
       function setDelta(el, deltaText, up) {
-        if (!deltaText) {
-          el.textContent = "";
-          el.className = "stat-delta";
-          return;
-        }
+        if (!deltaText) { el.textContent = ""; el.className = "stat-delta"; return; }
         el.textContent = deltaText;
         el.className = "stat-delta " + (up ? "delta-up" : "delta-down");
       }
 
-      function applyPeriod(period) {
-        const d = periodData[period];
+      async function fetchDashboardStats() {
+        try {
+          const res = await apiGet('/dashboard/stats');
+          if (!res.ok) return; // Silent fail on dashboard elements if network error
+          const data = extractData(res);
+          
+          if(!data.incidents || !data.scanning) return;
 
-        // Threats
-        const tEl = document.getElementById("statThreats");
-        animateValue(tEl, d.threats.val);
-        setDelta(
-          document.getElementById("deltaThreats"),
-          d.threats.delta,
-          d.threats.up,
-        );
-        document.getElementById("periodLabelThreats").textContent = d.label;
+          // Compute values
+          const totalThreats = (data.scanning.threats_found || 0) + (data.incidents.total || 0);
+          const activeIncidents = data.incidents.open || 0;
+          const criticalIncidents = data.incidents.critical || 0;
+          
+          let healthVal = "SAFE";
+          let riskVal = "LOW";
+          
+          if (criticalIncidents > 0) {
+            healthVal = "CRIT"; riskVal = "CRIT";
+          } else if (activeIncidents > 0 || data.scanning.threats_found > 0) {
+            healthVal = "WARN"; riskVal = "HIGH";
+          }
+          
+          // Update Threats
+          animateValue(document.getElementById("statThreats"), totalThreats.toString());
+          setDelta(document.getElementById("deltaThreats"), "+Live", true);
+          document.getElementById("periodLabelThreats").textContent = "Real-time Sync";
+          
+          // Update Incidents
+          animateValue(document.getElementById("statIncidents"), activeIncidents.toString());
+          setDelta(document.getElementById("deltaIncidents"), criticalIncidents + " Critical", false);
+          document.getElementById("periodLabelIncidents").textContent = "Real-time Sync";
+          
+          // Update Health
+          const hEl = document.getElementById("statHealth");
+          animateValue(hEl, healthVal);
+          hEl.style.color = healthColors[healthVal] || "#22c55e";
+          setDelta(document.getElementById("deltaHealth"), "Monitored", true);
+          document.getElementById("periodLabelHealth").textContent = "Real-time Sync";
+          
+          // Update Risk
+          const rEl = document.getElementById("statRisk");
+          animateValue(rEl, riskVal);
+          rEl.style.color = riskColors[riskVal] || "#ef4444";
+          setDelta(document.getElementById("deltaRisk"), "Guarded", true);
+          document.getElementById("periodLabelRisk").textContent = "Real-time Sync";
 
-        // Incidents
-        const iEl = document.getElementById("statIncidents");
-        animateValue(iEl, d.incidents.val);
-        setDelta(
-          document.getElementById("deltaIncidents"),
-          d.incidents.delta,
-          d.incidents.up,
-        );
-        document.getElementById("periodLabelIncidents").textContent = d.label;
-
-        // Health
-        const hEl = document.getElementById("statHealth");
-        animateValue(hEl, d.health.val);
-        hEl.style.color = healthColors[d.health.val] || "#22c55e";
-        setDelta(
-          document.getElementById("deltaHealth"),
-          d.health.delta,
-          d.health.up,
-        );
-        document.getElementById("periodLabelHealth").textContent = d.label;
-
-        // Risk
-        const rEl = document.getElementById("statRisk");
-        animateValue(rEl, d.risk.val);
-        rEl.style.color = riskColors[d.risk.val] || "#ef4444";
-        setDelta(document.getElementById("deltaRisk"), d.risk.delta, d.risk.up);
-        document.getElementById("periodLabelRisk").textContent = d.label;
+        } catch (e) {
+          console.error("Failed to fetch dashboard stats", e);
+        }
       }
 
-      // Tab click handler
+      // Tab click handler (Keep visual tabs but force active load)
       document.querySelectorAll(".period-tab").forEach((btn) => {
         btn.addEventListener("click", function () {
-          document
-            .querySelectorAll(".period-tab")
-            .forEach((b) => b.classList.remove("active"));
+          document.querySelectorAll(".period-tab").forEach((b) => b.classList.remove("active"));
           this.classList.add("active");
-          applyPeriod(this.dataset.period);
+          fetchDashboardStats(); // Refresh data on click
         });
       });
 
-      // Init with daily
-      applyPeriod("daily");
+      // Init and Auto-refresh every 30s
+      fetchDashboardStats();
+      setInterval(fetchDashboardStats, 30000);
 
       // ── Notification Drawer ────────────────────────────────────────
       const drawer = document.getElementById("notifDrawer");
