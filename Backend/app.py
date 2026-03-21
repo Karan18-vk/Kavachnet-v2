@@ -27,46 +27,10 @@ _boot_log = logging.getLogger("kavachnet.boot")
 
 def _build_cors_origins():
     """
-    Construct the list of allowed CORS origins.
-    - Reads ALLOWED_ORIGINS env var (comma-separated).
-    - Appends hardcoded production origins.
-    - Falls back to localhost origins in non-production environments.
-    NOTE: We NEVER mix wildcard '*' with supports_credentials=True
-          because browsers reject that combination per the CORS spec.
+    Dynamically accept any origin to prevent CORS blocking
+    across different frontend deployments.
     """
-    base_origins = [
-        "https://kavachnet-frontend.onrender.com",
-        "https://kavach-front.s3.us-east-1.amazonaws.com",
-        "http://kavachnet-bucket.s3-website.amazonaws.com",
-    ]
-
-    env_origins = [o.strip() for o in os.getenv("ALLOWED_ORIGINS", "").split(",") if o.strip()]
-
-    # In development, also allow localhost ports commonly used
-    is_production = os.getenv("NODE_ENV", "development") == "production"
-    dev_origins = [] if is_production else [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:5000",
-        "http://127.0.0.1:5000",
-        "http://localhost:5500",
-        "http://127.0.0.1:5500",
-        "http://localhost:8080",
-        "http://127.0.0.1:8080",
-        # VS Code Live Server / file:// origin
-        "null",
-    ]
-
-    # Deduplicate while preserving order
-    seen = set()
-    merged = []
-    for o in (base_origins + env_origins + dev_origins):
-        if o not in seen:
-            seen.add(o)
-            merged.append(o)
-
-    _boot_log.info("CORS allowed origins: %s", merged)
-    return merged
+    return "*"
 
 
 def create_app():
@@ -103,18 +67,14 @@ def create_app():
     JWTManager(app)
     _boot_log.info("JWT Manager initialized.")
 
-    # ── 2. CORS  ─────────────────────────────────────────────
-    # FIX (Bug 1, 4 & 7): Corrected origin list and resource regex.
-    # Pattern r"/api/*" matches /api followed by slashes ONLY. 
-    # Use r"/api/v1/.*" to correctly cover all versioned endpoints.
     CORS(app, resources={r"/api/v1/.*": {
-        "origins": _build_cors_origins(),
+        "origins": "*",  # Allow all origins safely
         "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With"],
-        "supports_credentials": True,
+        "allow_headers": ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+        "supports_credentials": False, # Required for '*'
         "max_age": 600,
     }})
-    _boot_log.info("CORS configured.")
+    _boot_log.info("Extensive CORS configured dynamically.")
 
     # ── 3. Rate Limiting ─────────────────────────────────────
     try:
