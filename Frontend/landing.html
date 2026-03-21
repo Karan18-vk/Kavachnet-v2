@@ -257,17 +257,19 @@
                 <div>
                   <h3
                     class="mb-1 counter-val"
+                    id="landing-threats"
                     style="color: #3b82f6; font-weight: 800"
                   >
-                    99.9%
+                    15.4k
                   </h3>
                   <small style="color: #64748b; font-weight: 600"
-                    >Threat Detection</small
+                    >Threats Neutralized</small
                   >
                 </div>
                 <div>
                   <h3
                     class="mb-1 counter-val"
+                    id="landing-response"
                     style="color: #3b82f6; font-weight: 800"
                   >
                     5m
@@ -279,6 +281,7 @@
                 <div>
                   <h3
                     class="mb-1 counter-val"
+                    id="landing-nodes"
                     style="color: #3b82f6; font-weight: 800"
                   >
                     2.4k
@@ -562,6 +565,32 @@
       chatbotInput.addEventListener("keypress", (e) => {
         if (e.key === "Enter") sendMessage();
       });
+
+      // 7. FETCH DYNAMIC PUBLIC STATS
+      async function fetchPublicStats() {
+        try {
+          const baseUrl = window.BACKEND_URL || "https://kavachnet-backend.onrender.com";
+          const endpoint = baseUrl.endsWith('/api/v1') ? baseUrl : baseUrl + '/api/v1';
+          const res = await fetch(endpoint + "/dashboard/public_summary");
+          if(res.ok) {
+            const data = await res.json();
+            document.getElementById("landing-threats").innerText = data.threats_detected || "15.4k";
+            document.getElementById("landing-nodes").innerText = data.nodes_protected || "2.4k";
+            document.getElementById("landing-response").innerText = data.response_time || "5m";
+            
+            // Re-trigger counter animation correctly after stats load
+            document.querySelectorAll(".counter-val").forEach(el => {
+              el.dataset.done = "";
+            });
+            startCounters();
+          }
+        } catch(e) {
+          console.error("Could not fetch dynamic stats");
+        }
+      }
+      
+      // Call fetch stats on init
+      fetchPublicStats();
     </script>
   </body>
 </html>
