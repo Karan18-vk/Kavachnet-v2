@@ -47,3 +47,959 @@ TypeError: The view function did not return a valid response. The return type mu
 2026-03-07 15:01:53,411 ERROR: Internal Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\app.py:114]
 2026-03-07 15:04:57,647 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
 2026-03-07 15:39:45,235 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:14:34,016 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:15:57,630 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:17:59,525 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:18:05,900 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:21:38,732 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:21:39,726 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:21:40,737 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:21:58,270 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:22:10,401 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:22:12,152 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:22:34,466 ERROR: Exception on /api/v1/auth/login/step1 [OPTIONS] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:24:16,460 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:24:41,559 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:25:58,890 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:26:17,078 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:28:26,265 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:29:10,064 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:29:16,941 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:29:47,949 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:29:54,645 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:30:29,504 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:30:36,557 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:31:09,913 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:31:17,275 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:31:52,887 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:32:00,423 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:32:50,633 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:32:59,173 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:33:38,802 WARNING: Redis unavailable (Timeout connecting to server). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 16:33:46,151 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:33:50,216 ERROR: Exception on /api/v1/health [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 264, in connect
+    sock = self.retry.call_with_retry(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\retry.py", line 46, in call_with_retry
+    return do()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 265, in <lambda>
+    lambda: self._connect(), lambda error: self.disconnect(error)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 627, in _connect
+    raise err
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 615, in _connect
+    sock.connect(socket_address)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 865, in full_dispatch_request
+    rv = self.preprocess_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1239, in preprocess_request
+    rv = self.ensure_sync(before_func)()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1176, in _check_request_limit
+    raise e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1157, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_limiter\extension.py", line 1094, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\strategies.py", line 157, in hit
+    self.storage.incr(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\limits\storage\redis.py", line 224, in incr
+    return int(self.lua_incr_expire([key], [expiry, amount]))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5931, in __call__
+    return client.evalsha(self.sha, len(keys), *args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5307, in evalsha
+    return self._evalsha("EVALSHA", sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\commands\core.py", line 5291, in _evalsha
+    return self.execute_command(command, sha, numkeys, *keys_and_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\client.py", line 533, in execute_command
+    conn = self.connection or pool.get_connection(command_name, **options)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 1086, in get_connection
+    connection.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\redis\connection.py", line 270, in connect
+    raise ConnectionError(self._error_message(e))
+redis.exceptions.ConnectionError: Error 10061 connecting to localhost:6379. No connection could be made because the target machine actively refused it.
+2026-03-20 16:34:40,942 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 17:33:24,337 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 17:45:37,842 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-20 17:50:40,746 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-22 10:59:41,979 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-22 11:43:26,950 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-22 11:44:53,457 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]

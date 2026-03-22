@@ -29,7 +29,10 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # ── REDIS (Production State) ──────────────
-    REDIS_URL = os.getenv("REDIS_URL") or "memory://"
+    if NODE_ENV == "production":
+        REDIS_URL = os.getenv("REDIS_URL") or "memory://"
+    else:
+        REDIS_URL = "memory://"
 
     # ── JWT SECURITY ──────────────────────────
 
