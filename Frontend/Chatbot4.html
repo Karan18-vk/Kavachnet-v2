@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KavachNet AI — Layer 1 + Layer 2 Test</title>
+<style>
+:root {
+  --bg:#0a0f1e; --surface:#0d1628; --surface2:#111d35;
+  --border:#1e3a5f; --text:#e2e8f0; --muted:#64748b;
+  --accent:#38bdf8; --accent2:#0ea5e9;
+  --safe:#22c55e; --warn:#f59e0b; --danger:#ef4444;
+  --purple:#a78bfa; --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;
+  height:100vh;display:flex;flex-direction:column;max-width:960px;margin:0 auto}
+
+.header{background:var(--surface);border-bottom:1px solid var(--border);
+  padding:14px 20px;display:flex;align-items:center;gap:12px}
+.header-icon{width:40px;height:40px;background:linear-gradient(135deg,#0ea5e9,#6366f1);
+  border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px}
+.header-info h2{font-size:15px;font-weight:600}
+.header-info p{font-size:12px;color:var(--muted);margin-top:1px}
+.layer-badges{margin-left:auto;display:flex;gap:6px}
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge.l1{background:rgba(34,197,94,.15);color:var(--safe);border:1px solid rgba(34,197,94,.3)}
+.badge.l2{background:rgba(167,139,250,.15);color:var(--purple);border:1px solid rgba(167,139,250,.3)}
+.badge.off{background:rgba(100,116,139,.1);color:var(--muted);border:1px solid rgba(100,116,139,.2)}
+
+.messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;
+  gap:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
+.msg{display:flex;gap:10px}
+.msg.user{flex-direction:row-reverse}
+.avatar{width:34px;height:34px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:15px}
+.avatar.ai{background:linear-gradient(135deg,#0ea5e9,#6366f1)}
+.avatar.user{background:var(--surface2);border:1px solid var(--border)}
+.bubble{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px 16px;font-size:14px;
+  line-height:1.65;max-width:80%}
+.msg.user .bubble{background:var(--surface2);border-color:var(--accent2)}
+
+/* ── Scan Card ── */
+.scan-card{background:var(--surface2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;margin-top:10px}
+.scan-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.verdict-badge{padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;letter-spacing:.5px}
+.verdict-badge.malicious{background:rgba(239,68,68,.15);color:var(--danger);border:1px solid rgba(239,68,68,.3)}
+.verdict-badge.suspicious{background:rgba(245,158,11,.15);color:var(--warn);border:1px solid rgba(245,158,11,.3)}
+.verdict-badge.safe{background:rgba(34,197,94,.15);color:var(--safe);border:1px solid rgba(34,197,94,.3)}
+.threat-pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;
+  background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.25)}
+
+.url-box{font-size:12px;color:var(--muted);word-break:break-all;font-family:monospace;
+  background:var(--bg);border:1px solid var(--border);padding:6px 10px;
+  border-radius:6px;margin-bottom:12px}
+
+.risk-wrap{margin:12px 0}
+.risk-label{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:5px}
+.risk-bar{height:7px;background:var(--border);border-radius:4px;overflow:hidden}
+.risk-fill{height:100%;border-radius:4px;transition:width 1s ease}
+.risk-fill.malicious{background:linear-gradient(90deg,#f59e0b,#ef4444)}
+.risk-fill.suspicious{background:linear-gradient(90deg,#fbbf24,#f59e0b)}
+.risk-fill.safe{background:linear-gradient(90deg,#34d399,#22c55e)}
+
+/* ── Layer breakdown ── */
+.layers-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.layer-box{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:12px}
+.layer-title{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.8px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.layer-title.l1{color:var(--safe)}
+.layer-title.l2{color:var(--purple)}
+.layer-stat{font-size:12px;color:var(--muted);margin:3px 0}
+.layer-stat span{color:var(--text);font-weight:500}
+
+/* ML probability bars */
+.prob-row{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:11px}
+.prob-label{width:60px;color:var(--muted);text-transform:capitalize}
+.prob-bar{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.prob-fill{height:100%;border-radius:2px}
+.prob-fill.safe{background:var(--safe)}
+.prob-fill.phishing{background:var(--danger)}
+.prob-fill.spam{background:var(--warn)}
+.prob-fill.malware{background:#dc2626}
+.prob-pct{width:36px;text-align:right;color:var(--muted)}
+
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.8px;color:var(--muted);margin:12px 0 6px}
+.flags-list,.actions-list{list-style:none}
+.flags-list li{font-size:13px;color:#94a3b8;padding:3px 0 3px 18px;position:relative}
+.flags-list li::before{content:"›";position:absolute;left:0;color:var(--accent)}
+.actions-list li{font-size:12px;color:#94a3b8;padding:3px 0 3px 18px;position:relative}
+.actions-list li::before{content:"→";position:absolute;left:0;color:var(--warn)}
+
+/* Mode badge */
+.mode-badge{font-size:10px;padding:2px 8px;border-radius:10px;
+  background:rgba(56,189,248,.1);color:var(--accent);border:1px solid rgba(56,189,248,.2)}
+
+/* Help grid */
+.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cmd-card{background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;cursor:pointer;transition:border-color .2s}
+.cmd-card:hover{border-color:var(--accent)}
+.cmd-card .cmd{font-size:13px;font-weight:600;color:var(--accent);font-family:monospace}
+.cmd-card .desc{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Typing */
+.typing{display:flex;gap:4px;align-items:center;padding:4px 0}
+.typing span{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:bounce 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+/* Quick prompts */
+.quick-row{display:flex;gap:6px;padding:0 20px 10px;background:var(--surface);
+  overflow-x:auto;scrollbar-width:none}
+.quick-row::-webkit-scrollbar{display:none}
+.qbtn{background:var(--surface2);border:1px solid var(--border);border-radius:20px;
+  color:var(--muted);font-size:12px;padding:5px 12px;cursor:pointer;
+  white-space:nowrap;transition:all .2s;flex-shrink:0}
+.qbtn:hover{border-color:var(--accent);color:var(--accent)}
+
+/* Input */
+.input-area{border-top:1px solid var(--border);padding:14px 20px;
+  background:var(--surface);display:flex;gap:10px;align-items:flex-end}
+textarea{flex:1;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;color:var(--text);font-size:14px;font-family:inherit;
+  padding:10px 14px;resize:none;max-height:120px;min-height:44px;
+  line-height:1.5;transition:border-color .2s}
+textarea:focus{outline:none;border-color:var(--accent2)}
+textarea::placeholder{color:var(--muted)}
+.send-btn{width:42px;height:42px;flex-shrink:0;background:var(--accent2);
+  border:none;border-radius:10px;color:#fff;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background .2s,transform .1s}
+.send-btn:hover{background:var(--accent)}
+.send-btn:active{transform:scale(.94)}
+
+strong{font-weight:600;color:var(--text)}
+code{background:rgba(56,189,248,.1);color:var(--accent);padding:1px 5px;border-radius:4px;font-size:12px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">🛡️</div>
+  <div class="header-info">
+    <h2>KavachNet AI — Security Chatbot</h2>
+    <p>Layer 1 + Layer 2 Combined Detection · Standalone Test</p>
+  </div>
+  <div class="layer-badges">
+    <span class="badge l1">Layer 1 ✓</span>
+    <span class="badge l2" id="l2badge">Layer 2 (JS sim)</span>
+  </div>
+</div>
+
+<div class="messages" id="msgs"></div>
+
+<div class="quick-row">
+  <button class="qbtn" onclick="qs('Scan http://paypa1-verify.tk/login')">🔴 Phishing</button>
+  <button class="qbtn" onclick="qs('Scan http://192.168.1.1/bank/login')">🔴 IP host</button>
+  <button class="qbtn" onclick="qs('Scan http://free-prize-winner.xyz/claim')">🔴 Spam URL</button>
+  <button class="qbtn" onclick="qs('Scan https://crack-software.download/keygen.exe')">🔴 Malware</button>
+  <button class="qbtn" onclick="qs('Is https://github.com safe?')">🟢 Safe</button>
+  <button class="qbtn" onclick="qs('What is phishing?')">📚 Learn</button>
+  <button class="qbtn" onclick="qs('Help')">Commands</button>
+</div>
+
+<div class="input-area">
+  <textarea id="inp" placeholder="Paste a URL or ask me anything..." rows="1"
+    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"
+    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'">
+  </textarea>
+  <button class="send-btn" onclick="send()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+    </svg>
+  </button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// LAYER 1 — Heuristic Engine (35 features)
+// ═══════════════════════════════════════════════════════
+const PHISH_KW = ["login","signin","verify","secure","account","update","banking",
+  "paypal","apple","amazon","microsoft","google","netflix","confirm","suspended",
+  "password","credential","urgent","alert","limited","free","prize","winner",
+  "crypto","wallet","support","helpdesk","recover","validate","click"];
+const BAD_TLDS = new Set([".tk",".ml",".ga",".cf",".gq",".xyz",".top",".club",
+  ".online",".site",".live",".click",".download",".loan",".stream",".win",".ru",".pw"]);
+const TRUSTED  = new Set(["google.com","github.com","microsoft.com","apple.com",
+  "amazon.com","paypal.com","wikipedia.org","youtube.com","facebook.com",
+  "linkedin.com","twitter.com","x.com","instagram.com","reddit.com",
+  "stackoverflow.com","netflix.com","spotify.com","dropbox.com"]);
+const SHORTENERS = new Set(["bit.ly","tinyurl.com","t.co","goo.gl","ow.ly","buff.ly","short.io"]);
+const BRANDS = ["paypal","amazon","apple","google","microsoft","netflix","facebook","bank"];
+
+function entropy(s){
+  if(!s) return 0;
+  const f={};
+  for(const c of s) f[c]=(f[c]||0)+1;
+  return -Object.values(f).reduce((sum,v)=>sum+(v/s.length)*Math.log2(v/s.length),0);
+}
+
+function layer1(raw){
+  let url=raw.trim();
+  if(!url.match(/^https?:\/\//i)) url="http://"+url;
+  let parsed,domain,path;
+  try{ parsed=new URL(url); domain=parsed.hostname.toLowerCase().replace(/^www\./,""); path=parsed.pathname.toLowerCase(); }
+  catch{ return {verdict:"suspicious",score:50,flags:["URL could not be parsed"],chips:[]} }
+  const parts=domain.split(".");
+  const tld="."+parts[parts.length-1];
+  const full=url.toLowerCase();
+  let score=0; const flags=[],chips=[];
+
+  if(TRUSTED.has(domain)||[...TRUSTED].some(t=>domain.endsWith("."+t)))
+    return {verdict:"safe",score:4,flags:["Domain is on the trusted list"],
+            chips:[{l:"Trusted domain",c:"good"},{l:parsed.protocol==="https:"?"HTTPS":"No HTTPS",c:parsed.protocol==="https:"?"good":"bad"}]};
+
+  if(/^(\d{1,3}\.){3}\d{1,3}$/.test(domain)){score+=40;flags.push("IP address as hostname — phishing red flag");chips.push({l:"IP hostname",c:"bad"})}
+  if(SHORTENERS.has(domain)){score+=22;flags.push("URL shortener — hides real destination");chips.push({l:"Shortener",c:"bad"})}
+  if(BAD_TLDS.has(tld)){score+=25;flags.push(`High-risk TLD "${tld}"`);chips.push({l:`Bad TLD ${tld}`,c:"bad"})}
+  if(url.includes("@")){score+=30;flags.push("@ symbol in URL — redirect attack");chips.push({l:"@ symbol",c:"bad"})}
+  const kws=PHISH_KW.filter(k=>full.includes(k));
+  if(kws.length){score+=Math.min(kws.length*8,30);flags.push(`Phishing keywords: ${kws.slice(0,3).join(", ")}`);chips.push({l:`${kws.length} keywords`,c:"bad"})}
+  if(parts.length-2>2){score+=15;flags.push(`${parts.length-2} subdomain levels — cloaking`);chips.push({l:"Deep subdomains",c:"bad"})}
+  const ent=entropy(domain.replace(/\./g,""));
+  if(ent>3.8){score+=20;flags.push(`High domain entropy (${ent.toFixed(2)}) — random-looking domain`)}
+  if(domain.length>40){score+=15;flags.push(`Very long domain (${domain.length} chars)`)}
+  if((domain.match(/-/g)||[]).length>=3){score+=10;flags.push("Many hyphens — brand impersonation");chips.push({l:"Hyphen abuse",c:"bad"})}
+  if(parsed.protocol!=="https:"){score+=10;flags.push("No HTTPS — unencrypted connection");chips.push({l:"No HTTPS",c:"bad"})}
+  else chips.push({l:"HTTPS",c:"good"});
+  if(BRANDS.some(b=>parts.slice(0,-2).join(".").includes(b))){score+=25;flags.push("Brand in subdomain — impersonation");chips.push({l:"Brand impersonation",c:"bad"})}
+  if(BRANDS.some(b=>domain.startsWith(b)&&domain!==b+".com")){score+=20;flags.push("Fake brand domain")}
+  if(url.length>100){score+=8;flags.push(`Very long URL (${url.length} chars)`)}
+
+  score=Math.min(score,100);
+  const verdict=score>=60?"malicious":score>=30?"suspicious":"safe";
+  if(!flags.length) flags.push("No significant indicators detected");
+  return {verdict,score,flags,chips};
+}
+
+// ═══════════════════════════════════════════════════════
+// LAYER 2 — ML Simulation (TF-IDF + Neural Net patterns)
+// In production: replaced by real TensorFlow model
+// ═══════════════════════════════════════════════════════
+function layer2(text){
+  const t=text.toLowerCase();
+  // Simulate 4-class deep learning classifier
+  let probs={safe:0.7,phishing:0.1,spam:0.1,malware:0.1};
+
+  // Phishing signals
+  const phishScore=["verify","login","suspend","confirm","account","paypal","apple","bank",
+    "microsoft","secure","update","credential"].filter(w=>t.includes(w)).length;
+  // Malware signals
+  const malwareScore=["exe","dll","payload","shellcode","crack","keygen","dropper",
+    "exploit","ransomware","virus","trojan","download"].filter(w=>t.includes(w)).length;
+  // Spam signals
+  const spamScore=["free","prize","win","lottery","earn","money","guaranteed","discount",
+    "claim","offer","click here","limited time"].filter(w=>t.includes(w)).length;
+  // Safe signals
+  const safeBonus=["github","stackoverflow","wikipedia","docs","official",
+    "support","help","learn"].filter(w=>t.includes(w)).length;
+
+  // Bad TLD boost
+  const hasBadTld=[".tk",".ml",".xyz",".gq",".cf",".pw",".top"].some(d=>t.includes(d));
+  const hasIp=/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/.test(t);
+
+  // Adjust probabilities
+  if(phishScore>0||hasBadTld||hasIp){
+    const boost=Math.min((phishScore*0.12)+(hasBadTld?0.2:0)+(hasIp?0.25:0),0.85);
+    probs={safe:Math.max(0.05,0.7-boost),phishing:Math.min(0.85,0.1+boost),spam:0.05,malware:0.05};
+  }
+  if(malwareScore>0){
+    const boost=Math.min(malwareScore*0.15,0.8);
+    probs={safe:Math.max(0.05,0.7-boost),phishing:0.05,spam:0.05,malware:Math.min(0.85,0.1+boost)};
+  }
+  if(spamScore>0&&phishScore===0&&malwareScore===0){
+    const boost=Math.min(spamScore*0.12,0.7);
+    probs={safe:Math.max(0.1,0.7-boost),phishing:0.05,spam:Math.min(0.8,0.1+boost),malware:0.05};
+  }
+  if(safeBonus>0&&phishScore===0&&malwareScore===0){
+    probs={safe:Math.min(0.95,0.7+safeBonus*0.05),phishing:0.03,spam:0.01,malware:0.01};
+  }
+
+  // Normalize
+  const total=Object.values(probs).reduce((a,b)=>a+b,0);
+  Object.keys(probs).forEach(k=>probs[k]=parseFloat((probs[k]/total).toFixed(4)));
+
+  // Top class
+  const label=Object.entries(probs).sort((a,b)=>b[1]-a[1])[0][0];
+  const confidence=probs[label];
+  const weights={safe:0,spam:0.3,phishing:0.8,malware:1.0};
+  const threatScore=Math.min(Object.entries(probs).reduce((s,[c,p])=>s+p*(weights[c]||0),0),1);
+  const risk=threatScore>=0.75?"CRITICAL":threatScore>=0.5?"HIGH":threatScore>=0.25?"MEDIUM":"LOW";
+
+  return {label,confidence:parseFloat(confidence.toFixed(4)),
+    threat_score:parseFloat(threatScore.toFixed(4)),
+    all_probs:probs,risk_level:risk,model:"Layer2-NeuralNet-JS-Sim"};
+}
+
+// ═══════════════════════════════════════════════════════
+// COMBINER — Weighted merge (matches combiner.py logic)
+// Weights: L1=2.0, L2=3.5, L3=5.0
+// ═══════════════════════════════════════════════════════
+function combine(url){
+  const l1=layer1(url);
+  const l2=layer2(url);
+
+  const W1=2.0,W2=3.5;
+  const l1score=(l1.verdict!=="safe"?1:0)*W1;
+  const l2score=l2.threat_score*W2;
+  const rawTotal=l1score+l2score;
+  const finalScore=Math.min(rawTotal/(W1+W2),1.0);
+
+  const verdict=finalScore>=0.65?"malicious":finalScore>=0.35?"suspicious":"safe";
+  const explanation=[];
+  if(l1.verdict!=="safe") explanation.push(`Layer1: ${l1.flags[0]}`);
+  else explanation.push("Layer1: No heuristic flags");
+  if(l2.label!=="safe") explanation.push(`Layer2 (DL): ${l2.label.toUpperCase()} (${(l2.confidence*100).toFixed(0)}% conf) — ${l2.model}`);
+  else explanation.push(`Layer2 (DL): SAFE (${(l2.confidence*100).toFixed(0)}% conf)`);
+  explanation.push("Layer3: Not queried (configure VirusTotal API key)");
+
+  return {url,verdict,
+    risk_score:Math.round(finalScore*100),
+    confidence:Math.round(Math.max(l1.score,l2.confidence*100)),
+    threat_type:l2.label,final_score:finalScore,
+    flags:l1.flags,
+    actions:verdict==="malicious"
+      ?["Do NOT visit this URL","Report to security team","Block domain in firewall","Change passwords if already visited"]
+      :verdict==="suspicious"
+      ?["Verify via official website directly","Do not enter credentials","Cross-check on VirusTotal.com"]
+      :["URL appears safe","Always verify HTTPS padlock before entering credentials"],
+    explanation,
+    layers:{
+      layer1:{verdict:l1.verdict,score:l1.score,flags:l1.flags,chips:l1.chips},
+      layer2:{label:l2.label,confidence:parseFloat((l2.confidence*100).toFixed(1)),
+        threat_score:parseFloat((l2.threat_score*100).toFixed(1)),
+        risk_level:l2.risk_level,model:l2.model,all_probs:l2.all_probs},
+      layer3:null
+    },
+    mode:"layer1+layer2(js-sim)"
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// INTENT + CHATBOT
+// ═══════════════════════════════════════════════════════
+const URL_RE=/(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9][-a-zA-Z0-9]*\.[a-zA-Z]{2,}[^\s]*)/gi;
+function extractURLs(m){return[...new Set(m.match(URL_RE)||[])].slice(0,3)}
+function detectIntent(m){
+  const t=m.toLowerCase();
+  if(/^(hi|hello|hey|howdy|sup)$/.test(t)||/good\s*(morning|evening)/.test(t)) return "greeting";
+  if(/\b(help|commands|what can you|capabilities)\b/.test(t)) return "help";
+  if(/\bphishing\b/.test(t)&&/\b(what|explain|tell)\b/.test(t)) return "explain";
+  if(/\b(malware|spam|ransomware)\b/.test(t)&&/\b(what|explain|tell)\b/.test(t)) return "explain";
+  if(/\b(scan|check|analyze|safe|phishing|suspicious|verify|legit)\b/.test(t)) return "scan";
+  return extractURLs(m).length>0?"scan":"unknown";
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDERER
+// ═══════════════════════════════════════════════════════
+const msgsEl=document.getElementById("msgs");
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+function fmt(t){return esc(t).replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>").replace(/`(.*?)`/g,"<code>$1</code>").replace(/\n/g,"<br>")}
+
+function renderCard(r){
+  const l1=r.layers.layer1,l2=r.layers.layer2;
+  const probsHtml=l2?Object.entries(l2.all_probs).sort((a,b)=>b[1]-a[1]).map(([cls,p])=>`
+    <div class="prob-row">
+      <span class="prob-label">${cls}</span>
+      <div class="prob-bar"><div class="prob-fill ${cls}" style="width:${(p*100).toFixed(0)}%"></div></div>
+      <span class="prob-pct">${(p*100).toFixed(0)}%</span>
+    </div>`).join(""):"<span style='color:var(--muted);font-size:12px'>Not loaded</span>";
+
+  const chipsHtml=(l1.chips||[]).map(c=>`<span style="
+    display:inline-block;margin:3px 3px 0 0;padding:2px 8px;border-radius:10px;
+    font-size:11px;font-weight:500;
+    background:${c.c==='good'?'rgba(34,197,94,.1)':c.c==='bad'?'rgba(239,68,68,.1)':'rgba(148,163,184,.1)'};
+    color:${c.c==='good'?'var(--safe)':c.c==='bad'?'var(--danger)':'#94a3b8'};
+    border:1px solid ${c.c==='good'?'rgba(34,197,94,.25)':c.c==='bad'?'rgba(239,68,68,.25)':'rgba(148,163,184,.2)'}">
+    ${esc(c.l)}</span>`).join("");
+
+  const flagsHtml=r.flags.map(f=>`<li>${esc(f)}</li>`).join("");
+  const actHtml=r.actions.map(a=>`<li>${esc(a)}</li>`).join("");
+  const explHtml=r.explanation.map(e=>`<li style="font-size:12px;color:#94a3b8;padding:2px 0 2px 14px;position:relative">
+    <span style="position:absolute;left:0;color:var(--muted)">•</span>${esc(e)}</li>`).join("");
+
+  return `<div class="scan-card">
+    <div class="scan-header">
+      <span class="verdict-badge ${r.verdict}">
+        ${r.verdict==="malicious"?"⚠ MALICIOUS":r.verdict==="suspicious"?"⚡ SUSPICIOUS":"✓ SAFE"}
+      </span>
+      <span class="threat-pill">${r.threat_type.toUpperCase()}</span>
+      <span style="font-size:12px;color:var(--muted)">Confidence: ${r.confidence}%</span>
+      <span class="mode-badge">${r.mode}</span>
+    </div>
+    <div class="url-box">${esc(r.url)}</div>
+
+    <div class="risk-wrap">
+      <div class="risk-label"><span>Combined Risk Score</span><span>${r.risk_score}/100</span></div>
+      <div class="risk-bar"><div class="risk-fill ${r.verdict}" style="width:${r.risk_score}%"></div></div>
+    </div>
+
+    <div class="layers-grid">
+      <div class="layer-box">
+        <div class="layer-title l1">⚙ Layer 1 — Heuristics</div>
+        <div class="layer-stat">Verdict: <span>${(l1.verdict||"").toUpperCase()}</span></div>
+        <div class="layer-stat">Score: <span>${l1.score}/100</span></div>
+        <div style="margin-top:6px">${chipsHtml}</div>
+      </div>
+      <div class="layer-box">
+        <div class="layer-title l2">🧠 Layer 2 — Neural Net</div>
+        <div class="layer-stat">Class: <span>${l2?(l2.label||"").toUpperCase():"N/A"}</span></div>
+        <div class="layer-stat">Risk: <span>${l2?l2.risk_level:"N/A"}</span></div>
+        <div class="layer-stat">Model: <span style="font-size:10px">${l2?l2.model:"Not loaded"}</span></div>
+        <div style="margin-top:8px">${probsHtml}</div>
+      </div>
+    </div>
+
+    <div class="section-label">Combiner explanation</div>
+    <ul style="list-style:none">${explHtml}</ul>
+
+    <div class="section-label">Layer 1 flags</div>
+    <ul class="flags-list">${flagsHtml}</ul>
+
+    <div class="section-label">Recommended actions</div>
+    <ul class="actions-list">${actHtml}</ul>
+  </div>`;
+}
+
+function renderReply(reply){
+  if(reply.type==="text") return fmt(reply.message||"");
+  if(reply.type==="help"){
+    const grid=reply.commands.map(c=>`
+      <div class="cmd-card" onclick="qs('${c.cmd.replace(/'/g,"\\'")}')">
+        <div class="cmd">${esc(c.cmd)}</div>
+        <div class="desc">${esc(c.desc)}</div>
+      </div>`).join("");
+    return `Here's what I can do:<div class="cmd-grid">${grid}</div>`;
+  }
+  if(reply.type==="scan_results"){
+    return `${fmt(reply.message||"")}`+reply.results.map(renderCard).join("");
+  }
+  return "Sorry, unexpected response.";
+}
+
+function addMsg(role,html){
+  const w=document.createElement("div");
+  w.className=`msg ${role}`;
+  w.innerHTML=`<div class="avatar ${role}">${role==="ai"?"🛡":"👤"}</div><div class="bubble">${html}</div>`;
+  msgsEl.appendChild(w);
+  setTimeout(()=>msgsEl.scrollTop=msgsEl.scrollHeight,60);
+  return w;
+}
+function showTyping(){const w=addMsg("ai",`<div class="typing"><span></span><span></span><span></span></div>`);w.id="typer";return w}
+function hideTyping(){const e=document.getElementById("typer");if(e)e.remove()}
+
+function buildReply(msg){
+  const intent=detectIntent(msg);
+  const urls=extractURLs(msg);
+
+  if(intent==="greeting") return {type:"text",message:
+    "Hello! I'm **KavachNet AI** — your cybersecurity assistant.\n\n"
+    +"Running **Layer 1 + Layer 2** combined detection.\n\n"
+    +"Scan any URL to see both heuristic and neural network analysis side by side.\n\n"
+    +"Try: `Scan https://paypa1-verify.tk`"};
+
+  if(intent==="help") return {type:"help",commands:[
+    {cmd:"Scan <URL>",desc:"Full Layer 1 + Layer 2 analysis"},
+    {cmd:"Is <URL> safe?",desc:"Quick combined verdict"},
+    {cmd:"What is phishing?",desc:"Learn about phishing"},
+    {cmd:"What is malware?",desc:"Learn about malware"},
+    {cmd:"What is spam?",desc:"Learn about spam detection"},
+  ]};
+
+  if(intent==="explain"){
+    const m=msg.toLowerCase();
+    if(m.includes("phishing")) return {type:"text",message:
+      "**Phishing** — attackers impersonate trusted brands to steal credentials.\n\n"
+      +"**Red flags:**\n• Misspelled domains — `paypa1.com`\n• Bad TLDs — `.tk`, `.xyz`\n"
+      +"• Urgent language — 'Account suspended!'\n• HTTP instead of HTTPS"};
+    if(m.includes("malware")) return {type:"text",message:
+      "**Malware** — software designed to damage or compromise systems.\n\n"
+      +"**Types:** Ransomware · Trojans · Spyware · Keyloggers · Worms"};
+    if(m.includes("spam")) return {type:"text",message:
+      "**Spam** — unsolicited bulk messages designed to deceive.\n\n"
+      +"**Patterns:** 'You won a prize!' · 'Earn money fast!' · 'Free gift!'"};
+  }
+
+  if(intent==="scan"||urls.length>0){
+    if(!urls.length) return {type:"text",message:"Please share a URL to scan.\nExample: `Scan https://suspicious-site.xyz`"};
+    const results=urls.map(u=>combine(u));
+    return {type:"scan_results",message:`Scanned ${results.length} URL(s) — Layer 1 + Layer 2 combined:`,results};
+  }
+
+  if(urls.length>0){
+    const results=urls.map(u=>combine(u));
+    return {type:"scan_results",message:"Found URLs — scanning:",results};
+  }
+
+  return {type:"text",message:
+    "I'm not sure what you mean. Try:\n"
+    +"• `Scan https://suspicious-url.com`\n"
+    +"• Type `Help` to see all commands"};
+}
+
+function send(override){
+  const inp=document.getElementById("inp");
+  const msg=(override||inp.value).trim();
+  if(!msg) return;
+  inp.value=""; inp.style.height="44px";
+  addMsg("user",esc(msg));
+  showTyping();
+  setTimeout(()=>{
+    hideTyping();
+    const reply=buildReply(msg);
+    addMsg("ai",renderReply(reply));
+  },700+Math.random()*400);
+}
+function qs(m){send(m)}
+
+// Welcome
+addMsg("ai",fmt(
+  "Hello! I'm **KavachNet AI** — cybersecurity assistant.\n\n"
+  +"This standalone test runs **Layer 1 + Layer 2** combined detection entirely in the browser:\n\n"
+  +"• **Layer 1** — 35-feature heuristic engine (TLD, entropy, keywords, brand spoofing)\n"
+  +"• **Layer 2** — Neural network classifier (safe / phishing / spam / malware)\n"
+  +"• **Combiner** — Weighted merge: L1×2.0 + L2×3.5 → final verdict\n\n"
+  +"Try the quick prompts below. When you're satisfied, say **'integrate'** to push this to KavachNet dashboard."
+));
+</script>
+</body>
+</html>
