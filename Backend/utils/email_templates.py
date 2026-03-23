@@ -52,24 +52,28 @@ def build_otp_email(otp: str):
     return subject, _base_template("Authentication Sequence", html_body), text_content
 
 def build_institution_approval_email(admin_name: str, code: str, expiry: str):
-    subject = "KavachNet — Institution Approved!"
+    subject = "Welcome to KavachNet — Institution Approved"
     expiry_date = datetime.datetime.fromisoformat(expiry).strftime('%d %b %Y, %I:%M %p')
     
-    text_content = f"Hello {admin_name},\nYour institution is approved. Code: {code}\nExpires: {expiry_date}."
+    text_content = f"Hello {admin_name},\nWelcome to KavachNet! Your institution registration has been formally approved.\nLogin URL: https://kavach-front.s3.us-east-1.amazonaws.com/Frontend/admin-login.html\nActive Institution Code: {code}\nExpires: {expiry_date}\nPlease note: This is an automated message. Do not reply."
     
     html_body = f"""
         <p>Hello {admin_name},</p>
-        <p>Great news! Your institution has been formally approved and boarded onto the KavachNet platform.</p>
+        <p><strong>Welcome to KavachNet!</strong> Great news! Your institution registration has been formally approved and boarded onto the KavachNet platform.</p>
         
         <div style="background-color: #f0fdf4; border-left: 4px solid #22c55e; padding: 20px; margin: 25px 0;">
-            <p style="margin: 0; color: #166534; font-weight: bold; text-transform: uppercase; font-size: 12px;">Active Invitation Code</p>
+            <p style="margin: 0; color: #166534; font-weight: bold; text-transform: uppercase; font-size: 12px;">Active Institution Code</p>
             <p style="margin: 5px 0 0 0; font-family: monospace; font-size: 24px; color: #14532d;">{code}</p>
         </div>
         
-        <p>You can use this code to register your initial Administrator account on the portal.</p>
+        <p>You can use this code to register your initial Administrator account or login into the portal via the following secure URL:</p>
+        <p><a href="https://kavach-front.s3.us-east-1.amazonaws.com/Frontend/admin-login.html" style="color: #38bdf8; font-weight: bold; text-decoration: none;">https://kavach-front.s3.us-east-1.amazonaws.com/Frontend/admin-login.html</a></p>
+        
         <p><strong>Security Policy:</strong> This code rotates and will automatically expire on <strong>{expiry_date}</strong>. Subsequent codes will be assigned directly via your SOC dashboard or delivered via targeted security briefings.</p>
         
         <p>Welcome to the shield.</p>
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0 15px 0;" />
+        <p style="color: #94a3b8; font-size: 12px; margin: 0;"><em>Please note: This is an automated message. Do not reply to this email.</em></p>
     """
     
     return subject, _base_template("Boarding Complete", html_body), text_content

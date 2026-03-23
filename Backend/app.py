@@ -164,6 +164,14 @@ def create_app():
             _boot_log.error("Database initialization error: %s", e, exc_info=True)
 
     _boot_log.info("Application Ready. All systems operational.")
+    
+    # Initialize background email dispatcher
+    try:
+        from utils.email_queue import email_worker
+        email_worker.start()
+    except Exception as e:
+        _boot_log.warning(f"Email worker failed to start: {e}")
+        
     return app
 
 

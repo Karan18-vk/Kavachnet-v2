@@ -49,3 +49,41 @@ def verify_otp(email, otp):
     record = OTPRecord.query.filter_by(email=email, otp_code=otp, used=False)                            .order_by(OTPRecord.created_at.desc()).first()
     if not record or datetime.utcnow() > record.expires_at: return False
     record.used = True; db.session.commit(); return True
+
+import os
+import time
+
+def send_email_with_retry(to_email, subject, html_content, text_content, max_attempts=3):
+    from config import Config
+    username = Config.EMAIL_ADDRESS
+    password = os.getenv("EMAIL_PASSWORD", Config.EMAIL_PASSWORD)
+    mail_server = Config.SMTP_SERVER
+    mail_port = Config.SMTP_PORT
+    
+    if not username or not password:
+        from utils.logger import app_logger
+        app_logger.error(f"[Email] Missing credentials for {to_email}")
+        return False, 1, "Missing email credentials"
+        
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = username
+    msg["To"] = to_email
+    
+    msg.attach(MIMEText(text_content, "plain"))
+    msg.attach(MIMEText(html_content, "html"))
+    
+    last_err = ""
+    for attempt in range(max_attempts):
+        try:
+            with smtplib.SMTP(mail_server, mail_port, timeout=10) as s:
+                s.ehlo()
+                s.starttls()
+                s.login(username, password)
+                s.sendmail(username, to_email, msg.as_string())
+            return True, attempt + 1, ""
+        except Exception as e:
+            last_err = str(e)
+            time.sleep(1 + attempt) # Simple backoff
+            
+    return False, max_attempts, last_err
