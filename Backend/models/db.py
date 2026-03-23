@@ -125,14 +125,31 @@ class Database:
             host = result.hostname or 'localhost'
             port = result.port or 3306
             
-            conn = pymysql.connect(
-                host=host,
-                port=port,
-                user=user,
-                password=password,
-                database=db_name,
-                autocommit=False
-            )
+            try:
+                conn = pymysql.connect(
+                    host=host,
+                    port=port,
+                    user=user,
+                    password=password,
+                    database=db_name,
+                    autocommit=False
+                )
+            except pymysql.err.OperationalError as e:
+                if e.args[0] == 1049: # Unknown database
+                    print(f"[DB INIT] Database '{db_name}' not found. Auto-creating...")
+                    temp_conn = pymysql.connect(host=host, port=port, user=user, password=password, autocommit=True)
+                    temp_conn.cursor().execute(f"CREATE DATABASE IF NOT EXISTS {db_name}")
+                    temp_conn.close()
+                    conn = pymysql.connect(
+                        host=host,
+                        port=port,
+                        user=user,
+                        password=password,
+                        database=db_name,
+                        autocommit=False
+                    )
+                else:
+                    raise
             return DBWrapper(conn, is_mysql=True)
             
         if (url.startswith('postgres') or url.startswith('postgresql')) and PSYCOPG2_AVAILABLE:
@@ -665,12 +682,12 @@ class Database:
             five_mins_ago = (datetime.datetime.now() - datetime.timedelta(minutes=5)).isoformat()
             now = datetime.datetime.now().isoformat()
             
-            if hasattr(conn, 'is_postgres') and conn.is_postgres:
+            if (hasattr(conn, 'is_postgres') and conn.is_postgres) or (hasattr(conn, 'is_mysql') and conn.is_mysql):
                 rows = conn.execute(
                     '''SELECT id FROM email_queue 
                        WHERE (status = 'PENDING' AND next_retry_at <= ?) OR (status = 'PROCESSING' AND updated_at < ?) 
                        ORDER BY created_at ASC LIMIT ?
-                       FOR UPDATE SKIP LOCKED''',
+                       FOR UPDATE''',
                     (now, five_mins_ago, batch_size)
                 ).fetchall()
             else:

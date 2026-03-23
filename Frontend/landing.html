@@ -26,14 +26,9 @@
     <div class="parallax-wrapper">
       <!-- NAVIGATION -->
       <nav class="landing-nav">
-        <a href="landing.html" class="brand" style="text-decoration: none;">
-          <div class="brand-logo-shield" style="width: 32px; height: 32px; margin-right: 6px;">
-            <img src="Kavach Net logo.png" alt="Logo" />
-          </div>
-          <div class="brand-text-stacked">
-            <span class="brand-kavach" style="font-size: 1.1rem;">KAVACH</span>
-            <span class="brand-net" style="font-size: 0.7rem; letter-spacing: 2px;">NET</span>
-          </div>
+        <a href="landing.html" class="brand">
+          <img src="Kavach Net logo.png" alt="Kavach Net" />
+          <span>Kavach Net</span>
         </a>
         <div class="landing-nav-links" id="mobile-nav-links">
           <a href="#features">Features</a>
@@ -351,14 +346,13 @@
         <div
           class="d-flex flex-wrap justify-content-between align-items-center gap-4"
         >
-          <div class="brand" style="display: flex; align-items: center;">
-            <div class="brand-logo-shield" style="width: 30px; height: 30px; margin-right: 8px;">
-              <img src="Kavach Net logo.png" alt="Logo" />
-            </div>
-            <div class="brand-text-stacked">
-              <span class="brand-kavach" style="font-size: 1.1rem;">KAVACH</span>
-              <span class="brand-net" style="font-size: 0.72rem; letter-spacing: 2px;">NET</span>
-            </div>
+          <div class="brand">
+            <img
+              src="Kavach Net logo.png"
+              alt="Logo"
+              style="width: 30px; margin-right: 8px"
+            />
+            <span style="color: #fff; font-weight: 700">Kavach Net</span>
           </div>
           <p style="color: #475569; font-size: 0.85rem; margin: 0">
             &copy; 2026 Kavach Net Security. All rights reserved.
@@ -575,26 +569,32 @@
       // 7. FETCH DYNAMIC PUBLIC STATS
       async function fetchPublicStats() {
         try {
-          const baseUrl = window.BACKEND_URL || "https://kavachnet-backend.onrender.com";
-          const endpoint = baseUrl.endsWith('/api/v1') ? baseUrl : baseUrl + '/api/v1';
+          const baseUrl =
+            window.BACKEND_URL || "https://kavachnet-backend.onrender.com";
+          const endpoint = baseUrl.endsWith("/api/v1")
+            ? baseUrl
+            : baseUrl + "/api/v1";
           const res = await fetch(endpoint + "/dashboard/public_summary");
-          if(res.ok) {
+          if (res.ok) {
             const data = await res.json();
-            document.getElementById("landing-threats").innerText = data.threats_detected || "15.4k";
-            document.getElementById("landing-nodes").innerText = data.nodes_protected || "2.4k";
-            document.getElementById("landing-response").innerText = data.response_time || "5m";
-            
+            document.getElementById("landing-threats").innerText =
+              data.threats_detected || "15.4k";
+            document.getElementById("landing-nodes").innerText =
+              data.nodes_protected || "2.4k";
+            document.getElementById("landing-response").innerText =
+              data.response_time || "5m";
+
             // Re-trigger counter animation correctly after stats load
-            document.querySelectorAll(".counter-val").forEach(el => {
+            document.querySelectorAll(".counter-val").forEach((el) => {
               el.dataset.done = "";
             });
             startCounters();
           }
-        } catch(e) {
+        } catch (e) {
           console.error("Could not fetch dynamic stats");
         }
       }
-      
+
       // Call fetch stats on init
       fetchPublicStats();
     </script>

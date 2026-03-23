@@ -149,14 +149,14 @@ def create_app():
     db.init_app(app)
     with app.app_context():
         try:
-            db.create_all()
-            _boot_log.info("SQLAlchemy tables created/verified.")
-            
-            # Initialize custom Database tables
+            # Initialize custom Database tables FIRST to trigger auto-creation
             from models.db import Database
             custom_db = Database()
             custom_db._create_tables()
             _boot_log.info("Custom Database tables ready.")
+
+            db.create_all()
+            _boot_log.info("SQLAlchemy tables created/verified.")
             
             _seed_demo_data()
             _boot_log.info("Demo data seeded.")

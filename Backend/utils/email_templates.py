@@ -52,7 +52,7 @@ def build_otp_email(otp: str):
     return subject, _base_template("Authentication Sequence", html_body), text_content
 
 def build_institution_approval_email(admin_name: str, code: str, expiry: str):
-    subject = "Welcome to KavachNet — Institution Approved"
+    subject = "Welcome to KavachNet - Institution Approved"
     expiry_date = datetime.datetime.fromisoformat(expiry).strftime('%d %b %Y, %I:%M %p')
     
     text_content = f"Hello {admin_name},\nWelcome to KavachNet! Your institution registration has been formally approved.\nLogin URL: https://kavach-front.s3.us-east-1.amazonaws.com/Frontend/admin-login.html\nActive Institution Code: {code}\nExpires: {expiry_date}\nPlease note: This is an automated message. Do not reply."
