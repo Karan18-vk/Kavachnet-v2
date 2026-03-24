@@ -1,15 +1,18 @@
 import datetime
 from flask import Blueprint, request, jsonify
-from models.user import AuditLog, Incident, BlockedIP, ScanResult, User
-from utils.jwt_helper import token_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from models.user import AuditLog, Incident, BlockedIP, ScanResult, User, UserOverride
 from database import db
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
 @dashboard_bp.route("/stats", methods=["GET"])
-@token_required
+@jwt_required()
 def stats():
-    inst_id = request.current_user.institution_id
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
+    inst_id = user.institution_id
     today   = datetime.datetime.utcnow().replace(hour=0,minute=0,second=0)
     trend   = []
     for i in range(6,-1,-1):
@@ -24,15 +27,22 @@ def stats():
         "open":Incident.query.filter_by(institution_id=inst_id,status="open").count(),
         "critical":Incident.query.filter_by(institution_id=inst_id,severity="critical").count(),
         "severity_breakdown":sev},
+        "overrides":{
+            "total": UserOverride.query.count(), # Global for now or filtered if needed
+            "recent": [o.to_dict() for o in UserOverride.query.order_by(UserOverride.timestamp.desc()).limit(5).all()]
+        },
         "scanning":{"total_scans":ScanResult.query.filter_by(institution_id=inst_id).count(),
             "threats_found":ScanResult.query.filter_by(institution_id=inst_id,verdict="malicious").count()},
         "firewall":{"blocked_ips":BlockedIP.query.filter_by(institution_id=inst_id,is_active=True).count()},
         "trend_7d":trend}), 200
 
 @dashboard_bp.route("/incidents", methods=["GET"])
-@token_required
+@jwt_required()
 def list_incidents():
-    inst_id = request.current_user.institution_id
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
+    inst_id = user.institution_id
     page    = request.args.get("page",1,type=int)
     q = Incident.query.filter_by(institution_id=inst_id)
     if request.args.get("status"):   q = q.filter_by(status=request.args.get("status"))
@@ -41,10 +51,13 @@ def list_incidents():
     return jsonify({"incidents":[i.to_dict() for i in incidents.items],"total":incidents.total}), 200
 
 @dashboard_bp.route("/incidents", methods=["POST"])
-@token_required
+@jwt_required()
 def create_incident():
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
     data = request.get_json() or {}
-    inc  = Incident(institution_id=request.current_user.institution_id,
+    inc  = Incident(institution_id=user.institution_id,
         title=data.get("title","Manual incident"), description=data.get("description",""),
         threat_type=data.get("threat_type","anomaly"), severity=data.get("severity","medium"),
         source_ip=data.get("source_ip",""), target=data.get("target",""),
@@ -53,12 +66,15 @@ def create_incident():
     return jsonify({"incident":inc.to_dict()}), 201
 
 @dashboard_bp.route("/incidents/<int:incident_id>/status", methods=["PUT"])
-@token_required
+@jwt_required()
 def update_incident(incident_id):
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
     data   = request.get_json() or {}
     status = data.get("status")
     if status not in ("open","investigating","resolved"): return jsonify({"error":"Invalid status"}), 400
-    inc = Incident.query.filter_by(id=incident_id,institution_id=request.current_user.institution_id).first()
+    inc = Incident.query.filter_by(id=incident_id,institution_id=user.institution_id).first()
     if not inc: return jsonify({"error":"Not found"}), 404
     inc.status = status
     if status == "resolved": inc.resolved_at = datetime.datetime.utcnow()
@@ -66,35 +82,52 @@ def update_incident(incident_id):
     return jsonify({"incident":inc.to_dict()}), 200
 
 @dashboard_bp.route("/firewall", methods=["GET"])
-@token_required
+@jwt_required()
 def list_blocked():
-    blocked = BlockedIP.query.filter_by(institution_id=request.current_user.institution_id,is_active=True)                             .order_by(BlockedIP.created_at.desc()).all()
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
+    blocked = BlockedIP.query.filter_by(institution_id=user.institution_id,is_active=True) \
+                             .order_by(BlockedIP.created_at.desc()).all()
     return jsonify({"blocked_ips":[b.to_dict() for b in blocked]}), 200
 
 @dashboard_bp.route("/firewall/block", methods=["POST"])
-@token_required
+@jwt_required()
 def block_ip():
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
     data = request.get_json() or {}
     ip   = data.get("ip","").strip()
     if not ip: return jsonify({"error":"IP required"}), 400
-    if BlockedIP.query.filter_by(ip_address=ip,institution_id=request.current_user.institution_id,is_active=True).first():
+    if BlockedIP.query.filter_by(ip_address=ip,institution_id=user.institution_id,is_active=True).first():
         return jsonify({"error":"IP already blocked"}), 409
     expires = None
     if data.get("expires_hours"):
         expires = datetime.datetime.utcnow() + datetime.timedelta(hours=int(data["expires_hours"]))
     b = BlockedIP(ip_address=ip, reason=data.get("reason","Manual block"),
-        blocked_by=request.current_user.id, institution_id=request.current_user.institution_id,
+        blocked_by=user.id, institution_id=user.institution_id,
         expires_at=expires)
     db.session.add(b); db.session.commit()
     return jsonify({"message":f"IP {ip} blocked","block":b.to_dict()}), 201
 
 @dashboard_bp.route("/firewall/<int:block_id>", methods=["DELETE"])
-@token_required
+@jwt_required()
 def unblock_ip(block_id):
-    b = BlockedIP.query.filter_by(id=block_id,institution_id=request.current_user.institution_id).first()
+    username = get_jwt_identity()
+    user = User.query.filter_by(username=username).first()
+    if not user: return jsonify({"error": "User context not found"}), 401
+    b = BlockedIP.query.filter_by(id=block_id,institution_id=user.institution_id).first()
     if not b: return jsonify({"error":"Not found"}), 404
     b.is_active = False; db.session.commit()
     return jsonify({"message":f"IP {b.ip_address} unblocked"}), 200
+
+@dashboard_bp.route("/overrides", methods=["GET"])
+@jwt_required()
+def list_overrides():
+    # Fetch recent security overrides
+    overrides = UserOverride.query.order_by(UserOverride.timestamp.desc()).limit(50).all()
+    return jsonify({"overrides": [o.to_dict() for o in overrides]}), 200
 
 @dashboard_bp.route("/public_summary", methods=["GET"])
 def public_summary():

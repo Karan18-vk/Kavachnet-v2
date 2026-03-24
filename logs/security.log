@@ -1,0 +1,7 @@
+2026-03-23 15:49:35,843 INFO: SuperAdmin session initialized for kavachnet_root [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\routes\auth_routes.py:63]
+2026-03-23 15:50:43,738 INFO: SuperAdmin session initialized for kavachnet_root [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\routes\auth_routes.py:63]
+2026-03-23 15:53:13,704 INFO: User login successful: karan_borde [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py:151]
+2026-03-23 15:57:01,790 INFO: User login successful: karan_borde [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py:151]
+2026-03-23 15:57:51,888 INFO: User login successful: admin_kavach [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py:151]
+2026-03-23 16:01:48,066 INFO: User login successful: admin_kavach [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py:151]
+2026-03-23 16:10:45,942 INFO: User login successful: admin_kavach [in C:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py:151]

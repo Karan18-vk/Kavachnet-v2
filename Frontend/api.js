@@ -30,6 +30,7 @@ const API_BASE = (() => {
 
 
 console.log("[KavachNet] API Base:", API_BASE);
+window.KAVACH_API_BASE = API_BASE;
 
 /**
  * Global Security Interceptor

@@ -206,10 +206,14 @@ class Database:
             )""",
             """CREATE TABLE IF NOT EXISTS incidents (
                 id VARCHAR(255) PRIMARY KEY,
-                type VARCHAR(50) NOT NULL,
-                severity VARCHAR(20) NOT NULL,
-                message TEXT NOT NULL,
+                institution_id VARCHAR(255),
+                title VARCHAR(255),
+                description TEXT,
+                threat_type VARCHAR(50),
+                severity VARCHAR(20) DEFAULT 'medium',
                 status VARCHAR(20) DEFAULT 'OPEN',
+                confidence FLOAT,
+                target TEXT,
                 timestamp VARCHAR(50) NOT NULL,
                 institution_code VARCHAR(50),
                 forensics TEXT
@@ -256,6 +260,33 @@ class Database:
                 created_at VARCHAR(50) NOT NULL,
                 updated_at VARCHAR(50) NOT NULL,
                 next_retry_at VARCHAR(50) NOT NULL
+            )""",
+            """CREATE TABLE IF NOT EXISTS chat_messages (
+                id VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                message TEXT NOT NULL,
+                reply TEXT NOT NULL,
+                intent VARCHAR(50),
+                timestamp VARCHAR(50) NOT NULL
+            )""",
+            """CREATE TABLE IF NOT EXISTS ai_scans (
+                id VARCHAR(255) PRIMARY KEY,
+                input_data TEXT NOT NULL,
+                type VARCHAR(50) NOT NULL,
+                prediction VARCHAR(20) NOT NULL,
+                confidence FLOAT NOT NULL,
+                risk_level VARCHAR(20) NOT NULL,
+                reason TEXT,
+                timestamp VARCHAR(50) NOT NULL,
+                username VARCHAR(255)
+            )""",
+            """CREATE TABLE IF NOT EXISTS user_overrides (
+                id VARCHAR(255) PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                target_url TEXT NOT NULL,
+                risk_level VARCHAR(20) NOT NULL,
+                timestamp VARCHAR(50) NOT NULL,
+                forensics TEXT
             )"""
         ]
         
@@ -514,39 +545,54 @@ class Database:
     # ── INCIDENTS ─────────────────────────────
     def save_incident(self, incident: dict, institution_code=None):
         import datetime
+        import uuid
         from flask import request
         from utils.logger import security_logger
         
-        # Validation
-        itype = incident.get("type", "UNKNOWN")
+        title = incident.get("title") or incident.get("type", "UNKNOWN")
+        description = incident.get("description") or incident.get("message", "No message provided")
+        threat_type = incident.get("threat_type") or incident.get("type", "unknown")
         severity = incident.get("severity", "LOW")
-        message = incident.get("message", "No message provided")
+        confidence = incident.get("confidence", 0.0)
+        target = incident.get("target", "unknown")
         
-        if not any([itype, severity, message]):
-             security_logger.error("[DB] Attempted to save empty incident.")
-             return False
-             
-        # Ultra Security: Capture IP and UA if in request context
-        ip = "system"
-        ua = "system"
+        # Capture IP/UA
+        ip, ua = "system", "system"
         try:
             ip = request.remote_addr or "unknown"
             ua = request.headers.get("User-Agent", "unknown")
-        except:
-            pass
-            
+        except: pass
         forensics = f"IP: {ip} | UA: {ua}"
         
         conn = self._connect()
         try:
             conn.execute(
-                "INSERT INTO incidents (id, type, severity, message, status, timestamp, institution_code, forensics) VALUES (?,?,?,?,?,?,?,?)",
-                (str(uuid.uuid4()), itype, severity, message, "OPEN", datetime.datetime.now().isoformat(), institution_code, forensics)
+                "INSERT INTO incidents (id, title, description, threat_type, severity, status, confidence, target, timestamp, institution_code, forensics) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                (str(uuid.uuid4()), title, description, threat_type, severity, "OPEN", confidence, target, datetime.datetime.now().isoformat(), institution_code, forensics)
             )
             conn.commit()
             return True
         except Exception as e:
             security_logger.error(f"[DB] Incident storage failed: {str(e)}")
+            return False
+        finally:
+            conn.close()
+
+    def save_scan_result(self, scan_type, input_data, result_dict, user_id, institution_id):
+        import uuid
+        conn = self._connect()
+        try:
+            import json
+            conn.execute(
+                "INSERT INTO ai_scans (id, input_data, type, prediction, confidence, risk_level, reason, timestamp, username) VALUES (?,?,?,?,?,?,?,?,?)",
+                (str(uuid.uuid4()), input_data, scan_type, result_dict['verdict'], result_dict['confidence'], 
+                 str(result_dict.get('risk_score', 0)), json.dumps(result_dict.get('flags', [])), 
+                 datetime.datetime.now().isoformat(), user_id)
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            print(f"[DB] Scan storage failed: {e}")
             return False
         finally:
             conn.close()
@@ -785,5 +831,112 @@ class Database:
                 (institution_id, one_hour_ago)
             ).fetchone()['count']
             return count < 50
+        finally:
+            conn.close()
+
+    # ── CHAT HISTORY ──────────────────────────
+    def save_chat_message(self, username, message, reply, intent="unknown"):
+        conn = self._connect()
+        try:
+            conn.execute(
+                "INSERT INTO chat_messages (id, username, message, reply, intent, timestamp) VALUES (?,?,?,?,?,?)",
+                (str(uuid.uuid4()), username, message, reply, intent, datetime.datetime.now().isoformat())
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            from utils.logger import app_logger
+            app_logger.error(f"[DB] Chat message storage failed: {str(e)}")
+            return False
+        finally:
+            conn.close()
+
+    def get_chat_history(self, username, limit=20):
+        conn = self._connect()
+        try:
+            rows = conn.execute(
+                "SELECT * FROM chat_messages WHERE username=? ORDER BY timestamp DESC LIMIT ?",
+                (username, limit)
+            )
+            data = rows.fetchall()
+            # Return in chronological order
+            return list(reversed([dict(r) for r in data]))
+        except Exception as e:
+            from utils.logger import app_logger
+            app_logger.error(f"[DB] Chat history retrieval failed: {str(e)}")
+            return []
+        finally:
+            conn.close()
+
+    # ── AI SCANS ──────────────────────────────
+    def save_ai_scan(self, input_data, scan_type, prediction, confidence, risk_level, reason, username=None):
+        conn = self._connect()
+        try:
+            conn.execute(
+                """INSERT INTO ai_scans (id, input_data, type, prediction, confidence, risk_level, reason, timestamp, username) 
+                   VALUES (?,?,?,?,?,?,?,?,?)""",
+                (str(uuid.uuid4()), input_data, scan_type, prediction, confidence, risk_level, reason, datetime.datetime.now().isoformat(), username)
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            from utils.logger import app_logger
+            app_logger.error(f"[DB] AI scan storage failed: {str(e)}")
+            return False
+        finally:
+            conn.close()
+
+    def get_ai_scans(self, username=None, limit=50):
+        conn = self._connect()
+        try:
+            if username:
+                rows = conn.execute("SELECT * FROM ai_scans WHERE username=? ORDER BY timestamp DESC LIMIT ?", (username, limit)).fetchall()
+            else:
+                rows = conn.execute("SELECT * FROM ai_scans ORDER BY timestamp DESC LIMIT ?", (limit,)).fetchall()
+            return [dict(r) for r in rows]
+        except Exception as e:
+            from utils.logger import app_logger
+            app_logger.error(f"[DB] AI scan retrieval failed: {str(e)}")
+            return []
+        finally:
+            conn.close()
+
+    # ── USER OVERRIDES ────────────────────────
+    def log_user_override(self, username, target_url, risk_level):
+        forensics = "system"
+        try:
+            from flask import request
+            ip = request.remote_addr or "unknown"
+            ua = request.headers.get("User-Agent", "unknown")
+            forensics = f"IP: {ip} | UA: {ua}"
+        except:
+            pass
+
+        conn = self._connect()
+        try:
+            conn.execute(
+                "INSERT INTO user_overrides (id, username, target_url, risk_level, timestamp, forensics) VALUES (?,?,?,?,?,?)",
+                (str(uuid.uuid4()), username, target_url, risk_level, datetime.datetime.now().isoformat(), forensics)
+            )
+            conn.commit()
+            return True
+        except Exception as e:
+            from utils.logger import app_logger
+            app_logger.error(f"[DB] User override logging failed: {str(e)}")
+            return False
+        finally:
+            conn.close()
+
+    def get_user_override_count(self, username, window_hours=24):
+        conn = self._connect()
+        cutoff = (datetime.datetime.now() - datetime.timedelta(hours=window_hours)).isoformat()
+        try:
+            row = conn.execute(
+                "SELECT COUNT(*) as cnt FROM user_overrides WHERE username=? AND timestamp >= ?",
+                (username, cutoff)
+            ).fetchone()
+            return row['cnt'] if row else 0
+        except Exception:
+            return 0
         finally:
             conn.close()

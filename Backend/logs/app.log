@@ -1437,3 +1437,517 @@ Traceback (most recent call last):
     raise exc
 pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
 2026-03-23 12:47:16,713 INFO: New administrator registered: karan_borde [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\services\auth_service.py:90]
+2026-03-23 15:51:51,910 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:10:12,632 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:29:41,546 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:30:26,899 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:32:04,010 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:35:27,601 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:37:11,310 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:39:20,706 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:48:40,106 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 16:49:54,792 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 17:03:20,919 INFO: New staff registration request: cyberwithkaran_12 [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\services\auth_service.py:214]
+2026-03-23 21:03:02,708 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 21:13:45,801 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 21:25:12,749 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 21:29:14,265 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 21:49:20,772 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 21:51:03,402 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-23 21:53:53,377 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 10:23:14,815 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in c:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\state.py:21]
+2026-03-24 10:24:09,225 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+  File "C:\Program Files\Python310\lib\socket.py", line 845, in create_connection
+    raise err
+  File "C:\Program Files\Python310\lib\socket.py", line 833, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\validation.py", line 38, in decorated_function
+    return f(*args, **kwargs)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\routes\auth_routes.py", line 41, in login_step1
+    return get_auth_service().login_step1(data)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py", line 98, in login_step1
+    user = self.db.get_user(username)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\models\db.py", line 456, in get_user
+    conn = self._connect()
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\models\db.py", line 129, in _connect
+    conn = pymysql.connect(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+2026-03-24 10:27:09,431 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+  File "C:\Program Files\Python310\lib\socket.py", line 845, in create_connection
+    raise err
+  File "C:\Program Files\Python310\lib\socket.py", line 833, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\validation.py", line 38, in decorated_function
+    return f(*args, **kwargs)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\routes\auth_routes.py", line 41, in login_step1
+    return get_auth_service().login_step1(data)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py", line 98, in login_step1
+    user = self.db.get_user(username)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\models\db.py", line 456, in get_user
+    conn = self._connect()
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\models\db.py", line 129, in _connect
+    conn = pymysql.connect(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+2026-03-24 10:27:44,049 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 10:28:25,605 ERROR: Exception on /api/v1/auth/login/step1 [POST] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+  File "C:\Program Files\Python310\lib\socket.py", line 845, in create_connection
+    raise err
+  File "C:\Program Files\Python310\lib\socket.py", line 833, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\utils\validation.py", line 38, in decorated_function
+    return f(*args, **kwargs)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\routes\auth_routes.py", line 41, in login_step1
+    return get_auth_service().login_step1(data)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\services\auth_service.py", line 98, in login_step1
+    user = self.db.get_user(username)
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\models\db.py", line 456, in get_user
+    conn = self._connect()
+  File "c:\Users\ASUS\Downloads\kavachnet-v2\Backend\models\db.py", line 129, in _connect
+    conn = pymysql.connect(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+2026-03-24 10:45:52,506 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 10:49:38,951 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 10:55:10,845 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 10:57:51,869 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:10:47,538 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:14:03,852 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:19:34,218 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:26:00,880 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:29:57,337 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:35:59,081 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:39:08,735 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:42:07,652 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:44:51,756 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:46:09,824 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 11:49:14,518 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 12:03:25,067 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 12:19:50,714 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 12:26:17,709 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 12:52:47,936 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 13:03:56,285 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 13:10:34,141 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 13:15:21,636 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 22:37:34,729 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
+2026-03-24 22:39:05,384 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:39:35,766 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:40:05,392 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:40:35,771 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:41:05,765 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:41:35,762 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:42:06,014 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 15, in stats
+    inst_id = user.institution_id
+AttributeError: 'User' object has no attribute 'institution_id'. Did you mean: 'institution_code'?
+2026-03-24 22:43:07,031 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 813, in _write_bytes
+    self._sock.sendall(data)
+ConnectionResetError: [WinError 10054] An existing connection was forcibly closed by the remote host
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 574, in query
+    self._execute_command(COMMAND.COM_QUERY, sql)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 865, in _execute_command
+    self._write_bytes(packet)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 816, in _write_bytes
+    raise err.OperationalError(
+pymysql.err.OperationalError: (2006, "MySQL server has gone away (ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 13, in stats
+    user = User.query.filter_by(username=username).first()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\query.py", line 2759, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\query.py", line 2857, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\session.py", line 2351, in execute
+    return self._execute_internal(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\session.py", line 2249, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\context.py", line 306, in orm_execute_statement
+    result = conn.execute(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
+    return meth(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\sql\elements.py", line 527, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
+    ret = self._execute_context(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 2363, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\default.py", line 952, in do_execute
+    cursor.execute(statement, parameters)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\cursors.py", line 153, in execute
+    result = self._query(query)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\cursors.py", line 322, in _query
+    conn.query(q)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 574, in query
+    self._execute_command(COMMAND.COM_QUERY, sql)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 865, in _execute_command
+    self._write_bytes(packet)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 816, in _write_bytes
+    raise err.OperationalError(
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (2006, "MySQL server has gone away (ConnectionResetError(10054, 'An existing connection was forcibly closed by the remote host', None, 10054, None))")
+[SQL: SELECT users.id AS users_id, users.username AS users_username, users.password AS users_password, users.email AS users_email, users.role AS users_role, users.institution_code AS users_institution_code, users.status AS users_status, users.created_at AS users_created_at, users.lockout_until AS users_lockout_until 
+FROM users 
+WHERE users.username = %(username_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'username_1': 'karan_borde', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-03-24 22:44:09,803 ERROR: Exception on /api/v1/auth/me [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+  File "C:\Program Files\Python310\lib\socket.py", line 845, in create_connection
+    raise err
+  File "C:\Program Files\Python310\lib\socket.py", line 833, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\auth_routes.py", line 97, in get_me
+    return get_auth_service().get_current_user_info(current_user)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\services\auth_service.py", line 219, in get_current_user_info
+    user = self.db.get_user(username)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\models\db.py", line 460, in get_user
+    conn = self._connect()
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\models\db.py", line 129, in _connect
+    conn = pymysql.connect(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+2026-03-24 22:44:10,898 ERROR: Exception on /api/v1/dashboard/stats [GET] [in C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py:825]
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 661, in connect
+    sock = socket.create_connection(
+  File "C:\Program Files\Python310\lib\socket.py", line 845, in create_connection
+    raise err
+  File "C:\Program Files\Python310\lib\socket.py", line 833, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [WinError 10061] No connection could be made because the target machine actively refused it
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 3317, in raw_connection
+    return self.pool.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 448, in connect
+    return _ConnectionFairy._checkout(self)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 1272, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 717, in checkout
+    with util.safe_reraise():
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 715, in checkout
+    dbapi_connection = rec.get_connection()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 837, in get_connection
+    self.__connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\create.py", line 667, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 1455, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 869, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 867, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask\app.py", line 852, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\flask_jwt_extended\view_decorators.py", line 170, in decorator
+    return current_app.ensure_sync(fn)(*args, **kwargs)
+  File "C:\Users\ASUS\Downloads\kavachnet-v2\backend\routes\dashboard.py", line 13, in stats
+    user = User.query.filter_by(username=username).first()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\query.py", line 2759, in first
+    return self.limit(1)._iter().first()  # type: ignore
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\query.py", line 2857, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\session.py", line 2351, in execute
+    return self._execute_internal(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\session.py", line 2239, in _execute_internal
+    conn = self._connection_for_bind(bind)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\session.py", line 2108, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+  File "<string>", line 2, in _connection_for_bind
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\state_changes.py", line 137, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\orm\session.py", line 1187, in _connection_for_bind
+    conn = bind.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 3293, in connect
+    return self._connection_cls(self)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 145, in __init__
+    Connection._handle_dbapi_exception_noconnection(
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 2448, in _handle_dbapi_exception_noconnection
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 143, in __init__
+    self._dbapi_connection = engine.raw_connection()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\base.py", line 3317, in raw_connection
+    return self.pool.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 448, in connect
+    return _ConnectionFairy._checkout(self)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 1272, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 717, in checkout
+    with util.safe_reraise():
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 715, in checkout
+    dbapi_connection = rec.get_connection()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 837, in get_connection
+    self.__connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 900, in __connect
+    with util.safe_reraise():
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\util\langhelpers.py", line 121, in __exit__
+    raise exc_value.with_traceback(exc_tb)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\pool\base.py", line 896, in __connect
+    self.dbapi_connection = connection = pool._invoke_creator(self)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\create.py", line 667, in connect
+    return dialect.connect(*cargs_tup, **cparams)
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\sqlalchemy\engine\default.py", line 630, in connect
+    return self.loaded_dbapi.connect(*cargs, **cparams)  # type: ignore[no-any-return]  # NOQA: E501
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 365, in __init__
+    self.connect()
+  File "C:\Users\ASUS\AppData\Roaming\Python\Python310\site-packages\pymysql\connections.py", line 723, in connect
+    raise exc
+sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
+(Background on this error at: https://sqlalche.me/e/20/e3q8)

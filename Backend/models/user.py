@@ -54,16 +54,18 @@ class AuditLog(db.Model):
 class Incident(db.Model):
     __tablename__ = "incidents"
     id             = db.Column(db.String(255), primary_key=True)
-    type           = db.Column(db.String(50), nullable=False)
-    severity       = db.Column(db.String(20), nullable=False)
-    message        = db.Column(db.Text, nullable=False)
+    institution_id = db.Column(db.String(255))
+    title          = db.Column(db.String(255))
+    description    = db.Column(db.Text)
+    threat_type    = db.Column(db.String(50))
+    severity       = db.Column(db.String(20), default="medium")
     status         = db.Column(db.String(20), default="OPEN")
-    timestamp      = db.Column(db.String(50), nullable=False)
-    institution_code = db.Column(db.String(50))
-    forensics      = db.Column(db.Text)
+    confidence     = db.Column(db.Float)
+    target         = db.Column(db.Text)
+
     def to_dict(self):
-        return {"id": self.id, "type": self.type, "severity": self.severity,
-                "status": self.status, "timestamp": self.timestamp}
+        return {"id": self.id, "title": self.title, "threat_type": self.threat_type,
+                "severity": self.severity, "status": self.status, "timestamp": self.timestamp}
 
 class OTPRecord(db.Model):
     __tablename__ = "otp_records"
@@ -90,4 +92,32 @@ class ScanResult(db.Model):
     verdict        = db.Column(db.String(20))
     confidence     = db.Column(db.Float)
     details        = db.Column(db.Text)
+    scanned_by     = db.Column(db.String(255))
+    institution_id = db.Column(db.String(255))
     created_at     = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self):
+        return {
+            "id": self.id, "scan_type": self.scan_type, "input_data": self.input_data,
+            "verdict": self.verdict, "confidence": self.confidence,
+            "details": self.details, "created_at": self.created_at.isoformat() if self.created_at else None
+        }
+
+class UserOverride(db.Model):
+    __tablename__ = "user_overrides"
+    id             = db.Column(db.String(255), primary_key=True)
+    username       = db.Column(db.String(255), nullable=False)
+    target_url     = db.Column(db.Text, nullable=False)
+    risk_level     = db.Column(db.String(20), nullable=False)
+    timestamp      = db.Column(db.String(50), nullable=False)
+    forensics      = db.Column(db.Text)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "target_url": self.target_url,
+            "risk_level": self.risk_level,
+            "timestamp": self.timestamp,
+            "forensics": self.forensics
+        }
