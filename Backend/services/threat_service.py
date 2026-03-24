@@ -1,6 +1,8 @@
-# Backend/services/threat_service.py
+from database import db
+from models.user import ThreatLog, Incident, ActivityLog, User
+from datetime import datetime, timedelta
+import sqlalchemy as sa
 
-from models.db import Database
 try:
     from sklearn.ensemble import IsolationForest
     import numpy as np
@@ -9,14 +11,18 @@ except ImportError:
     SKLEARN_AVAILABLE = False
 
 class ThreatService:
-    def __init__(self, db: Database):
-        self.db = db
+    def __init__(self):
+        pass
 
-    def get_summary(self):
-        incidents = self.db.get_all_incidents()
-        high = len([i for i in incidents if i['severity'] == 'HIGH' and i['status'] == 'OPEN'])
-        medium = len([i for i in incidents if i['severity'] == 'MEDIUM' and i['status'] == 'OPEN'])
-        low = len([i for i in incidents if i['severity'] == 'LOW' and i['status'] == 'OPEN'])
+    def get_summary(self, institution_id=None):
+        query = Incident.query
+        if institution_id:
+            query = query.filter_by(institution_id=institution_id)
+        
+        incidents = query.all()
+        high = len([i for i in incidents if i.severity == 'HIGH' and i.status == 'OPEN'])
+        medium = len([i for i in incidents if i.severity == 'MEDIUM' and i.status == 'OPEN'])
+        low = len([i for i in incidents if i.severity == 'LOW' and i.status == 'OPEN'])
         
         if high > 0: level = "CRITICAL"
         elif medium > 2: level = "ELEVATED"
@@ -29,41 +35,56 @@ class ThreatService:
             "total_incidents": len(incidents)
         }
 
-    def run_scan(self):
-        if not SKLEARN_AVAILABLE:
-            return {
-                "message": "Anomaly detection is currently unavailable (missing dependencies)",
-                "anomalies_detected": 0,
-                "status": "partial"
-            }
-
-        logs = self.db.get_all_login_logs()
-        if len(logs) < 10:
-            return {"message": "Insufficient data", "anomalies_detected": 0}
-
-        X = np.array([[log['hour'], log['failed_count']] for log in logs])
-        model = IsolationForest(contamination=0.1, random_state=42)
-        model.fit(X)
-        predictions = model.predict(X)
-        anomalies = [logs[i] for i, p in enumerate(predictions) if p == -1]
+    def log_threat(self, threat_type, status, risk_level, user_email=None, details=None):
+        user = User.query.filter_by(email=user_email).first() if user_email else None
         
-        for anomaly in anomalies:
-            self.db.save_incident({
-                "type": "ANOMALY",
-                "severity": "MEDIUM",
-                "message": f"Login anomaly at hour {anomaly['hour']}"
-            })
-        return {"anomalies_detected": len(anomalies), "details": anomalies}
-    def check_brute_force(self, username):
-        recent_fails = self.db.get_recent_failed_attempts(username, 3600) # Past 1 hour
-        count = len(recent_fails)
+        new_log = ThreatLog(
+            type=threat_type,
+            status=status,
+            risk_level=risk_level,
+            user_id=user.id if user else None,
+            institution_id=user.institution_id if user else None,
+            details=details
+        )
         
-        status = "NORMAL"
-        if count >= 10: status = "CRITICAL_ATTACK"
-        elif count >= 5: status = "SUSPICIOUS_ACTIVITY"
+        try:
+            db.session.add(new_log)
+            db.session.commit()
+            return True
+        except Exception as e:
+            db.session.rollback()
+            print(f"Failed to log threat: {e}")
+            return False
+
+    def get_threat_logs(self, institution_id=None, limit=100):
+        query = ThreatLog.query
+        if institution_id:
+            query = query.filter_by(institution_id=institution_id)
+        
+        logs = query.order_by(ThreatLog.created_at.desc()).limit(limit).all()
+        return [log.to_dict() for log in logs]
+
+    def get_dashboard_stats(self, institution_id=None):
+        # Aggregate stats for dashboard
+        now = datetime.utcnow()
+        today_start = datetime(now.year, now.month, now.day)
+        
+        threats_query = ThreatLog.query
+        incidents_query = Incident.query
+        
+        if institution_id:
+            threats_query = threats_query.filter_by(institution_id=institution_id)
+            incidents_query = incidents_query.filter_by(institution_id=institution_id)
+            
+        total_threats = threats_query.count()
+        blocked_threats = threats_query.filter_by(status='blocked').count()
+        active_incidents = incidents_query.filter_by(status='OPEN').count()
+        today_threats = threats_query.filter(ThreatLog.created_at >= today_start).count()
         
         return {
-            "username": username,
-            "failed_attempts_1h": count,
-            "threat_status": status
+            "total_threats": total_threats,
+            "blocked_threats": blocked_threats,
+            "active_incidents": active_incidents,
+            "today_threats": today_threats,
+            "threat_level": self.get_summary(institution_id)["threat_level"]
         }

@@ -64,7 +64,10 @@ def create_app():
             "status": 500
         }), 500
 
-    _boot_log.info("Database URL: %s", Config.DATABASE_URL)
+    # Securely notify about database status without leaking credentials
+    if Config.SQLALCHEMY_DATABASE_URI:
+        schema = Config.SQLALCHEMY_DATABASE_URI.split(":")[0]
+        _boot_log.info(f"Database engine detected: {schema}")
 
     # ── Validate email config at startup ────────────────────
     try:
@@ -150,18 +153,12 @@ def create_app():
 
 
     # ── 6. Database Init ─────────────────────────────────────
-    # FIX (Bug 2): Removed duplicate 'return app' that was placed BEFORE
-    # db.init_app(), causing the database to NEVER be initialized.
     _boot_log.info("Initializing Database...")
     db.init_app(app)
     with app.app_context():
         try:
-            # Initialize custom Database tables FIRST to trigger auto-creation
-            from models.db import Database
-            custom_db = Database()
-            custom_db._create_tables()
-            _boot_log.info("Custom Database tables ready.")
-
+            # We no longer need the legacy custom_db._create_tables()
+            # but we keep SQLAlchemy's creation for new environments.
             db.create_all()
             _boot_log.info("SQLAlchemy tables created/verified.")
             
@@ -172,12 +169,10 @@ def create_app():
 
     _boot_log.info("Application Ready. All systems operational.")
     
-
-    
     # Initialize background email dispatcher
     try:
         from utils.email_queue import email_worker
-        email_worker.start()
+        email_worker.start(app)
     except Exception as e:
         _boot_log.warning(f"Email worker failed to start: {e}")
         
@@ -200,65 +195,58 @@ def _seed_demo_data():
     """Creates one demo institution + admin so you can test login immediately."""
     from models.user import Institution, User
     import uuid
-    import datetime
+    from datetime import datetime
     import bcrypt
 
-    # Check if demo users already exist
-    if User.query.filter_by(username="kavach_root").first():
+    # Check if demo users already exist (using email instead of username)
+    if User.query.filter_by(email="root@kavach.net").first():
         return
 
-    now_iso = datetime.datetime.now().isoformat()
     pwd_hash = bcrypt.hashpw("Admin@123".encode(), bcrypt.gensalt()).decode()
     root_hash = bcrypt.hashpw("Kavach@root123".encode(), bcrypt.gensalt()).decode()
     
     # 1. Demo Institution
-    inst_id = str(uuid.uuid4())
-    inst = Institution(
-        id=inst_id,
-        name="KavachNet Demo Institution",
-        institution_code="KAVACH2026",
-        contact_person="System Administrator",
-        email="admin@kavach.net",
-        phone="555-0199",
-        status="approved",
-        created_at=now_iso
-    )
-    db.session.add(inst)
-    
-    # 2. Institutional Admin (admin_kavach)
-    existing_admin = User.query.filter_by(username="admin_kavach").first()
-    if existing_admin:
-        existing_admin.role = "admin"
-        existing_admin.institution_code = "KAVACH2026"
-        _boot_log.info("Updated existing admin_kavach to institutional admin role.")
-    else:
-        admin = User(
-            id=str(uuid.uuid4()),
-            username="admin_kavach",
-            password=pwd_hash,
-            email="admin@kavach.net",
-            role="admin",
+    inst = Institution.query.filter_by(institution_code="KAVACH2026").first()
+    if not inst:
+        inst = Institution(
+            name="KavachNet Demo Institution",
             institution_code="KAVACH2026",
-            status="approved",
-            created_at=now_iso
+            admin_email="admin@kavach.net",
+            status="approved"
+        )
+        db.session.add(inst)
+        db.session.commit() # Commit to get inst.id
+    
+    # 2. Institutional Admin
+    if not User.query.filter_by(email="admin@kavach.net").first():
+        admin = User(
+            name="Institutional Admin",
+            email="admin@kavach.net",
+            password_hash=pwd_hash,
+            role="admin",
+            institution_id=inst.id,
+            status="approved"
         )
         db.session.add(admin)
 
-    # 3. Super Admin (kavach_root)
-    root = User(
-        id=str(uuid.uuid4()),
-        username="kavach_root",
-        password=root_hash,
-        email="root@kavach.net",
-        role="superadmin",
-        institution_code=None,
-        status="approved",
-        created_at=now_iso
-    )
-    db.session.add(root)
+    # 3. Super Admin
+    if not User.query.filter_by(email="root@kavach.net").first():
+        root = User(
+            name="System Root",
+            email="root@kavach.net",
+            password_hash=root_hash,
+            role="superadmin",
+            institution_id=None,
+            status="approved"
+        )
+        db.session.add(root)
     
-    db.session.commit()
-    _boot_log.info("Demo seeded — SuperAdmin: kavach_root | Admin: admin_kavach")
+    try:
+        db.session.commit()
+        _boot_log.info("Demo seeded — SuperAdmin: root@kavach.net | Admin: admin@kavach.net")
+    except Exception as e:
+        db.session.rollback()
+        _boot_log.error(f"Seeding failed: {e}")
 
 
 if __name__ == "__main__":

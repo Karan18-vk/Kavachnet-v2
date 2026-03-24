@@ -1,15 +1,11 @@
-# Backend/routes/incident_routes.py
-
 from flask import Blueprint, request, send_file
 from flask_jwt_extended import jwt_required
 from services.incident_service import IncidentService
-from models.db import Database
 from utils.response import api_response, api_error
 from utils.validation import validate_payload, sanitize_input
 
 incident_bp = Blueprint('incident', __name__)
-db = Database()
-incident_service = IncidentService(db)
+incident_service = IncidentService()
 
 @incident_bp.route("/", methods=["GET"])
 @jwt_required()
@@ -43,4 +39,4 @@ def download_report():
         buffer = incident_service.generate_report()
         return send_file(buffer, as_attachment=True, download_name="kavachnet_report.pdf", mimetype='application/pdf')
     except Exception as e:
-        return api_error("Failed to generate report", code=500)
+        return api_error(f"Failed to generate report: {str(e)}", code=500)

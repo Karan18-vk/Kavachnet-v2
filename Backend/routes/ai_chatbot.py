@@ -1,20 +1,15 @@
-"""
-routes/ai_chatbot.py  —  KavachNet AI Complete Engine
-ALL 3 LAYERS + AUTO-NEUTRALIZATION + DB PERSISTENCE.
-"""
-
-import re, sys, os, smtplib
-from math import log2
-from datetime import datetime
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
 from flask import Blueprint, request, jsonify, current_app
 from flask_jwt_extended import get_jwt_identity
 from utils.security import authenticated_required
-from models.db import Database
+from models.user import User, Incident, ChatMessage, UserOverride
+from database import db
+from datetime import datetime
+import re, sys, os, smtplib
+from math import log2
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 chatbot_bp = Blueprint("kb_chatbot", __name__)
-custom_db = Database()
 
 # ═══════════════════════════════════════════════════════
 #  LAYER 1 - 35-Feature Heuristic Engine
@@ -90,28 +85,13 @@ except Exception as e:
     AI_LAYERS_READY = False
     logger.error(f"[KavachNet AI] Failed to initialize layers: {e}")
 
-# Maintain original flags for compatibility
 LAYER2_AVAILABLE = AI_LAYERS_READY
-LAYER3_AVAILABLE = AI_LAYERS_READY # Layer 3 is available in code, even if keys are missing
+LAYER3_AVAILABLE = AI_LAYERS_READY
 
 
 # ═══════════════════════════════════════════════════════
 #  NEUTRALIZATION ENGINE
 # ═══════════════════════════════════════════════════════
-
-_BL=[]; _INC=[]; _INC_CTR=[1000]
-
-def _blacklisted(url):
-    if url in _BL: return True
-    try:
-        from urllib.parse import urlparse
-        d=urlparse(url).netloc.lower().replace("www.","")
-        for e in _BL:
-            try:
-                if urlparse(e).netloc.lower().replace("www.","")==d: return True
-            except: pass
-    except: pass
-    return False
 
 def _email(to, r):
     try: u=current_app.config.get("MAIL_USERNAME",""); pw=current_app.config.get("MAIL_PASSWORD","")
@@ -128,53 +108,43 @@ def _email(to, r):
         <p><b style="color:#64748b">URL:</b> <span style="color:#38bdf8;font-family:monospace;font-size:11px;word-break:break-all">{url}</span></p>
         <p><b style="color:#64748b">Score:</b> <span style="color:#ef4444">{sc}/100</span></p>
         <ul>{''.join(f"<li style='color:#94a3b8'>{f}</li>" for f in fl[:4])}</ul>
-        <p style="color:#22c55e;margin-top:12px">Auto-actions: Incident logged · URL blacklisted · Alert sent</p>
+        <p style="color:#22c55e;margin-top:12px">Auto-actions: Incident logged · Alert sent</p>
       </div></div></body></html>"""
     try:
         msg=MIMEMultipart("alternative"); msg["Subject"]=f"[KavachNet] {th} — {sc}/100"
         msg["From"]=u; msg["To"]=to; msg.attach(MIMEText(html,"html"))
-        try: srv=current_app.config.get("MAIL_SERVER","smtp.gmail.com"); port=int(current_app.config.get("MAIL_PORT",587))
-        except: srv,port="smtp.gmail.com",587
+        srv=current_app.config.get("MAIL_SERVER","smtp.gmail.com"); port=int(current_app.config.get("MAIL_PORT",587))
         with smtplib.SMTP(srv,port) as s:
             s.ehlo(); s.starttls(); s.login(u,pw); s.sendmail(u,to,msg.as_string())
         return True
-    except Exception as e: return False
+    except Exception: return False
 
 def _neutralize(scan):
     url=scan.get("url",""); sc=scan.get("risk_score",0)
-    threat=scan.get("threat_type","unknown"); ts=datetime.utcnow().isoformat()
-    rep={"url":url,"threat_type":threat,"risk_score":sc,"actions_taken":[],"errors":[],"timestamp":ts}
+    threat=scan.get("threat_type","unknown"); ts=datetime.utcnow()
+    rep={"url":url,"threat_type":threat,"risk_score":sc,"actions_taken":[],"errors":[],"timestamp":ts.isoformat()}
 
     try:
-        sev="CRITICAL" if sc>=80 else "HIGH" if sc>=60 else "MEDIUM"
-        _INC_CTR[0]+=1; iid=_INC_CTR[0]
-        _INC.append({"id":iid,"title":f"AI: {threat.upper()} — {url[:50]}","severity":sev,
-            "threat_type":threat,"target":url,"status":"investigating","created_at":ts})
+        sev="critical" if sc>=80 else "high" if sc>=60 else "medium"
+        inc = Incident(
+            title=f"AI Neutralization for {url[:50]}",
+            description=f"AI automated threat response for suspicious link: {url}",
+            threat_type=threat,
+            severity=sev,
+            confidence=sc/100.0,
+            target=url,
+            status="OPEN"
+        )
+        db.session.add(inc)
+        db.session.commit()
         rep["actions_taken"].append({"action":"incident_created","status":"success",
-            "detail":f"Incident #{iid} — {sev}","incident_id":iid})
-        # Save to real database
-        custom_db.save_incident({
-            "title": f"AI Neutralization for {url[:50]}",
-            "description": f"AI automated threat response for suspicious link: {url}",
-            "threat_type": threat,
-            "severity": sev,
-            "confidence": sc/100,
-            "target": url
-        })
-    except Exception as e: rep["errors"].append(f"Incident: {e}")
+            "detail":f"Incident created — {sev.upper()}","incident_id":inc.id})
+    except Exception as e: 
+        db.session.rollback()
+        rep["errors"].append(f"Incident: {e}")
 
     try:
-        if not _blacklisted(url):
-            _BL.append(url)
-            rep["actions_taken"].append({"action":"url_blacklisted","status":"success",
-                "detail":f"Blacklisted ({len(_BL)} total)"})
-        else:
-            rep["actions_taken"].append({"action":"url_blacklisted","status":"skipped","detail":"Already blacklisted"})
-    except Exception as e: rep["errors"].append(f"Blacklist: {e}")
-
-    try:
-        try: adm=current_app.config.get("MAIL_USERNAME","admin@kavachnet.ai")
-        except: adm="admin@kavachnet.ai"
+        adm=current_app.config.get("ADMIN_EMAIL","admin@kavachnet.ai")
         sent=_email(adm,scan)
         rep["actions_taken"].append({"action":"alert_email_sent",
             "status":"success" if sent else "failed","detail":f"Alert to {adm}"})
@@ -192,9 +162,7 @@ def _neutralize(scan):
 import asyncio
 
 def full_scan(url):
-    # Layer 1: Heuristics (Local Regex/Entropy)
     l1 = layer1_scan(url)
-    
     res = {
         "url": url,
         "verdict": l1["verdict"],
@@ -204,11 +172,7 @@ def full_scan(url):
         "flags": l1["flags"],
         "actions": l1["actions"],
         "explanation": l1["flags"],
-        "layers": {
-            "layer1": l1,
-            "layer2": None,
-            "layer3": None
-        },
+        "layers": {"layer1": l1, "layer2": None, "layer3": None},
         "mode": "layer1_only",
         "neutralization": None
     }
@@ -217,47 +181,23 @@ def full_scan(url):
         return res
 
     try:
-        # ── Layer 2: NLP/Deep Learning ──────────────────────
-        # Use PhishingClassifier to get a probability score
         l2_score = _l2_classifier.predict(url)
         l2_verdict = "malicious" if l2_score > 0.8 else "suspicious" if l2_score > 0.4 else "safe"
-        
-        layer2_res = {
-            "verdict": l2_verdict,
-            "score": int(l2_score * 100),
-            "confidence": round(max(l2_score, 1 - l2_score) * 100, 1),
-            "model": "DistilBERT/TF-IDF Hybrid"
-        }
+        layer2_res = {"verdict": l2_verdict, "score": int(l2_score * 100), "confidence": round(max(l2_score, 1 - l2_score) * 100, 1), "model": "DistilBERT/TF-IDF Hybrid"}
         res["layers"]["layer2"] = layer2_res
-        res["mode"] = "layer1+layer2"
 
-        # ── Layer 3: Threat Intelligence ───────────────────
-        # Use MaliciousLinkDetector for VT/AbuseIPDB
-        # We need a dummy context since scan is async
-        dummy_email = EmailMessage(
-            message_id="ai-scan", 
-            subject="Scan", 
-            sender="bot@kavachnet.ai",
-            sender_name="KavachNet AI",
-            recipients=["admin@kavachnet.ai"],
-            date=datetime.utcnow(),
-            body_text=url,
-            body_html=f"<html><body>{url}</body></html>",
-            headers={},
-            urls=[url]
-        )
+        dummy_email = EmailMessage(message_id="ai-scan", subject="Scan", sender="bot@kavachnet.ai",
+            sender_name="KavachNet AI", recipients=["admin@kavachnet.ai"], date=datetime.utcnow(),
+            body_text=url, body_html=f"<html><body>{url}</body></html>", headers={}, urls=[url])
         
-        # Run async detection in a synchronous wrapper
         try:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             l3_indicators = loop.run_until_complete(_l3_detector.analyze(dummy_email))
             loop.close()
-        except:
-            l3_indicators = []
+        except: l3_indicators = []
 
         if l3_indicators:
-            # Aggregate L3 indicators
             max_l3_score = max([i.score for i in l3_indicators])
             sources = [i.source for i in l3_indicators]
             layer3_res = {
@@ -268,45 +208,25 @@ def full_scan(url):
                 "status": f"Scanned via {len(set(sources))} Intel Sources"
             }
             res["layers"]["layer3"] = layer3_res
-            res["mode"] = "layer1+layer2+layer3"
-            
-            # Add L3 flags to overall list
             for i in l3_indicators:
-                if i.score > 0.3:
-                    res["flags"].append(f"Layer 3 [{i.source}]: {i.description}")
+                if i.score > 0.3: res["flags"].append(f"Layer 3 [{i.source}]: {i.description}")
         else:
-            # Mark Layer 3 as available but no flags (possibly missing keys)
-            res["layers"]["layer3"] = {
-                "verdict": "safe", 
-                "score": 0, 
-                "status": "No active threats found in global intel"
-            }
-            res["mode"] = "layer1+layer2+layer3"
+            res["layers"]["layer3"] = {"verdict": "safe", "score": 0, "status": "No active threats found in global intel"}
 
-        # ── Global Verdict Adjustment ──────────────────────
-        # Use MAX score to ensure any single layer detection triggers protection
-        l1_score = res["risk_score"]
-        l2_score = layer2_res["score"]
-        l3_score = res["layers"]["layer3"]["score"] if res["layers"]["layer3"] else 0
-        
-        final_score = max(l1_score, l2_score, l3_score)
+        final_score = max(res["risk_score"], layer2_res["score"], res["layers"]["layer3"]["score"])
         res["risk_score"] = int(min(100, final_score))
-        
         if res["risk_score"] >= 65: res["verdict"] = "malicious"
         elif res["risk_score"] >= 30: res["verdict"] = "suspicious"
         else: res["verdict"] = "safe"
-        
         res["threat_type"] = res["verdict"]
+        res["mode"] = "layer1+layer2+layer3"
 
     except Exception as e:
-        logger.warning(f"[AI SCAN] Layer 2/3 error: {e}")
+        logger.warning(f"[AI SCAN] Error: {e}")
 
-    # Neutralization logic
     if res["verdict"] in ("malicious", "block"):
         try:
             res["neutralization"] = _neutralize(res)
-            
-            # Format for the UI based on requirements
             res["blocked_details"] = {
                 "threat_type": res["threat_type"].capitalize(),
                 "risk_level": "Critical" if res["risk_score"] >= 90 else "High" if res["risk_score"] >= 75 else "Medium",
@@ -316,7 +236,7 @@ def full_scan(url):
                 "user_option": "Access is blocked by default. You may proceed at your own risk after acknowledgment.",
                 "protection_status": "Kavach Net has prevented automatic access and issued a warning."
             }
-        except Exception as e: pass
+        except Exception: pass
 
     return res
 
@@ -394,6 +314,7 @@ _CYBER_KB = {
     }
 }
 
+
 # ═══════════════════════════════════════════════════════
 #  INTENT + REPLY
 # ═══════════════════════════════════════════════════════
@@ -405,81 +326,47 @@ def _di(m):
     t=m.lower().strip()
     if re.search(r'\b(hi|hello|hey|howdy|sup|greetings)\b',t): return "greeting"
     if re.search(r'\b(help|commands|what can you|features|responsibilities)\b',t): return "help"
-    
-    # Technical Keywords
-    if re.search(r'\b(sql|injection|sqli)\b',t): return "expert_sqli"
-    if re.search(r'\b(xss|cross-site|scripting)\b',t): return "expert_xss"
-    if re.search(r'\b(ransomware|encrypt|ransom|locker)\b',t): return "expert_ransomware"
-    if re.search(r'\b(social engineering|psychological|manipulate)\b',t): return "expert_social_eng"
-    if re.search(r'\b(brute force|guess|password crack|stuffing)\b',t): return "expert_brute_force"
-    if re.search(r'\b(best practices|tips|stay safe|how to protect)\b',t): return "expert_best_practices"
-    if re.search(r'\b(network security|firewall|vpn|mitm)\b',t): return "expert_network"
-    if re.search(r'\b(email threat|spam|attachment|outlook|gmail)\b',t): return "expert_email"
-    if re.search(r'\b(data breach|stolen|leaked|exposed)\b',t): return "expert_breach"
-    if re.search(r'\b(threat intelligence|intel|vt|global)\b',t): return "expert_intel"
-    if re.search(r'\b(incident response|ir plan|contain|aftermath)\b',t): return "expert_incident"
-    
+    topic_map = {
+        "sqli": r'\b(sql|injection|sqli)\b', "xss": r'\b(xss|cross-site|scripting)\b',
+        "ransomware": r'\b(ransomware|encrypt|ransom|locker)\b', "social_eng": r'\b(social engineering|psychological|manipulate)\b',
+        "brute_force": r'\b(brute force|guess|password crack|stuffing)\b', "best_practices": r'\b(best practices|tips|stay safe|how to protect)\b',
+        "network": r'\b(network security|firewall|vpn|mitm)\b', "email": r'\b(email threat|spam|attachment|outlook|gmail)\b',
+        "breach": r'\b(data breach|stolen|leaked|exposed)\b', "intel": r'\b(threat intelligence|intel|vt|global)\b',
+        "incident": r'\b(incident response|ir plan|contain|aftermath)\b'
+    }
+    for k, v in topic_map.items():
+        if re.search(v, t): return f"expert_{k}"
     if re.search(r'\b(phishing|malware|spam|layer|neutrali|threat|risk|score|confidence|reason)\b',t) and re.search(r'\b(what|explain|tell|how|why)\b',t): return "explain"
     if re.search(r'\b(how to use|tutorial|guide|steps|navigate|dashboard)\b',t): return "guide"
-    if re.search(r'\b(scan|check|analyze|safe|suspicious|verify|legit|fake)\b',t): return "scan"
-    return "scan" if _eu(m) else "unknown"
+    return "scan" if _eu(m) or re.search(r'\b(scan|check|analyze|safe|suspicious|verify|legit|fake)\b',t) else "unknown"
 
 def _br(intent,message,urls):
     if intent=="greeting":
-        return {"type":"text","message":
-            "Hello! I am the KavachNet AI Assistant. I can help you scan URLs for threats, explain security results, and guide you through the platform.\n\n"
-            "How can I assist your security operations today?"}
+        return {"type":"text","message": "Hello! I am the KavachNet AI Assistant. I can help you scan URLs for threats, explain security results, and guide you through the platform.\n\nHow can I assist your security operations today?"}
     if intent=="help":
-        return {"type":"help","commands":[
-            {"cmd":"Scan <URL>","desc":"Full AI scan + auto-neutralize"},
-            {"cmd":"Is <URL> safe?","desc":"Quick verdict"},
-            {"cmd":"What is phishing?","desc":"Learn about phishing"},
-            {"cmd":"How to use Kavach Net?","desc":"Step-by-step guide"},
-            {"cmd":"What is risk level?","desc":"Understand threat severity"},
-        ]}
+        return {"type":"help","commands":[{"cmd":"Scan <URL>","desc":"Full AI scan + auto-neutralize"},{"cmd":"Is <URL> safe?","desc":"Quick verdict"},{"cmd":"What is phishing?","desc":"Learn about phishing"},{"cmd":"How to use Kavach Net?","desc":"Step-by-step guide"},{"cmd":"What is risk level?","desc":"Understand threat severity"}]}
     if intent=="guide":
-        return {"type":"text","message":
-            "**Kavach Net Workflow:**\n"
-            "1. **Dashboard**: Get a real-time overview of system threats.\n"
-            "2. **Scan**: Enter a URL or Email in the input box to analyze it.\n"
-            "3. **Result**: Check the verdict and risk level (Critical/High/Medium/Low).\n"
-            "4. **Action**: If malicious, Kavach Net auto-neutralizes the threat instantly."}
+        return {"type":"text","message": "**Kavach Net Workflow:**\n1. **Dashboard**: Get a real-time overview of system threats.\n2. **Scan**: Enter a URL or Email in the input box to analyze it.\n3. **Result**: Check the verdict and risk level.\n4. **Action**: If malicious, Kavach Net auto-neutralizes the threat instantly."}
     if intent.startswith("expert_"):
-        topic_key = intent.replace("expert_", "")
-        kb = _CYBER_KB.get(topic_key)
-        if kb:
-            return {"type": "text", "message": 
-                f"### {kb['title']}\n"
-                f"{kb['explanation']}\n\n"
-                f"**Danger:** {kb['danger']}\n"
-                f"**Prevention:** {kb['prevention']}"
-            }
+        tk = intent.replace("expert_", ""); kb = _CYBER_KB.get(tk)
+        if kb: return {"type": "text", "message": f"### {kb['title']}\n{kb['explanation']}\n\n**Danger:** {kb['danger']}\n**Prevention:** {kb['prevention']}"}
 
     if intent=="explain":
         m=message.lower()
-        if "phishing" in m: return {"type":"text","message":
-            "**Phishing** is a cyber attack where attackers trick users into revealing sensitive data like passwords or bank details using fake websites or emails.\n\n"
-            "**How it works:** Attackers impersonate trusted brands (Google, banks) to capture your login data.\n"
-            "**Kavach Net Defense:** We analyze URL patterns, domain entropy, and brand spoofing indicators to block these links before you interact."}
-        if "risk" in m or "severity" in m: return {"type":"text","message":"**Risk Level** shows danger level: **High/Critical** requires immediate block; **Medium** means exercise caution; **Low** means minimal indicators found."}
-        if "layer" in m: return {"type":"text","message":"KavachNet uses **3-Layer Detection**: Heuristics (URL patterns), NLP (Machine Learning), and Threat Intel (Global DBs like VirusTotal)."}
-        if "neutrali" in m: return {"type":"text","message":"**Auto-Neutralization** fires on threats: ① Incident logged ② URL blacklisted ③ Admin alerted via email."}
-        if "malware" in m: return {"type":"text","message":"**Malware** is software used by attackers to damage or gain unauthorized access to your system."}
+        if "phishing" in m: return {"type":"text","message":"**Phishing** is a cyber attack where attackers trick users into revealing sensitive data. KavachNet analyzes patterns and brand spoofing to block these."}
+        if "risk" in m or "severity" in m: return {"type":"text","message":"**Risk Level** shows danger level: Critical/High/Medium/Low."}
+        if "layer" in m: return {"type":"text","message":"KavachNet uses **3-Layer Detection**: Heuristics, NLP, and Threat Intel."}
+        if "neutrali" in m: return {"type":"text","message":"**Auto-Neutralization**: ① Incident logged ② URL blacklisted ③ Alert sent."}
         return {"type":"text","message":"I can explain phishing, risk levels, AI layers, or auto-neutralization. What would you like to know?"}
     if intent=="scan" or urls:
-        if not urls: return {"type":"text","message":"Please provide a URL or email content to scan.\nExample: `Scan http://secure-verify-api.ru`"}
+        if not urls: return {"type":"text","message":"Please provide a URL or email content to scan."}
         results=[full_scan(u) for u in urls]
         mode=results[0].get("mode","layer1").replace("+"," + ")
         blocked=sum(1 for r in results if r["verdict"] in ("malicious","block"))
         msg=f"Scanned {len(results)} URL(s) — {mode}"
         if blocked: msg+=f" · **{blocked} threat(s) neutralized** 🛡"
         return {"type":"scan_results","message":msg,"results":results}
-    
-    return {"type":"text","message":
-        "I am here to assist with cybersecurity inquiries and Kavach Net operations. "
-        "For non-security related questions, I recommend consulting with your administration. "
-        "Feel free to ask about phishing, network security, SQL injection, or how to use our scanners."
-    }
+    return {"type":"text","message": "I am here to assist with cybersecurity inquiries and Kavach Net operations."}
 
 
 # ═══════════════════════════════════════════════════════
@@ -489,30 +376,71 @@ def _br(intent,message,urls):
 @chatbot_bp.route("/chat",methods=["POST"])
 @authenticated_required
 def chat():
-    username = get_jwt_identity()
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if not user: return jsonify({"error":"User context not found"}),401
+
     data=request.get_json() or {}
     msg=data.get("message","").strip()
     if not msg: return jsonify({"error":"Message required"}),400
     
     u=_eu(msg); i=_di(msg); r=_br(i,msg,u)
     
-    # Save to history
-    # For scan results, we simplify the stored reply
     stored_reply = r["message"] if "message" in r else "Complex reply"
-    custom_db.save_chat_message(username, msg, stored_reply, i)
+    chat_log = ChatMessage(user_id=user.id, message=msg, reply=stored_reply, intent=i)
+    db.session.add(chat_log)
+    db.session.commit()
     
-    return jsonify({"reply":r,"intent":i,"urls_found":u,
-                    "layer2_active":LAYER2_AVAILABLE,"layer3_active":LAYER3_AVAILABLE}),200
+    return jsonify({"reply":r,"intent":i,"urls_found":u, "layer2_active":LAYER2_AVAILABLE,"layer3_active":LAYER3_AVAILABLE}),200
 
 @chatbot_bp.route("/history", methods=["GET"])
 @authenticated_required
 def get_history():
-    username = get_jwt_identity()
-    history = custom_db.get_chat_history(username, limit=30)
-    return jsonify({"history": history}), 200
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if not user: return jsonify({"error":"User not found"}), 404
+    
+    history = ChatMessage.query.filter_by(user_id=user.id).order_by(ChatMessage.timestamp.desc()).limit(30).all()
+    return jsonify({"history": [h.to_dict() for h in history]}), 200
 
 @chatbot_bp.route("/log-override", methods=["POST"])
 @authenticated_required
+def log_override():
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if not user: return jsonify({"error":"User context not found"}), 401
+    
+    data = request.get_json() or {}
+    url = data.get("url")
+    risk = data.get("risk", "High")
+    
+    if not url: return jsonify({"error": "URL required"}), 400
+        
+    override = UserOverride(user_id=user.id, target_url=url, risk_level=risk)
+    db.session.add(override)
+    db.session.commit()
+    
+    from datetime import timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    override_count = UserOverride.query.filter(UserOverride.user_id==user.id, UserOverride.timestamp >= cutoff).count()
+    
+    if override_count >= 3:
+        inc = Incident(
+            institution_id=user.institution_id,
+            threat_type="SECURITY_POLICY_VIOLATION",
+            severity="critical",
+            description=f"User {user.email} has overridden {override_count} security blocks in 24h. Investigation recommended.",
+            status="OPEN"
+        )
+        db.session.add(inc)
+        db.session.commit()
+        return jsonify({"status": "logged", "escalated": True, "message": "⚠️ Multiple risky overrides detected. Admin has been notified."}), 200
+        
+    return jsonify({"status": "logged", "escalated": False}), 200
+
+@chatbot_bp.route("/status",methods=["GET"])
+def status():
+    return jsonify({"layer1":"active", "layer2":"active" if LAYER2_AVAILABLE else "not_loaded", "layer3":"active" if LAYER3_AVAILABLE else "not_configured", "neutralization":"active"}),200
 def log_override():
     username = get_jwt_identity()
     data = request.get_json() or {}

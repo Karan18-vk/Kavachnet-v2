@@ -1,26 +1,26 @@
-# Backend/utils/email_queue.py
-
 import time
 import threading
-import datetime
-from models.db import Database
+from datetime import datetime, timedelta
+from models.user import EmailQueue
+from database import db
 from utils.email_providers import get_email_provider
 from utils.json_logger import json_metrics_logger
+from sqlalchemy import or_
 
-# We control the polling interval depending on the environment
 class EmailQueueWorker:
     def __init__(self, poll_interval=5):
         self.poll_interval = poll_interval
         self._stop_event = threading.Event()
-        self.db = Database()
         self.thread = None
+        self.app = None
 
-    def start(self):
-        """Starts the background polling thread."""
+    def start(self, app):
+        """Starts the background polling thread with Flask app context."""
+        self.app = app
         if self.thread is None or not self.thread.is_alive():
             self.thread = threading.Thread(target=self._run, daemon=True, name="EmailQueueWorker")
             self.thread.start()
-            json_metrics_logger.info("Email queue worker thread started.", extra={"metrics": {"event": "worker_start"}})
+            json_metrics_logger.info("Email queue worker thread started with SQLAlchemy backend.")
 
     def stop(self):
         """Signals the worker to stop cleanly."""
@@ -31,80 +31,85 @@ class EmailQueueWorker:
     def _run(self):
         while not self._stop_event.is_set():
             try:
-                # 1. Claim pending emails (BEGIN EXCLUSIVE prevents race conditions across workers)
-                batch = self.db.claim_pending_emails(batch_size=5)
-                
-                for email_job in batch:
-                    self._process_job(email_job)
-
+                with self.app.app_context():
+                    # 1. Claim pending emails with row locking
+                    batch = self._claim_batch(batch_size=5)
+                    for email_job in batch:
+                        self._process_job(email_job)
             except Exception as e:
-                json_metrics_logger.error("Queue worker encountered a fatal polling error.", extra={"metrics": {"event": "worker_error", "error": str(e)}})
+                json_metrics_logger.error(f"Queue worker error: {e}")
             
-            # 2. Wait before next poll
             self._stop_event.wait(self.poll_interval)
+
+    def _claim_batch(self, batch_size):
+        """Thread-safe claiming of pending emails using SQLAlchemy."""
+        now = datetime.utcnow()
+        five_mins_ago = now - timedelta(minutes=5)
+        
+        # Select jobs that are PENDING and due, or PROCESSING but stuck
+        jobs = EmailQueue.query.filter(
+            or_(
+                (EmailQueue.status == "PENDING") & (EmailQueue.next_retry_at <= now),
+                (EmailQueue.status == "PROCESSING") & (EmailQueue.updated_at < five_mins_ago)
+            )
+        ).order_by(EmailQueue.created_at.asc()).limit(batch_size).with_for_update().all()
+        
+        for job in jobs:
+            job.status = "PROCESSING"
+            job.updated_at = now
+            
+        db.session.commit()
+        return jobs
 
     def _process_job(self, job):
         start_time = time.time()
-        job_id = job['id']
-        recipient = job['recipient']
-        log_type = job['type']
+        job_id = job.id
+        recipient = job.recipient
+        log_type = job.type
         
-        json_metrics_logger.info(f"Processing queued email: {job_id}", extra={"metrics": {"event": "email_process_start", "job_id": job_id, "type": log_type}})
-        
-        # Dynamic Provider Dispatch
+        # Provider Dispatch
         provider = get_email_provider()
-        success, attempts, last_err = provider.send_email(
+        # Note: We assume max_attempts is 3 for now as it's not in the model but in logic
+        max_attempts = 3
+        
+        success, sent_count, last_err = provider.send_email(
             recipient=recipient,
-            subject=job['subject'],
-            html_body=job['html_body'],
-            text_body=job['text_body'],
-            max_attempts=job['max_attempts']
+            subject=job.subject,
+            html_body=job.html_body,
+            text_body=job.text_body,
+            max_attempts=max_attempts
         )
         
         duration_ms = int((time.time() - start_time) * 1000)
-        
-        # Evaluate final status and mathematically expanding backoff delay
         final_status = "SENT" if success else "FAILED"
         next_retry = None
         
-        # If it failed but hasn't reached max attempts, keep it PENDING for next retry
-        current_attempt_count = job['attempts'] + attempts
-        if not success and final_status == "FAILED" and current_attempt_count < job['max_attempts'] and "AuthError" not in str(last_err):
-             final_status = "PENDING"
-             
-             # Exponential backoff algorithm: 2^attempts * 15 seconds base
-             backoff_seconds = (2 ** current_attempt_count) * 15
-             next_retry = (datetime.datetime.now() + datetime.timedelta(seconds=backoff_seconds)).isoformat()
-             
-             json_metrics_logger.warning(
-                 f"Transient error: Queueing backoff for {backoff_seconds}s.", 
-                 extra={"metrics": {"event": "exponential_backoff", "job_id": job_id, "retry_at": next_retry}}
-             )
-             
-        if success:
-             final_status = "SENT"
-        elif current_attempt_count >= job['max_attempts'] or (last_err and "AuthError" in str(last_err)):
-             final_status = "FAILED"
+        current_attempt_count = job.attempts + sent_count
+        job.attempts = current_attempt_count
+        job.last_error = str(last_err) if last_err else None
+        job.updated_at = datetime.utcnow()
 
-        # Update DB queue status
-        self.db.update_email_queue_status(job_id, final_status, last_err, next_retry_at=next_retry)
+        if not success and current_attempt_count < max_attempts and "AuthError" not in str(last_err):
+             job.status = "PENDING"
+             backoff_seconds = (2 ** current_attempt_count) * 15
+             job.next_retry_at = datetime.utcnow() + timedelta(seconds=backoff_seconds)
+        else:
+             job.status = final_status
         
-        # Send metric to JSON logger
+        db.session.commit()
+        
+        # Logging
         metric_payload = {
             "event": "email_dispatch_metric",
             "job_id": job_id,
-            "recipient_masked": f"***{recipient[recipient.find('@'):]}" if '@' in recipient else "***",
-            "type": log_type,
-            "status": final_status,
+            "status": job.status,
             "attempts": current_attempt_count,
             "duration_ms": duration_ms
         }
-        
         if success:
             json_metrics_logger.info("Queued email dispatched successfully.", extra={"metrics": metric_payload})
         else:
-            metric_payload["last_error"] = str(last_err)
             json_metrics_logger.error("Queued email dispatch failed.", extra={"metrics": metric_payload})
 
-# Global singleton for the app to initialize
+# Global singleton
 email_worker = EmailQueueWorker(poll_interval=3)

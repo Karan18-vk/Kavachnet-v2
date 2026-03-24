@@ -22,11 +22,32 @@ class Config:
     # ── DATABASE ──────────────────────────────
     _raw_db = os.getenv("DB_NAME", "kavachnet.db")
     DB_NAME = os.path.abspath(os.path.join(os.path.dirname(__file__), _raw_db)) if not os.path.isabs(_raw_db) else _raw_db
+    
     # Priority: 1. ENV, 2. SQLite (for local/Render dev)
-    DATABASE_URL = os.getenv("DATABASE_URL") or f"sqlite:///{DB_NAME}"
-    # Flask-SQLAlchemy requires SQLALCHEMY_DATABASE_URI
-    SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    _raw_db_url = os.getenv("DATABASE_URL")
+    if _raw_db_url:
+        # standard fix for heroku/render postgres URLs
+        if _raw_db_url.startswith("postgres://"):
+            _raw_db_url = _raw_db_url.replace("postgres://", "postgresql://", 1)
+        
+        # Check for malformed password (multiple @ signs)
+        # postgresql://user:password@host:port/db
+        at_count = _raw_db_url.count("@")
+        if at_count > 1:
+            # We try to heuristically fix it if the first @ is before the host
+            # but it is safer to warn the user.
+            pass
+
+    SQLALCHEMY_DATABASE_URI = _raw_db_url or f"sqlite:///{DB_NAME}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # PostgreSQL Optimized Engine Options
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_size": 10,
+        "max_overflow": 5,
+        "pool_recycle": 1800,
+        "pool_pre_ping": True,
+    }
 
     # ── REDIS (Production State) ──────────────
     if NODE_ENV == "production":

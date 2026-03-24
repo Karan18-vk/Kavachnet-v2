@@ -6,10 +6,10 @@ import pandas as pd
 import re
 from utils.feature_extractor import URLFeatureExtractor
 from utils.response import api_response, api_error
-from models.db import Database
+from models.user import User, ScanResult, Institution
+from database import db
 
 ai_ml_bp = Blueprint('ai_ml', __name__)
-db = Database()
 
 # Load Model
 MODEL_PATH = os.path.join(os.path.dirname(__file__), '../model/phishing_model.pkl')
@@ -74,16 +74,20 @@ def predict_url():
         reasons = get_reasons(features, prediction)
         
         # 4. DB Persistence
-        username = get_jwt_identity()
-        db.save_ai_scan(
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first() if email else None
+        
+        scan = ScanResult(
             input_data=url,
             scan_type="url",
-            prediction=verdict,
+            verdict=verdict,
             confidence=round(prob * 100, 2),
-            risk_level=risk,
-            reason=", ".join(reasons),
-            username=username
+            details=", ".join(reasons),
+            scanned_by=user.email if user else "anonymous",
+            institution_id=user.institution_id if user else None
         )
+        db.session.add(scan)
+        db.session.commit()
         
         return api_response(data={
             "url": url,
@@ -94,6 +98,7 @@ def predict_url():
             "features_debug": features
         })
     except Exception as e:
+        db.session.rollback()
         return api_error(f"Prediction failed: {str(e)}", code=500)
 
 @ai_ml_bp.route("/predict-content", methods=["POST"])
@@ -116,8 +121,6 @@ def predict_content():
         overall_verdict = "Safe"
         
         if not urls:
-            # Fallback to general text analysis if no URLs (simulated)
-            # In a real system, we'd have a separate NLP model for this.
             return api_response(message="No URLs found in content. Text-only analysis reports 'Safe'.", data={
                 "verdict": "Safe",
                 "confidence": 10.0,
@@ -136,16 +139,20 @@ def predict_content():
         risk = get_risk_level(highest_prob)
         
         # Persistence
-        username = get_jwt_identity()
-        db.save_ai_scan(
-            input_data=content[:200] + "...",
+        email = get_jwt_identity()
+        user = User.query.filter_by(email=email).first() if email else None
+        
+        scan = ScanResult(
+            input_data=content[:500] + "..." if len(content) > 500 else content,
             scan_type="content",
-            prediction=overall_verdict,
+            verdict=overall_verdict,
             confidence=round(highest_prob * 100, 2),
-            risk_level=risk,
-            reason=f"Scanned {len(urls)} links within content",
-            username=username
+            details=f"Scanned {len(urls)} links within content",
+            scanned_by=user.email if user else "anonymous",
+            institution_id=user.institution_id if user else None
         )
+        db.session.add(scan)
+        db.session.commit()
         
         return api_response(data={
             "links_count": len(urls),
@@ -155,11 +162,19 @@ def predict_content():
             "reasons": [f"Detected {len(urls)} URLs in content. Analysis identifies threats based on link structure."]
         })
     except Exception as e:
+        db.session.rollback()
         return api_error(f"Content analysis failed: {str(e)}", code=500)
 
 @ai_ml_bp.route("/history", methods=["GET"])
 @jwt_required()
 def get_history():
-    username = get_jwt_identity()
-    scans = db.get_ai_scans(username=username)
-    return api_response(data=scans)
+    email = get_jwt_identity()
+    user = User.query.filter_by(email=email).first()
+    if not user: return api_error("User not found", code=404)
+    
+    query = ScanResult.query
+    if user.role != "superadmin":
+        query = query.filter_by(institution_id=user.institution_id)
+        
+    scans = query.order_by(ScanResult.created_at.desc()).limit(50).all()
+    return api_response(data=[s.to_dict() for s in scans])

@@ -1951,3 +1951,4 @@ Traceback (most recent call last):
     raise exc
 sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (2003, "Can't connect to MySQL server on 'localhost' ([WinError 10061] No connection could be made because the target machine actively refused it)")
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-03-24 22:59:26,465 WARNING: Redis unavailable (Redis URL must specify one of the following schemes (redis://, rediss://, unix://)). Falling back to Local Memory Store. (Security Note: Not persistent across worker restarts) [in C:\Users\ASUS\Downloads\kavachnet-v2\backend\utils\state.py:21]
